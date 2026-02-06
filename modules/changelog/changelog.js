@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.2.0',
+  currentVersion: '1.3.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.3.0',
+      date: '2026-02-07',
+      title: '移动端体验优化',
+      changes: [
+        { type: 'improve', text: '全面优化移动端界面适配' },
+        { type: 'improve', text: '优化首页、测试、日记等页面布局' },
+        { type: 'improve', text: '优化设置页面移动端显示' },
+        { type: 'improve', text: '优化 AI 智障聊天界面' },
+        { type: 'improve', text: '调整响应式断点和字体大小' }
+      ]
+    },
     {
       version: '1.2.0',
       date: '2026-02-06',

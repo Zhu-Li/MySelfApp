@@ -650,11 +650,50 @@ const Chat = {
       /* 移动端适配 */
       @media (max-width: 768px) {
         .chat-page {
-          height: calc(100vh - 120px);
+          height: calc(100vh - 136px);
+        }
+
+        .chat-header {
+          padding: var(--spacing-sm) 0;
+        }
+
+        .chat-header-icon {
+          font-size: 1.5rem;
+        }
+
+        .chat-header-title {
+          font-size: 1rem;
+        }
+
+        .chat-header-subtitle {
+          font-size: 0.75rem;
         }
 
         .chat-message-bubble {
           max-width: 85%;
+          padding: var(--spacing-xs) var(--spacing-sm);
+        }
+
+        .chat-message-content {
+          font-size: 0.875rem;
+        }
+
+        .chat-message-avatar {
+          width: 32px;
+          height: 32px;
+          font-size: 1rem;
+        }
+
+        .chat-welcome-icon {
+          font-size: 3rem;
+        }
+
+        .chat-welcome-title {
+          font-size: 1.25rem;
+        }
+
+        .chat-welcome-hint {
+          font-size: 0.875rem;
         }
 
         .chat-suggestions {
@@ -663,6 +702,70 @@ const Chat = {
 
         .chat-suggestion {
           width: 100%;
+          font-size: 0.8125rem;
+        }
+
+        .chat-input-wrapper {
+          padding: var(--spacing-xs);
+        }
+
+        .chat-input {
+          font-size: 0.875rem;
+        }
+
+        .chat-send-btn {
+          width: 36px;
+          height: 36px;
+        }
+
+        .chat-input-hint {
+          font-size: 0.6875rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .chat-page {
+          height: calc(100vh - 128px);
+        }
+
+        .chat-header {
+          gap: var(--spacing-sm);
+        }
+
+        .chat-header-icon {
+          font-size: 1.25rem;
+        }
+
+        .chat-message-avatar {
+          width: 28px;
+          height: 28px;
+          font-size: 0.875rem;
+        }
+
+        .chat-message-bubble {
+          max-width: 88%;
+        }
+
+        .chat-message-content {
+          font-size: 0.8125rem;
+          line-height: 1.5;
+        }
+
+        .chat-welcome {
+          padding: var(--spacing-md);
+        }
+
+        .chat-welcome-icon {
+          font-size: 2.5rem;
+        }
+
+        .chat-welcome-title {
+          font-size: 1.125rem;
+        }
+
+        .chat-suggestion {
+          padding: var(--spacing-xs) var(--spacing-sm);
+          font-size: 0.75rem;
         }
       }
     `;

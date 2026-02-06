@@ -340,12 +340,12 @@ const App = {
     container.innerHTML = `
       <div class="page-container animate-fade-in">
         <!-- 欢迎区域 -->
-        <div class="hero-section card mb-xl" style="padding: var(--spacing-2xl);">
+        <div class="hero-section card mb-xl" style="padding: var(--spacing-xl);">
           <div class="text-center">
-            <h1 style="font-size: var(--font-size-3xl); font-weight: 700; margin-bottom: var(--spacing-md);">
+            <h1 class="home-title">
               欢迎使用「观己」
             </h1>
-            <p class="text-secondary" style="font-size: var(--font-size-lg); max-width: 500px; margin: 0 auto;">
+            <p class="text-secondary home-subtitle">
               静观己心，内外澄明。探索真实的自己，了解你的性格特征与内在世界
             </p>
           </div>
@@ -355,45 +355,45 @@ const App = {
         ${profileCard || `
           <div class="card card-hover mb-lg">
             <div class="card-body">
-              <div class="empty-state" style="padding: var(--spacing-xl);">
+              <div class="empty-state" style="padding: var(--spacing-lg);">
                 <div class="empty-state-icon">🎯</div>
                 <h3 class="empty-state-title">开始你的自我探索之旅</h3>
                 <p class="empty-state-desc">完成性格测试，生成专属于你的用户画像</p>
-                <a href="#/test" class="btn btn-primary btn-lg">开始测试</a>
+                <a href="#/test" class="btn btn-primary">开始测试</a>
               </div>
             </div>
           </div>
         `}
 
         <!-- 快捷入口 -->
-        <h2 class="font-semibold mb-md" style="font-size: var(--font-size-xl);">快捷入口</h2>
-        <div class="grid grid-cols-3 gap-md mb-xl">
-          <a href="#/test" class="card card-hover">
+        <h2 class="section-title">快捷入口</h2>
+        <div class="quick-entry-grid mb-xl">
+          <a href="#/test" class="card card-hover quick-entry-card">
             <div class="card-body text-center">
-              <div style="font-size: 2.5rem; margin-bottom: var(--spacing-sm);">📝</div>
-              <h3 class="font-medium">性格测试</h3>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">了解你的性格类型</p>
+              <div class="quick-entry-icon">📝</div>
+              <h3 class="quick-entry-title">性格测试</h3>
+              <p class="quick-entry-desc">了解你的性格类型</p>
             </div>
           </a>
-          <a href="#/diary" class="card card-hover">
+          <a href="#/diary" class="card card-hover quick-entry-card">
             <div class="card-body text-center">
-              <div style="font-size: 2.5rem; margin-bottom: var(--spacing-sm);">📔</div>
-              <h3 class="font-medium">个人日记</h3>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">记录日常感受</p>
+              <div class="quick-entry-icon">📔</div>
+              <h3 class="quick-entry-title">个人日记</h3>
+              <p class="quick-entry-desc">记录日常感受</p>
             </div>
           </a>
-          <a href="#/report" class="card card-hover">
+          <a href="#/report" class="card card-hover quick-entry-card">
             <div class="card-body text-center">
-              <div style="font-size: 2.5rem; margin-bottom: var(--spacing-sm);">📊</div>
-              <h3 class="font-medium">分析报告</h3>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">查看画像报告</p>
+              <div class="quick-entry-icon">📊</div>
+              <h3 class="quick-entry-title">分析报告</h3>
+              <p class="quick-entry-desc">查看画像报告</p>
             </div>
           </a>
         </div>
 
         <!-- 统计卡片 -->
-        <h2 class="font-semibold mb-md" style="font-size: var(--font-size-xl);">数据概览</h2>
-        <div class="grid grid-cols-3 gap-md">
+        <h2 class="section-title">数据概览</h2>
+        <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon stat-icon-primary">📝</div>
             <div class="stat-value" id="testCount">-</div>
@@ -411,6 +411,85 @@ const App = {
           </div>
         </div>
       </div>
+      <style>
+        .home-title {
+          font-size: var(--font-size-2xl);
+          font-weight: 700;
+          margin-bottom: var(--spacing-md);
+        }
+        .home-subtitle {
+          font-size: var(--font-size-base);
+          max-width: 500px;
+          margin: 0 auto;
+        }
+        .section-title {
+          font-size: var(--font-size-lg);
+          font-weight: 600;
+          margin-bottom: var(--spacing-md);
+        }
+        .quick-entry-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--spacing-md);
+        }
+        .quick-entry-icon {
+          font-size: 2rem;
+          margin-bottom: var(--spacing-sm);
+        }
+        .quick-entry-title {
+          font-size: var(--font-size-base);
+          font-weight: 500;
+        }
+        .quick-entry-desc {
+          font-size: var(--font-size-xs);
+          color: var(--text-secondary);
+          margin-top: var(--spacing-xs);
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--spacing-md);
+        }
+        @media (max-width: 768px) {
+          .home-title {
+            font-size: var(--font-size-xl);
+          }
+          .home-subtitle {
+            font-size: var(--font-size-sm);
+          }
+          .quick-entry-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+          }
+          .quick-entry-icon {
+            font-size: 1.75rem;
+          }
+          .quick-entry-title {
+            font-size: var(--font-size-sm);
+          }
+          .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+          }
+        }
+        @media (max-width: 480px) {
+          .home-title {
+            font-size: var(--font-size-lg);
+          }
+          .quick-entry-icon {
+            font-size: 1.5rem;
+          }
+          .quick-entry-title {
+            font-size: var(--font-size-xs);
+          }
+          .quick-entry-desc {
+            display: none;
+          }
+          .quick-entry-card .card-body {
+            padding: var(--spacing-sm);
+          }
+        }
+      </style>
     `;
 
     // 加载统计数据
@@ -441,19 +520,19 @@ const App = {
     
     container.innerHTML = `
       <div class="page-container animate-fade-in">
-        <h1 class="font-bold mb-lg" style="font-size: var(--font-size-2xl);">性格测试</h1>
-        <p class="text-secondary mb-xl">选择测试类型，开始探索自己</p>
+        <h1 class="page-title">性格测试</h1>
+        <p class="page-subtitle">选择测试类型，开始探索自己</p>
 
-        <div class="grid grid-cols-2 gap-lg">
+        <div class="test-list">
           <!-- MBTI 测试 -->
-          <div class="card card-hover">
+          <div class="card card-hover test-card">
             <div class="card-body">
-              <div class="flex items-start gap-md">
-                <div style="font-size: 3rem;">🧠</div>
-                <div class="flex-1">
-                  <h3 class="font-semibold" style="font-size: var(--font-size-lg);">MBTI 性格测试</h3>
-                  <p class="text-secondary mt-sm">探索你的16种性格类型，了解内在性格特征</p>
-                  <div class="flex items-center gap-sm mt-md">
+              <div class="test-card-content">
+                <div class="test-card-icon">🧠</div>
+                <div class="test-card-info">
+                  <h3 class="test-card-title">MBTI 性格测试</h3>
+                  <p class="test-card-desc">探索你的16种性格类型，了解内在性格特征</p>
+                  <div class="test-card-badges">
                     <span class="badge badge-info">70道题</span>
                     <span class="badge badge-success">约10分钟</span>
                   </div>
@@ -466,14 +545,14 @@ const App = {
           </div>
 
           <!-- 大五人格 -->
-          <div class="card card-hover">
+          <div class="card card-hover test-card">
             <div class="card-body">
-              <div class="flex items-start gap-md">
-                <div style="font-size: 3rem;">🌟</div>
-                <div class="flex-1">
-                  <h3 class="font-semibold" style="font-size: var(--font-size-lg);">大五人格测试</h3>
-                  <p class="text-secondary mt-sm">科学测量五大人格特质，全面了解性格维度</p>
-                  <div class="flex items-center gap-sm mt-md">
+              <div class="test-card-content">
+                <div class="test-card-icon">🌟</div>
+                <div class="test-card-info">
+                  <h3 class="test-card-title">大五人格测试</h3>
+                  <p class="test-card-desc">科学测量五大人格特质，全面了解性格维度</p>
+                  <div class="test-card-badges">
                     <span class="badge badge-info">50道题</span>
                     <span class="badge badge-success">约8分钟</span>
                   </div>
@@ -486,14 +565,14 @@ const App = {
           </div>
 
           <!-- 霍兰德职业兴趣 -->
-          <div class="card card-hover">
+          <div class="card card-hover test-card">
             <div class="card-body">
-              <div class="flex items-start gap-md">
-                <div style="font-size: 3rem;">💼</div>
-                <div class="flex-1">
-                  <h3 class="font-semibold" style="font-size: var(--font-size-lg);">霍兰德职业兴趣测试</h3>
-                  <p class="text-secondary mt-sm">发现适合你的职业方向，规划职业发展</p>
-                  <div class="flex items-center gap-sm mt-md">
+              <div class="test-card-content">
+                <div class="test-card-icon">💼</div>
+                <div class="test-card-info">
+                  <h3 class="test-card-title">霍兰德职业兴趣测试</h3>
+                  <p class="test-card-desc">发现适合你的职业方向，规划职业发展</p>
+                  <div class="test-card-badges">
                     <span class="badge badge-info">60道题</span>
                     <span class="badge badge-success">约10分钟</span>
                   </div>
@@ -504,6 +583,106 @@ const App = {
               <a href="#/holland" class="btn btn-primary btn-block">开始测试</a>
             </div>
           </div>
+
+          <!-- 综合画像 -->
+          <div class="card card-hover test-card">
+            <div class="card-body">
+              <div class="test-card-content">
+                <div class="test-card-icon">🎨</div>
+                <div class="test-card-info">
+                  <h3 class="test-card-title">综合画像分析</h3>
+                  <p class="test-card-desc">整合多维度测试结果，生成专属用户画像</p>
+                  <div class="test-card-badges">
+                    <span class="badge badge-warning">需完成基础测试</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <a href="#/comprehensive" class="btn btn-primary btn-block">查看画像</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        .page-title {
+          font-size: var(--font-size-2xl);
+          font-weight: 700;
+          margin-bottom: var(--spacing-sm);
+        }
+        .page-subtitle {
+          color: var(--text-secondary);
+          margin-bottom: var(--spacing-xl);
+        }
+        .test-list {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: var(--spacing-lg);
+        }
+        .test-card-content {
+          display: flex;
+          align-items: flex-start;
+          gap: var(--spacing-md);
+        }
+        .test-card-icon {
+          font-size: 2.5rem;
+          flex-shrink: 0;
+        }
+        .test-card-info {
+          flex: 1;
+          min-width: 0;
+        }
+        .test-card-title {
+          font-size: var(--font-size-lg);
+          font-weight: 600;
+          margin-bottom: var(--spacing-xs);
+        }
+        .test-card-desc {
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+          margin-bottom: var(--spacing-sm);
+          line-height: 1.5;
+        }
+        .test-card-badges {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-xs);
+        }
+        @media (max-width: 768px) {
+          .page-title {
+            font-size: var(--font-size-xl);
+          }
+          .page-subtitle {
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-lg);
+          }
+          .test-list {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+          }
+          .test-card-icon {
+            font-size: 2rem;
+          }
+          .test-card-title {
+            font-size: var(--font-size-base);
+          }
+          .test-card-desc {
+            font-size: var(--font-size-xs);
+          }
+        }
+        @media (max-width: 480px) {
+          .test-card-content {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+          .test-card-badges {
+            justify-content: center;
+          }
+        }
+      </style>
+    `;
+  },
 
           <!-- 综合画像 -->
           <div class="card card-hover">
@@ -1126,7 +1305,7 @@ const App = {
 
     container.innerHTML = `
       <div class="page-container animate-fade-in">
-        <h1 class="font-bold mb-lg" style="font-size: var(--font-size-2xl);">设置</h1>
+        <h1 class="settings-title">设置</h1>
 
         <!-- 主题设置 -->
         <div class="card mb-lg">
@@ -1134,17 +1313,17 @@ const App = {
             <h3 class="card-title">外观设置</h3>
           </div>
           <div class="card-body">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="font-medium">主题模式</h4>
-                <p class="text-secondary" style="font-size: var(--font-size-sm);">选择浅色或深色主题</p>
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <h4 class="settings-item-title">主题模式</h4>
+                <p class="settings-item-desc">选择浅色或深色主题</p>
               </div>
-              <div class="flex gap-sm">
-                <button class="btn ${currentTheme === 'light' ? 'btn-primary' : 'btn-secondary'}" 
+              <div class="settings-item-action theme-buttons">
+                <button class="btn btn-sm ${currentTheme === 'light' ? 'btn-primary' : 'btn-secondary'}" 
                         onclick="App.setTheme('light')">
                   ☀️ 浅色
                 </button>
-                <button class="btn ${currentTheme === 'dark' ? 'btn-primary' : 'btn-secondary'}" 
+                <button class="btn btn-sm ${currentTheme === 'dark' ? 'btn-primary' : 'btn-secondary'}" 
                         onclick="App.setTheme('dark')">
                   🌙 深色
                 </button>
@@ -1180,7 +1359,7 @@ const App = {
               </select>
             </div>
 
-            <div class="flex gap-sm">
+            <div class="settings-buttons">
               <button class="btn btn-primary" onclick="App.saveApiSettings()">保存配置</button>
               <button class="btn btn-secondary" onclick="App.testApiConnection()">测试连接</button>
             </div>
@@ -1193,33 +1372,33 @@ const App = {
             <h3 class="card-title">数据管理</h3>
           </div>
           <div class="card-body">
-            <div class="flex items-center justify-between mb-lg">
-              <div>
-                <h4 class="font-medium">导出数据</h4>
-                <p class="text-secondary" style="font-size: var(--font-size-sm);">将所有数据导出为 JSON 文件</p>
+            <div class="settings-item mb-lg">
+              <div class="settings-item-info">
+                <h4 class="settings-item-title">导出数据</h4>
+                <p class="settings-item-desc">将所有数据导出为 JSON 文件</p>
               </div>
-              <button class="btn btn-secondary" onclick="App.exportData()">导出数据</button>
+              <button class="btn btn-secondary btn-sm" onclick="App.exportData()">导出</button>
             </div>
 
-            <div class="flex items-center justify-between mb-lg">
-              <div>
-                <h4 class="font-medium">导入数据</h4>
-                <p class="text-secondary" style="font-size: var(--font-size-sm);">从 JSON 文件恢复数据</p>
+            <div class="settings-item mb-lg">
+              <div class="settings-item-info">
+                <h4 class="settings-item-title">导入数据</h4>
+                <p class="settings-item-desc">从 JSON 文件恢复数据</p>
               </div>
               <div>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="App.importData(event)">
-                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">导入数据</button>
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">导入</button>
               </div>
             </div>
 
             <div class="divider"></div>
 
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="font-medium text-danger">清除所有数据</h4>
-                <p class="text-secondary" style="font-size: var(--font-size-sm);">永久删除所有本地数据，此操作不可撤销</p>
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <h4 class="settings-item-title text-danger">清除所有数据</h4>
+                <p class="settings-item-desc">永久删除，不可撤销</p>
               </div>
-              <button class="btn btn-danger" onclick="App.confirmEmergencyClear()">清除数据</button>
+              <button class="btn btn-danger btn-sm" onclick="App.confirmEmergencyClear()">清除</button>
             </div>
           </div>
         </div>
@@ -1230,28 +1409,25 @@ const App = {
             <h3 class="card-title">关于</h3>
           </div>
           <div class="card-body">
-            <div class="flex items-center gap-md mb-lg">
-              <span style="font-size: 2rem;">🔮</span>
+            <div class="about-header mb-lg">
+              <span class="about-icon">🔮</span>
               <div>
-                <h4 class="font-bold">观己 - 静观己心，内外澄明</h4>
-                <p class="text-secondary" style="font-size: var(--font-size-sm);">版本 ${Changelog.currentVersion}</p>
+                <h4 class="about-title">观己</h4>
+                <p class="about-version">版本 ${Changelog.currentVersion}</p>
               </div>
             </div>
-            <p class="text-secondary mb-lg" style="font-size: var(--font-size-sm);">
-              帮助你全方位了解自己的性格特征与内在世界，生成个性化用户画像。
+            <p class="about-desc mb-lg">
+              静观己心，内外澄明。帮助你全方位了解自己的性格特征与内在世界。
             </p>
             
-            <!-- 更新日志入口 -->
             <a href="#/changelog" class="btn btn-outline btn-block mb-md">
               📋 查看更新日志
             </a>
             
-            <!-- 意见反馈入口 -->
             <a href="#/feedback" class="btn btn-primary btn-block mb-md">
               💬 意见反馈
             </a>
             
-            <!-- 打赏入口（低调） -->
             <div class="text-center">
               <a href="#/donate" class="text-tertiary" style="font-size: var(--font-size-xs);">
                 觉得好用？支持一下开发者
@@ -1260,6 +1436,92 @@ const App = {
           </div>
         </div>
       </div>
+      <style>
+        .settings-title {
+          font-size: var(--font-size-2xl);
+          font-weight: 700;
+          margin-bottom: var(--spacing-lg);
+        }
+        .settings-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--spacing-md);
+        }
+        .settings-item-info {
+          flex: 1;
+          min-width: 0;
+        }
+        .settings-item-title {
+          font-weight: 500;
+          margin-bottom: 2px;
+        }
+        .settings-item-desc {
+          font-size: var(--font-size-xs);
+          color: var(--text-secondary);
+        }
+        .settings-buttons {
+          display: flex;
+          gap: var(--spacing-sm);
+          flex-wrap: wrap;
+        }
+        .theme-buttons {
+          display: flex;
+          gap: var(--spacing-xs);
+        }
+        .about-header {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+        }
+        .about-icon {
+          font-size: 2rem;
+        }
+        .about-title {
+          font-weight: 700;
+        }
+        .about-version {
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+        }
+        .about-desc {
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+        }
+        @media (max-width: 768px) {
+          .settings-title {
+            font-size: var(--font-size-xl);
+          }
+        }
+        @media (max-width: 480px) {
+          .settings-title {
+            font-size: var(--font-size-lg);
+          }
+          .settings-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: var(--spacing-sm);
+          }
+          .settings-item-action {
+            align-self: flex-start;
+          }
+          .theme-buttons {
+            width: 100%;
+          }
+          .theme-buttons .btn {
+            flex: 1;
+          }
+          .settings-buttons {
+            flex-direction: column;
+          }
+          .settings-buttons .btn {
+            width: 100%;
+          }
+          .about-icon {
+            font-size: 1.5rem;
+          }
+        }
+      </style>
     `;
   },
 

@@ -338,6 +338,9 @@ select:focus {
     --font-size-base: 0.9375rem;
     --spacing-lg: 1.25rem;
     --spacing-xl: 1.5rem;
+    --spacing-2xl: 2rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-2xl: 1.25rem;
   }
 
   .container {
@@ -348,7 +351,10 @@ select:focus {
     grid-template-columns: 1fr;
   }
   
-  .grid-cols-3,
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
   .grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -357,11 +363,27 @@ select:focus {
   .grid-cols-6 {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  /* 移动端隐藏类 */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* 移动端flex方向调整 */
+  .flex-col-mobile {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 480px) {
   :root {
     --font-size-base: 0.875rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.25rem;
+    --font-size-3xl: 1.375rem;
+    --font-size-2xl: 1.125rem;
+    --font-size-xl: 1rem;
   }
   
   .grid-cols-2,
@@ -370,5 +392,10 @@ select:focus {
   .grid-cols-5,
   .grid-cols-6 {
     grid-template-columns: 1fr;
+  }
+
+  /* 小屏幕优化间距 */
+  .gap-lg {
+    gap: var(--spacing-md);
   }
 }

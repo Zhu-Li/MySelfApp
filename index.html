@@ -171,6 +171,58 @@
       .header-nav {
         display: none;
       }
+
+      .main-content {
+        padding: var(--spacing-md);
+      }
+
+      .setup-modal {
+        width: 95%;
+        margin: var(--spacing-sm);
+      }
+
+      .setup-icon {
+        font-size: 3rem;
+      }
+
+      .setup-title {
+        font-size: var(--font-size-xl);
+      }
+
+      .setup-desc {
+        font-size: var(--font-size-sm);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .bottom-nav-item {
+        padding: var(--spacing-xs);
+        font-size: 0.6875rem;
+      }
+
+      .bottom-nav-icon {
+        font-size: 1.125rem;
+      }
+
+      .app-container {
+        padding-bottom: 64px;
+      }
+
+      .main-content {
+        padding: var(--spacing-sm);
+      }
+
+      .setup-icon {
+        font-size: 2.5rem;
+      }
+
+      .setup-actions {
+        flex-direction: column;
+      }
+
+      .setup-actions .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>

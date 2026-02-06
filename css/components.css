@@ -874,9 +874,28 @@
     display: none;
   }
 
+  .header-inner {
+    padding: 0 var(--spacing-md);
+  }
+
+  .header-logo {
+    font-size: var(--font-size-lg);
+  }
+
   .modal {
     width: 95%;
     max-height: 95vh;
+    margin: var(--spacing-sm);
+  }
+
+  .modal-body {
+    padding: var(--spacing-md);
+    max-height: calc(95vh - 120px);
+  }
+
+  .modal-header,
+  .modal-footer {
+    padding: var(--spacing-md);
   }
 
   .tabs {
@@ -892,9 +911,128 @@
   .toast-container {
     left: var(--spacing-md);
     right: var(--spacing-md);
+    top: calc(var(--header-height) + var(--spacing-sm));
   }
 
   .toast {
     width: 100%;
+  }
+
+  .btn-lg {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-base);
+  }
+
+  .card-body {
+    padding: var(--spacing-md);
+  }
+
+  .card-header,
+  .card-footer {
+    padding: var(--spacing-md);
+  }
+
+  /* 选项在移动端优化 */
+  .option-item {
+    padding: var(--spacing-md);
+  }
+
+  .option-marker {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* 空状态移动端优化 */
+  .empty-state {
+    padding: var(--spacing-xl);
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state-title {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .header-logo span:last-child {
+    display: none;
+  }
+
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .btn-lg {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .card-body {
+    padding: var(--spacing-sm);
+  }
+
+  .option-item {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .badge {
+    padding: 2px var(--spacing-xs);
+    font-size: 0.6875rem;
+  }
+
+  .avatar-xl {
+    width: 60px;
+    height: 60px;
+    font-size: var(--font-size-xl);
+  }
+
+  .stat-card {
+    padding: var(--spacing-sm);
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .stat-value {
+    font-size: var(--font-size-lg);
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
+  }
+
+  .progress-info {
+    font-size: var(--font-size-xs);
+  }
+
+  .empty-state {
+    padding: var(--spacing-lg);
+  }
+
+  .empty-state-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .empty-state-title {
+    font-size: var(--font-size-base);
+  }
+
+  .empty-state-desc {
+    font-size: var(--font-size-sm);
   }
 }

@@ -278,13 +278,13 @@ ${content}
 
     container.innerHTML = `
       <div class="page-container animate-fade-in">
-        <div class="flex items-center justify-between mb-lg">
-          <div>
-            <h1 class="font-bold" style="font-size: var(--font-size-2xl);">个人日记</h1>
-            <p class="text-secondary mt-sm">记录生活点滴，倾听内心声音</p>
+        <div class="diary-header">
+          <div class="diary-header-info">
+            <h1 class="diary-page-title">个人日记</h1>
+            <p class="diary-page-subtitle">记录生活点滴，倾听内心声音</p>
           </div>
-          <button class="btn btn-primary" onclick="Diary.showEditor()">
-            ✏️ 写日记
+          <button class="btn btn-primary diary-write-btn" onclick="Diary.showEditor()">
+            ✏️ <span class="diary-write-text">写日记</span>
           </button>
         </div>
 
@@ -294,14 +294,14 @@ ${content}
               <div class="empty-state">
                 <div class="empty-state-icon">📔</div>
                 <h3 class="empty-state-title">还没有日记</h3>
-                <p class="empty-state-desc">开始记录你的第一篇日记吧，AI 将帮助分析你的情绪变化</p>
-                <button class="btn btn-primary" onclick="Diary.showEditor()">写第一篇日记</button>
+                <p class="empty-state-desc">开始记录你的第一篇日记吧</p>
+                <button class="btn btn-primary" onclick="Diary.showEditor()">写第一篇</button>
               </div>
             </div>
           </div>
         ` : `
           <!-- 统计概览 -->
-          <div class="grid grid-cols-3 gap-md mb-lg">
+          <div class="diary-stats-grid">
             <div class="stat-card">
               <div class="stat-icon stat-icon-primary">📝</div>
               <div class="stat-value">${diaries.length}</div>
@@ -310,7 +310,7 @@ ${content}
             <div class="stat-card">
               <div class="stat-icon stat-icon-success">📅</div>
               <div class="stat-value">${this.getStreakDays(diaries)}</div>
-              <div class="stat-label">连续记录天数</div>
+              <div class="stat-label">连续天数</div>
             </div>
             <div class="stat-card">
               <div class="stat-icon stat-icon-warning">${this.getAverageMoodIcon(diaries)}</div>
@@ -324,7 +324,7 @@ ${content}
             ${Object.entries(grouped).map(([month, items]) => `
               <div class="diary-month-group">
                 <h3 class="diary-month-title">${month}</h3>
-                <div class="grid gap-md">
+                <div class="diary-items">
                   ${items.map(diary => this.renderDiaryCard(diary)).join('')}
                 </div>
               </div>
@@ -332,6 +332,59 @@ ${content}
           </div>
         `}
       </div>
+      <style>
+        .diary-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: var(--spacing-lg);
+          gap: var(--spacing-md);
+        }
+        .diary-page-title {
+          font-size: var(--font-size-2xl);
+          font-weight: 700;
+          margin-bottom: var(--spacing-xs);
+        }
+        .diary-page-subtitle {
+          color: var(--text-secondary);
+          font-size: var(--font-size-sm);
+        }
+        .diary-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--spacing-md);
+          margin-bottom: var(--spacing-lg);
+        }
+        .diary-items {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-md);
+        }
+        @media (max-width: 768px) {
+          .diary-page-title {
+            font-size: var(--font-size-xl);
+          }
+          .diary-stats-grid {
+            gap: var(--spacing-sm);
+          }
+        }
+        @media (max-width: 480px) {
+          .diary-header {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .diary-header-info {
+            text-align: center;
+          }
+          .diary-page-title {
+            font-size: var(--font-size-lg);
+          }
+          .diary-write-btn {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      </style>
     `;
 
     this.addStyles();
@@ -1193,6 +1246,50 @@ ${content}
         .image-viewer-controls .btn {
           padding: var(--spacing-sm) var(--spacing-md);
           font-size: var(--font-size-sm);
+        }
+
+        .diary-mood-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 1.25rem;
+        }
+
+        .diary-title {
+          font-size: var(--font-size-sm);
+        }
+
+        .diary-preview {
+          font-size: var(--font-size-xs);
+          -webkit-line-clamp: 2;
+        }
+
+        .diary-textarea {
+          min-height: 200px;
+        }
+
+        .diary-month-title {
+          font-size: var(--font-size-base);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .mood-option {
+          min-width: 50px;
+          padding: var(--spacing-xs);
+        }
+
+        .mood-icon {
+          font-size: 1.25rem;
+        }
+
+        .mood-label {
+          font-size: var(--font-size-xs);
+        }
+
+        .diary-mood-icon {
+          width: 36px;
+          height: 36px;
+          font-size: 1rem;
         }
       }
     `;
