@@ -256,6 +256,11 @@ select:focus {
 .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* Flex 自适应工具类 */
+.flex-1 { flex: 1; }
 
 /* 间距工具类 */
 .mt-sm { margin-top: var(--spacing-sm); }
@@ -317,6 +322,17 @@ select:focus {
 .animate-pulse { animation: pulse 2s ease-in-out infinite; }
 
 /* 响应式断点 */
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-cols-5,
+  .grid-cols-6 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   :root {
     --font-size-base: 0.9375rem;
@@ -328,15 +344,31 @@ select:focus {
     padding: 0 var(--spacing-md);
   }
 
-  .grid-cols-2,
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
   .grid-cols-3,
   .grid-cols-4 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-cols-5,
+  .grid-cols-6 {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 480px) {
   :root {
     --font-size-base: 0.875rem;
+  }
+  
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4,
+  .grid-cols-5,
+  .grid-cols-6 {
+    grid-template-columns: 1fr;
   }
 }

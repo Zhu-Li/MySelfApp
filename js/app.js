@@ -26,9 +26,19 @@ const App = {
         this.hideLoading();
         this.showSetupModal();
       } else {
-        // 显示解锁界面
-        this.hideLoading();
-        this.showUnlockModal();
+        // 尝试恢复会话
+        const sessionRestored = await Storage.restoreSession();
+        
+        if (sessionRestored) {
+          // 会话恢复成功，直接进入应用
+          this.isUnlocked = true;
+          this.hideLoading();
+          await this.initAfterUnlock();
+        } else {
+          // 显示解锁界面
+          this.hideLoading();
+          this.showUnlockModal();
+        }
       }
 
     } catch (error) {
@@ -48,6 +58,19 @@ const App = {
         loading.style.display = 'none';
       }, 300);
     }
+  },
+
+  /**
+   * 会话恢复后的初始化
+   */
+  async initAfterUnlock() {
+    // 初始化 API
+    await API.init();
+
+    // 注册路由并启动
+    this.registerRoutes();
+    Router.init();
+
   },
 
   /**
@@ -167,6 +190,8 @@ const App = {
     if (event) event.preventDefault();
 
     const password = document.getElementById('unlockPassword').value;
+    const rememberMe = document.getElementById('rememberMe')?.checked || false;
+    
     if (!password) {
       Utils.showToast('请输入密码', 'error');
       return;
@@ -182,6 +207,10 @@ const App = {
 
       // 设置加密密钥
       await Storage.setEncryptionKey(password);
+      
+      // 创建会话
+      await Storage.createSession(password, rememberMe);
+      
       this.isUnlocked = true;
 
       // 初始化 API
@@ -247,9 +276,21 @@ const App = {
       '/test': () => this.renderTestList(),
       '/mbti': () => this.renderMBTI(),
       '/mbti/test': () => this.renderMBTITest(),
+      '/bigfive': () => this.renderBigFive(),
+      '/bigfive/test': () => this.renderBigFiveTest(),
+      '/holland': () => this.renderHolland(),
+      '/holland/test': () => this.renderHollandTest(),
+      '/comprehensive': () => this.renderComprehensive(),
       '/report': () => this.renderReportList(),
       '/report/:id': (params) => this.renderReport(params.id),
       '/diary': () => this.renderDiary(),
+      '/diary/new': () => this.renderDiaryEditor(),
+      '/diary/edit/:id': (params) => this.renderDiaryEditor(params.id),
+      '/diary/:id': (params) => this.renderDiaryDetail(params.id),
+      '/chat': () => this.renderChat(),
+      '/donate': () => this.renderDonate(),
+      '/feedback': () => this.renderFeedback(),
+      '/changelog': () => this.renderChangelog(),
       '/settings': () => this.renderSettings()
     });
 
@@ -424,8 +465,8 @@ const App = {
             </div>
           </div>
 
-          <!-- 大五人格（待开发） -->
-          <div class="card" style="opacity: 0.6;">
+          <!-- 大五人格 -->
+          <div class="card card-hover">
             <div class="card-body">
               <div class="flex items-start gap-md">
                 <div style="font-size: 3rem;">🌟</div>
@@ -433,18 +474,19 @@ const App = {
                   <h3 class="font-semibold" style="font-size: var(--font-size-lg);">大五人格测试</h3>
                   <p class="text-secondary mt-sm">科学测量五大人格特质，全面了解性格维度</p>
                   <div class="flex items-center gap-sm mt-md">
-                    <span class="badge badge-warning">即将推出</span>
+                    <span class="badge badge-info">50道题</span>
+                    <span class="badge badge-success">约8分钟</span>
                   </div>
                 </div>
               </div>
             </div>
             <div class="card-footer">
-              <button class="btn btn-secondary btn-block" disabled>敬请期待</button>
+              <a href="#/bigfive" class="btn btn-primary btn-block">开始测试</a>
             </div>
           </div>
 
-          <!-- 霍兰德职业兴趣（待开发） -->
-          <div class="card" style="opacity: 0.6;">
+          <!-- 霍兰德职业兴趣 -->
+          <div class="card card-hover">
             <div class="card-body">
               <div class="flex items-start gap-md">
                 <div style="font-size: 3rem;">💼</div>
@@ -452,18 +494,19 @@ const App = {
                   <h3 class="font-semibold" style="font-size: var(--font-size-lg);">霍兰德职业兴趣测试</h3>
                   <p class="text-secondary mt-sm">发现适合你的职业方向，规划职业发展</p>
                   <div class="flex items-center gap-sm mt-md">
-                    <span class="badge badge-warning">即将推出</span>
+                    <span class="badge badge-info">60道题</span>
+                    <span class="badge badge-success">约10分钟</span>
                   </div>
                 </div>
               </div>
             </div>
             <div class="card-footer">
-              <button class="btn btn-secondary btn-block" disabled>敬请期待</button>
+              <a href="#/holland" class="btn btn-primary btn-block">开始测试</a>
             </div>
           </div>
 
-          <!-- 综合画像（待开发） -->
-          <div class="card" style="opacity: 0.6;">
+          <!-- 综合画像 -->
+          <div class="card card-hover">
             <div class="card-body">
               <div class="flex items-start gap-md">
                 <div style="font-size: 3rem;">🎯</div>
@@ -471,13 +514,13 @@ const App = {
                   <h3 class="font-semibold" style="font-size: var(--font-size-lg);">综合画像分析</h3>
                   <p class="text-secondary mt-sm">整合多维度数据，生成完整用户画像</p>
                   <div class="flex items-center gap-sm mt-md">
-                    <span class="badge badge-warning">即将推出</span>
+                    <span class="badge badge-warning">需完成至少2项测试</span>
                   </div>
                 </div>
               </div>
             </div>
             <div class="card-footer">
-              <button class="btn btn-secondary btn-block" disabled>敬请期待</button>
+              <a href="#/comprehensive" class="btn btn-primary btn-block">查看详情</a>
             </div>
           </div>
         </div>
@@ -600,7 +643,7 @@ const App = {
                 <h2 class="card-title">MBTI 性格测试</h2>
                 <p class="card-subtitle" id="mbtiProgress">第 1 题 / 共 ${MBTI.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest()">退出测试</button>
+              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/mbti')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="mbtiProgressBar" style="width: 0%;"></div>
@@ -618,12 +661,279 @@ const App = {
   },
 
   /**
+   * 渲染大五人格介绍页
+   */
+  async renderBigFive() {
+    const container = document.getElementById('mainContent');
+    const latestTest = await Storage.getLatestTest('bigfive');
+
+    container.innerHTML = `
+      <div class="page-container animate-fade-in">
+        <div class="card mb-xl">
+          <div class="card-body" style="padding: var(--spacing-2xl);">
+            <div class="text-center mb-xl">
+              <div style="font-size: 4rem; margin-bottom: var(--spacing-md);">🌟</div>
+              <h1 class="font-bold" style="font-size: var(--font-size-3xl);">大五人格测试</h1>
+              <p class="text-secondary mt-md" style="max-width: 600px; margin: 0 auto;">
+                大五人格模型 (Big Five / OCEAN) 是心理学中最受认可的人格理论之一，
+                通过五个维度全面评估你的人格特质。
+              </p>
+            </div>
+
+            <div class="grid grid-cols-5 gap-md mb-xl">
+              <div class="text-center p-md">
+                <div class="font-bold text-primary" style="font-size: var(--font-size-xl);">O</div>
+                <div class="text-secondary" style="font-size: var(--font-size-sm);">开放性</div>
+              </div>
+              <div class="text-center p-md">
+                <div class="font-bold text-primary" style="font-size: var(--font-size-xl);">C</div>
+                <div class="text-secondary" style="font-size: var(--font-size-sm);">尽责性</div>
+              </div>
+              <div class="text-center p-md">
+                <div class="font-bold text-primary" style="font-size: var(--font-size-xl);">E</div>
+                <div class="text-secondary" style="font-size: var(--font-size-sm);">外向性</div>
+              </div>
+              <div class="text-center p-md">
+                <div class="font-bold text-primary" style="font-size: var(--font-size-xl);">A</div>
+                <div class="text-secondary" style="font-size: var(--font-size-sm);">宜人性</div>
+              </div>
+              <div class="text-center p-md">
+                <div class="font-bold text-primary" style="font-size: var(--font-size-xl);">N</div>
+                <div class="text-secondary" style="font-size: var(--font-size-sm);">神经质</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-secondary">共 50 道题目，预计用时 8-10 分钟</p>
+                ${latestTest ? `
+                  <p class="text-tertiary mt-sm" style="font-size: var(--font-size-sm);">
+                    上次测试：${Utils.formatRelativeTime(latestTest.timestamp)}
+                  </p>
+                ` : ''}
+              </div>
+              <a href="#/bigfive/test" class="btn btn-primary btn-lg">
+                ${latestTest ? '重新测试' : '开始测试'}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        ${latestTest && latestTest.result ? `
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">上次测试结果</h3>
+            </div>
+            <div class="card-body">
+              <div class="bar-chart">
+                ${Object.entries(latestTest.result.dimensions).map(([dim, score]) => {
+                  const names = { O: '开放性', C: '尽责性', E: '外向性', A: '宜人性', N: '神经质' };
+                  return `
+                    <div class="bar-item">
+                      <div class="bar-label">
+                        <span class="bar-label-text">${names[dim]}</span>
+                        <span class="bar-label-value">${score}%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill bar-fill-primary" style="width: ${score}%;"></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div class="text-center mt-lg">
+                <a href="#/report/${latestTest.id}" class="btn btn-outline">查看详细报告</a>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  /**
+   * 渲染大五人格测试页
+   */
+  async renderBigFiveTest() {
+    const container = document.getElementById('mainContent');
+    
+    BigFive.init();
+
+    container.innerHTML = `
+      <div class="page-container animate-fade-in">
+        <div class="card">
+          <div class="card-header">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="card-title">大五人格测试</h2>
+                <p class="card-subtitle" id="bigfiveProgress">第 1 题 / 共 ${BigFive.questions.length} 题</p>
+              </div>
+              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/bigfive')">退出测试</button>
+            </div>
+            <div class="progress mt-md">
+              <div class="progress-bar" id="bigfiveProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+          <div class="card-body" id="bigfiveQuestionArea">
+          </div>
+        </div>
+      </div>
+    `;
+
+    BigFive.renderQuestion();
+  },
+
+  /**
+   * 渲染霍兰德介绍页
+   */
+  async renderHolland() {
+    const container = document.getElementById('mainContent');
+    const latestTest = await Storage.getLatestTest('holland');
+
+    container.innerHTML = `
+      <div class="page-container animate-fade-in">
+        <div class="card mb-xl">
+          <div class="card-body" style="padding: var(--spacing-2xl);">
+            <div class="text-center mb-xl">
+              <div style="font-size: 4rem; margin-bottom: var(--spacing-md);">💼</div>
+              <h1 class="font-bold" style="font-size: var(--font-size-3xl);">霍兰德职业兴趣测试</h1>
+              <p class="text-secondary mt-md" style="max-width: 600px; margin: 0 auto;">
+                霍兰德职业兴趣理论将人的职业兴趣分为六种类型，帮助你发现最适合的职业方向。
+              </p>
+            </div>
+
+            <div class="grid grid-cols-6 gap-sm mb-xl">
+              <div class="text-center p-sm">
+                <div style="font-size: 1.5rem;">🔧</div>
+                <div class="font-bold" style="color: #ef4444;">R</div>
+                <div class="text-secondary" style="font-size: var(--font-size-xs);">实际型</div>
+              </div>
+              <div class="text-center p-sm">
+                <div style="font-size: 1.5rem;">🔬</div>
+                <div class="font-bold" style="color: #3b82f6;">I</div>
+                <div class="text-secondary" style="font-size: var(--font-size-xs);">研究型</div>
+              </div>
+              <div class="text-center p-sm">
+                <div style="font-size: 1.5rem;">🎨</div>
+                <div class="font-bold" style="color: #a855f7;">A</div>
+                <div class="text-secondary" style="font-size: var(--font-size-xs);">艺术型</div>
+              </div>
+              <div class="text-center p-sm">
+                <div style="font-size: 1.5rem;">🤝</div>
+                <div class="font-bold" style="color: #22c55e;">S</div>
+                <div class="text-secondary" style="font-size: var(--font-size-xs);">社会型</div>
+              </div>
+              <div class="text-center p-sm">
+                <div style="font-size: 1.5rem;">💼</div>
+                <div class="font-bold" style="color: #f59e0b;">E</div>
+                <div class="text-secondary" style="font-size: var(--font-size-xs);">企业型</div>
+              </div>
+              <div class="text-center p-sm">
+                <div style="font-size: 1.5rem;">📊</div>
+                <div class="font-bold" style="color: #6366f1;">C</div>
+                <div class="text-secondary" style="font-size: var(--font-size-xs);">常规型</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-secondary">共 60 道题目，预计用时 10-12 分钟</p>
+                ${latestTest ? `
+                  <p class="text-tertiary mt-sm" style="font-size: var(--font-size-sm);">
+                    上次测试：${Utils.formatRelativeTime(latestTest.timestamp)} · 代码：${latestTest.result?.hollandCode || '-'}
+                  </p>
+                ` : ''}
+              </div>
+              <a href="#/holland/test" class="btn btn-primary btn-lg">
+                ${latestTest ? '重新测试' : '开始测试'}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        ${latestTest && latestTest.result ? `
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">上次测试结果 - ${latestTest.result.hollandCode}</h3>
+            </div>
+            <div class="card-body">
+              <div class="bar-chart">
+                ${Object.entries(latestTest.result.dimensions).map(([dim, score]) => {
+                  const info = Holland.dimensions[dim];
+                  return `
+                    <div class="bar-item">
+                      <div class="bar-label">
+                        <span class="bar-label-text">${info.icon} ${info.name}</span>
+                        <span class="bar-label-value">${score}%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" style="width: ${score}%; background-color: ${info.color};"></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div class="text-center mt-lg">
+                <a href="#/report/${latestTest.id}" class="btn btn-outline">查看详细报告</a>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  /**
+   * 渲染霍兰德测试页
+   */
+  async renderHollandTest() {
+    const container = document.getElementById('mainContent');
+    
+    Holland.init();
+
+    container.innerHTML = `
+      <div class="page-container animate-fade-in">
+        <div class="card">
+          <div class="card-header">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="card-title">霍兰德职业兴趣测试</h2>
+                <p class="card-subtitle" id="hollandProgress">第 1 题 / 共 ${Holland.questions.length} 题</p>
+              </div>
+              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/holland')">退出测试</button>
+            </div>
+            <div class="progress mt-md">
+              <div class="progress-bar" id="hollandProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+          <div class="card-body" id="hollandQuestionArea">
+          </div>
+        </div>
+      </div>
+    `;
+
+    Holland.renderQuestion();
+  },
+
+  /**
+   * 渲染综合分析页
+   */
+  async renderComprehensive() {
+    const container = document.getElementById('mainContent');
+    await Comprehensive.renderPage(container);
+  },
+
+  /**
    * 确认退出测试
    */
-  async confirmQuitTest() {
+  async confirmQuitTest(returnPath = '/test') {
     const confirmed = await Utils.confirm('确定要退出测试吗？当前进度将不会保存。');
     if (confirmed) {
-      Router.navigate('/mbti');
+      Router.navigate(returnPath);
     }
   },
 
@@ -636,6 +946,14 @@ const App = {
     
     // 按时间倒序排列
     tests.sort((a, b) => b.timestamp - a.timestamp);
+
+    // 测试类型映射
+    const testTypeInfo = {
+      mbti: { name: 'MBTI 性格测试', icon: '🧠', color: '#6366f1' },
+      bigfive: { name: '大五人格测试', icon: '🌟', color: '#8b5cf6' },
+      holland: { name: '霍兰德职业兴趣', icon: '💼', color: '#f59e0b' },
+      comprehensive: { name: '综合画像分析', icon: '🎯', color: '#10b981' }
+    };
 
     container.innerHTML = `
       <div class="page-container animate-fade-in">
@@ -654,29 +972,38 @@ const App = {
           </div>
         ` : `
           <div class="grid gap-md">
-            ${tests.map(test => `
-              <a href="#/report/${test.id}" class="card card-hover">
-                <div class="card-body">
-                  <div class="flex items-center gap-lg">
-                    <div class="avatar avatar-lg" style="background-color: ${test.result ? Utils.getMBTIColor(test.result.type) + '20' : 'var(--bg-tertiary)'}; color: ${test.result ? Utils.getMBTIColor(test.result.type) : 'var(--text-tertiary)'};">
-                      ${test.result ? test.result.type.charAt(0) : '?'}
+            ${tests.map(test => {
+              const info = testTypeInfo[test.type] || { name: test.type, icon: '📝', color: '#6b7280' };
+              let resultText = '';
+              if (test.type === 'mbti' && test.result?.type) {
+                resultText = test.result.type;
+              } else if (test.type === 'holland' && test.result?.hollandCode) {
+                resultText = test.result.hollandCode;
+              }
+              
+              return `
+                <a href="#/report/${test.id}" class="card card-hover">
+                  <div class="card-body">
+                    <div class="flex items-center gap-lg">
+                      <div class="avatar avatar-lg" style="background-color: ${info.color}20; font-size: 1.5rem;">
+                        ${info.icon}
+                      </div>
+                      <div class="flex-1">
+                        <h3 class="font-semibold">
+                          ${info.name}${resultText ? ` - ${resultText}` : ''}
+                        </h3>
+                        <p class="text-secondary" style="font-size: var(--font-size-sm);">
+                          ${Utils.formatDate(test.timestamp, 'YYYY-MM-DD HH:mm')}
+                        </p>
+                      </div>
+                      <span class="badge ${test.result?.aiAnalysis ? 'badge-success' : 'badge-warning'}">
+                        ${test.result?.aiAnalysis ? '已分析' : '待分析'}
+                      </span>
                     </div>
-                    <div class="flex-1">
-                      <h3 class="font-semibold">
-                        ${test.type === 'mbti' ? 'MBTI 性格测试' : test.type}
-                        ${test.result ? ` - ${test.result.type}` : ''}
-                      </h3>
-                      <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                        ${Utils.formatDate(test.timestamp, 'YYYY-MM-DD HH:mm')}
-                      </p>
-                    </div>
-                    <span class="badge ${test.result?.aiAnalysis ? 'badge-success' : 'badge-warning'}">
-                      ${test.result?.aiAnalysis ? '已分析' : '待分析'}
-                    </span>
                   </div>
-                </div>
-              </a>
-            `).join('')}
+                </a>
+              `;
+            }).join('')}
           </div>
         `}
       </div>
@@ -704,8 +1031,32 @@ const App = {
       return;
     }
 
-    // 渲染报告
-    MBTIReport.render(container, test);
+    // 根据测试类型渲染不同报告
+    switch (test.type) {
+      case 'mbti':
+        MBTIReport.render(container, test);
+        break;
+      case 'bigfive':
+        BigFiveReport.render(container, test);
+        break;
+      case 'holland':
+        HollandReport.render(container, test);
+        break;
+      case 'comprehensive':
+        Comprehensive.renderReport(container, test);
+        break;
+      default:
+        container.innerHTML = `
+          <div class="page-container">
+            <div class="empty-state">
+              <div class="empty-state-icon">❓</div>
+              <h2 class="empty-state-title">未知报告类型</h2>
+              <p class="empty-state-desc">无法识别的报告类型: ${test.type}</p>
+              <a href="#/report" class="btn btn-primary">返回报告列表</a>
+            </div>
+          </div>
+        `;
+    }
   },
 
   /**
@@ -713,25 +1064,55 @@ const App = {
    */
   async renderDiary() {
     const container = document.getElementById('mainContent');
-    
-    container.innerHTML = `
-      <div class="page-container animate-fade-in">
-        <div class="flex items-center justify-between mb-lg">
-          <h1 class="font-bold" style="font-size: var(--font-size-2xl);">个人日记</h1>
-          <button class="btn btn-primary" onclick="App.showNewDiaryModal()">写日记</button>
-        </div>
-        
-        <div class="card">
-          <div class="card-body">
-            <div class="empty-state">
-              <div class="empty-state-icon">📔</div>
-              <h3 class="empty-state-title">日记功能即将推出</h3>
-              <p class="empty-state-desc">记录你的日常感受，AI 将帮助分析你的情绪变化和思维模式</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+    await Diary.renderList(container);
+  },
+
+  /**
+   * 渲染日记编辑器
+   */
+  async renderDiaryEditor(id = null) {
+    const container = document.getElementById('mainContent');
+    await Diary.renderEditor(container, id);
+  },
+
+  /**
+   * 渲染日记详情
+   */
+  async renderDiaryDetail(id) {
+    const container = document.getElementById('mainContent');
+    await Diary.renderDetail(container, id);
+  },
+
+  /**
+   * 渲染打赏页面
+   */
+  renderDonate() {
+    const container = document.getElementById('mainContent');
+    Donate.render(container);
+  },
+
+  /**
+   * 渲染AI问答页面
+   */
+  renderChat() {
+    const container = document.getElementById('mainContent');
+    Chat.render(container);
+  },
+
+  /**
+   * 渲染反馈页面
+   */
+  renderFeedback() {
+    const container = document.getElementById('mainContent');
+    Feedback.render(container);
+  },
+
+  /**
+   * 渲染更新日志页面
+   */
+  renderChangelog() {
+    const container = document.getElementById('mainContent');
+    Changelog.render(container);
   },
 
   /**
@@ -786,7 +1167,7 @@ const App = {
                 <button type="button" class="password-toggle btn btn-ghost btn-sm" 
                         onclick="App.togglePassword('settingsApiKey')">👁️</button>
               </div>
-              <span class="input-hint">可在 <a href="https://cloud.siliconflow.cn" target="_blank">硅基流动控制台</a> 获取</span>
+              <span class="input-hint">可在 <a href="https://cloud.siliconflow.cn/i/DG53MZpo" target="_blank">硅基流动控制台</a> 获取</span>
             </div>
 
             <div class="input-group mb-lg">
@@ -849,16 +1230,33 @@ const App = {
             <h3 class="card-title">关于</h3>
           </div>
           <div class="card-body">
-            <div class="flex items-center gap-md mb-md">
+            <div class="flex items-center gap-md mb-lg">
               <span style="font-size: 2rem;">🔮</span>
               <div>
                 <h4 class="font-bold">观己 - 静观己心，内外澄明</h4>
-                <p class="text-secondary" style="font-size: var(--font-size-sm);">版本 1.0.0</p>
+                <p class="text-secondary" style="font-size: var(--font-size-sm);">版本 ${Changelog.currentVersion}</p>
               </div>
             </div>
-            <p class="text-secondary" style="font-size: var(--font-size-sm);">
+            <p class="text-secondary mb-lg" style="font-size: var(--font-size-sm);">
               帮助你全方位了解自己的性格特征与内在世界，生成个性化用户画像。
             </p>
+            
+            <!-- 更新日志入口 -->
+            <a href="#/changelog" class="btn btn-outline btn-block mb-md">
+              📋 查看更新日志
+            </a>
+            
+            <!-- 意见反馈入口 -->
+            <a href="#/feedback" class="btn btn-primary btn-block mb-md">
+              💬 意见反馈
+            </a>
+            
+            <!-- 打赏入口（低调） -->
+            <div class="text-center">
+              <a href="#/donate" class="text-tertiary" style="font-size: var(--font-size-xs);">
+                觉得好用？支持一下开发者
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,251 @@
+/**
+ * donate.js - 打赏模块
+ * 观己 - 静观己心，内外澄明
+ */
+
+const Donate = {
+  /**
+   * 渲染打赏页面
+   */
+  render(container) {
+    container.innerHTML = `
+      <div class="page-container animate-fade-in">
+        <div class="donate-page">
+          <!-- 头部 -->
+          <div class="donate-header">
+            <div class="donate-icon">☕</div>
+            <h1 class="donate-title">请开发者喝杯咖啡</h1>
+            <p class="donate-subtitle">如果「观己」对你有帮助，欢迎随意打赏支持</p>
+          </div>
+
+          <!-- 二维码卡片 -->
+          <div class="card donate-card">
+            <div class="card-body">
+              <div class="donate-qr-wrapper">
+                <img src="assets/images/alipay-qr.jpg" alt="支付宝收款码" class="donate-qr-image">
+              </div>
+              <div class="donate-tips">
+                <p class="donate-tip-main">打开支付宝扫一扫</p>
+                <p class="donate-tip-sub">金额随意，心意最重要</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 感谢语 -->
+          <div class="donate-thanks">
+            <div class="donate-thanks-icon">💖</div>
+            <h3 class="donate-thanks-title">感谢您的支持</h3>
+            <p class="donate-thanks-text">
+              您的每一份打赏都是对开发者最大的鼓励，<br>
+              也是「观己」持续优化的动力。
+            </p>
+          </div>
+
+          <!-- 开发者寄语 -->
+          <div class="card donate-message-card">
+            <div class="card-body">
+              <div class="donate-message">
+                <div class="donate-message-avatar">🧑‍💻</div>
+                <div class="donate-message-content">
+                  <h4 class="donate-message-title">开发者寄语</h4>
+                  <p class="donate-message-text">
+                    「观己」是一款帮助你了解自己的小工具。希望它能陪伴你探索内心世界，
+                    发现更好的自己。如果你喜欢这个应用，分享给朋友也是一种支持方式！
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 返回按钮 -->
+          <div class="donate-footer">
+            <button class="btn btn-secondary" onclick="Router.navigate('/')">
+              ← 返回首页
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.addStyles();
+  },
+
+  /**
+   * 添加样式
+   */
+  addStyles() {
+    if (document.getElementById('donate-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'donate-styles';
+    style.textContent = `
+      .donate-page {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: var(--spacing-lg) 0;
+      }
+
+      .donate-header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .donate-icon {
+        font-size: 4rem;
+        margin-bottom: var(--spacing-md);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+
+      .donate-title {
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .donate-subtitle {
+        font-size: var(--font-size-base);
+        color: var(--text-secondary);
+      }
+
+      .donate-card {
+        text-align: center;
+        overflow: hidden;
+      }
+
+      .donate-card .card-body {
+        padding: 0;
+      }
+
+      .donate-qr-wrapper {
+        background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+        padding: var(--spacing-xl);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .donate-qr-image {
+        max-width: 280px;
+        width: 100%;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        display: block;
+      }
+
+      .donate-tips {
+        padding: var(--spacing-lg);
+      }
+
+      .donate-tip-main {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .donate-tip-sub {
+        font-size: var(--font-size-sm);
+        color: var(--text-tertiary);
+      }
+
+      .donate-thanks {
+        text-align: center;
+        padding: var(--spacing-xl) 0;
+      }
+
+      .donate-thanks-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-md);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+
+      .donate-thanks-title {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .donate-thanks-text {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+
+      .donate-message-card {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      }
+
+      .donate-message {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+      }
+
+      .donate-message-avatar {
+        font-size: 2.5rem;
+        flex-shrink: 0;
+      }
+
+      .donate-message-content {
+        flex: 1;
+      }
+
+      .donate-message-title {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .donate-message-text {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+
+      .donate-footer {
+        text-align: center;
+        margin-top: var(--spacing-xl);
+      }
+
+      @media (max-width: 640px) {
+        .donate-page {
+          padding: var(--spacing-md) 0;
+        }
+
+        .donate-icon {
+          font-size: 3rem;
+        }
+
+        .donate-title {
+          font-size: var(--font-size-xl);
+        }
+
+        .donate-qr-image {
+          max-width: 240px;
+        }
+
+        .donate-message {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
+// 导出到全局
+window.Donate = Donate;

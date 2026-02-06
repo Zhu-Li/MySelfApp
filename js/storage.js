@@ -508,6 +508,144 @@ const Storage = {
       lastUpdated: Date.now()
     };
     return this.set('profile', updated);
+  },
+
+  // ========== 会话管理 ==========
+
+  /**
+   * 会话配置
+   */
+  sessionConfig: {
+    sessionKey: 'guanji_session',
+    rememberKey: 'guanji_remember',
+    sessionDuration: 30 * 60 * 1000,      // 会话有效期：30分钟
+    rememberDuration: 7 * 24 * 60 * 60 * 1000  // 记住我有效期：7天
+  },
+
+  /**
+   * 创建会话
+   * @param {string} password - 用户密码
+   * @param {boolean} remember - 是否记住登录
+   */
+  async createSession(password, remember = false) {
+    const now = Date.now();
+    
+    // 生成会话 token
+    const sessionToken = Utils.generateId();
+    
+    // 会话数据
+    const sessionData = {
+      token: sessionToken,
+      createdAt: now,
+      expiresAt: now + (remember ? this.sessionConfig.rememberDuration : this.sessionConfig.sessionDuration)
+    };
+
+    // 加密存储密码派生信息（用于恢复加密密钥）
+    const configSalt = await this.getRaw('config', 'encryptionSalt');
+    if (configSalt) {
+      sessionData.salt = configSalt.value;
+      // 使用 session token 加密密码（简单混淆，非高安全场景）
+      sessionData.encKey = btoa(password.split('').reverse().join('') + ':' + sessionToken.slice(0, 8));
+    }
+
+    // 根据是否记住登录选择存储位置
+    if (remember) {
+      localStorage.setItem(this.sessionConfig.rememberKey, JSON.stringify(sessionData));
+    } else {
+      sessionStorage.setItem(this.sessionConfig.sessionKey, JSON.stringify(sessionData));
+    }
+
+    return sessionToken;
+  },
+
+  /**
+   * 恢复会话
+   * @returns {boolean} 是否成功恢复会话
+   */
+  async restoreSession() {
+    // 优先检查 sessionStorage，然后检查 localStorage（记住我）
+    let sessionData = null;
+    let isRemembered = false;
+
+    const sessionStr = sessionStorage.getItem(this.sessionConfig.sessionKey);
+    const rememberStr = localStorage.getItem(this.sessionConfig.rememberKey);
+
+    if (sessionStr) {
+      try {
+        sessionData = JSON.parse(sessionStr);
+      } catch (e) {
+        sessionStorage.removeItem(this.sessionConfig.sessionKey);
+      }
+    } else if (rememberStr) {
+      try {
+        sessionData = JSON.parse(rememberStr);
+        isRemembered = true;
+      } catch (e) {
+        localStorage.removeItem(this.sessionConfig.rememberKey);
+      }
+    }
+
+    if (!sessionData) return false;
+
+    // 检查是否过期
+    const now = Date.now();
+    if (now > sessionData.expiresAt) {
+      this.clearSession();
+      return false;
+    }
+
+    // 尝试恢复加密密钥
+    if (sessionData.salt && sessionData.encKey) {
+      try {
+        // 解密密码
+        const decoded = atob(sessionData.encKey);
+        const parts = decoded.split(':');
+        if (parts.length === 2 && parts[1] === sessionData.token.slice(0, 8)) {
+          const password = parts[0].split('').reverse().join('');
+          
+          // 恢复加密密钥
+          await this.setEncryptionKey(password);
+          
+          // 延长会话有效期
+          sessionData.expiresAt = now + (isRemembered ? this.sessionConfig.rememberDuration : this.sessionConfig.sessionDuration);
+          
+          if (isRemembered) {
+            localStorage.setItem(this.sessionConfig.rememberKey, JSON.stringify(sessionData));
+          } else {
+            sessionStorage.setItem(this.sessionConfig.sessionKey, JSON.stringify(sessionData));
+          }
+          
+          return true;
+        }
+      } catch (e) {
+        console.error('会话恢复失败:', e);
+      }
+    }
+
+    this.clearSession();
+    return false;
+  },
+
+  /**
+   * 清除会话
+   */
+  clearSession() {
+    sessionStorage.removeItem(this.sessionConfig.sessionKey);
+    localStorage.removeItem(this.sessionConfig.rememberKey);
+    this.cryptoKey = null;
+  },
+
+  /**
+   * 检查是否有有效会话
+   */
+  hasValidSession() {
+    const sessionStr = sessionStorage.getItem(this.sessionConfig.sessionKey);
+    const rememberStr = localStorage.getItem(this.sessionConfig.rememberKey);
+    
+    const sessionData = sessionStr ? JSON.parse(sessionStr) : (rememberStr ? JSON.parse(rememberStr) : null);
+    
+    if (!sessionData) return false;
+    return Date.now() < sessionData.expiresAt;
   }
 };
 

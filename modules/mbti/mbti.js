@@ -9,6 +9,7 @@ const MBTI = {
   answers: [],
   testId: null,
   shuffled: false,
+  isTransitioning: false,
 
   /**
    * 初始化测试
@@ -20,6 +21,7 @@ const MBTI = {
     this.answers = [];
     this.testId = Utils.generateId();
     this.shuffled = true;
+    this.isTransitioning = false;
   },
 
   /**
@@ -60,17 +62,17 @@ const MBTI = {
           </div>
         </div>
 
-        <div class="flex justify-between mt-xl">
+        <div class="flex justify-between mt-xl" style="align-items: center;">
           <button class="btn btn-secondary" onclick="MBTI.prevQuestion()" 
                   ${this.currentIndex === 0 ? 'disabled' : ''}>
             上一题
           </button>
-          <span class="text-tertiary">
+          <span class="text-tertiary" style="font-size: var(--font-size-sm);">
+            点击选项自动跳转下一题
+          </span>
+          <span class="text-secondary" style="min-width: 80px; text-align: right;">
             ${this.currentIndex + 1} / ${this.questions.length}
           </span>
-          <button class="btn btn-primary" id="nextBtn" onclick="MBTI.nextQuestion()" disabled>
-            ${this.currentIndex === this.questions.length - 1 ? '完成测试' : '下一题'}
-          </button>
         </div>
       </div>
     `;
@@ -82,17 +84,34 @@ const MBTI = {
   },
 
   /**
-   * 选择选项
+   * 选择选项（自动跳转下一题）
    */
   selectOption(option) {
+    // 防止重复点击
+    if (this.isTransitioning) return;
+    
     // 保存答案
     this.answers[this.currentIndex] = option;
 
     // 更新UI
     this.highlightOption(option);
 
-    // 启用下一题按钮
-    document.getElementById('nextBtn').disabled = false;
+    // 标记正在过渡
+    this.isTransitioning = true;
+
+    // 延迟300ms后自动跳转，让用户看到选中效果
+    setTimeout(() => {
+      this.isTransitioning = false;
+      
+      if (this.currentIndex < this.questions.length - 1) {
+        // 下一题
+        this.currentIndex++;
+        this.renderQuestion();
+      } else {
+        // 最后一题，完成测试
+        this.completeTest();
+      }
+    }, 300);
   },
 
   /**

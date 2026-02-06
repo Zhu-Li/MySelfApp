@@ -137,11 +137,11 @@ const MBTIReport = {
   },
 
   /**
-   * 生成 AI 分析报告
+   * 生成 AI 分析报告（流式）
    */
   async generateAIAnalysis(testId) {
     const btn = document.getElementById('generateAIBtn');
-    const content = document.getElementById('aiAnalysisContent');
+    const contentWrapper = document.getElementById('aiAnalysisContent');
 
     if (!API.isConfigured()) {
       Utils.showToast('请先在设置中配置 API 密钥', 'warning');
@@ -149,16 +149,14 @@ const MBTIReport = {
       return;
     }
 
-    // 更新UI状态
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loading-spinner loading-spinner-sm"></span> 正在生成...';
-    content.innerHTML = `
-      <div class="text-center p-xl">
-        <div class="loading-spinner loading-spinner-lg" style="margin: 0 auto;"></div>
-        <p class="text-secondary mt-lg">AI 正在分析你的性格特征...</p>
-        <p class="text-tertiary mt-sm" style="font-size: var(--font-size-sm);">这可能需要 30-60 秒</p>
-      </div>
-    `;
+    // 禁用按钮
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner loading-spinner-sm"></span> 生成中...';
+    }
+
+    // 初始化流式分析容器
+    Utils.StreamAnalyzer.init('#aiAnalysisContent');
 
     try {
       // 获取测试数据
@@ -167,30 +165,72 @@ const MBTIReport = {
         throw new Error('测试数据不存在');
       }
 
-      // 调用 AI 分析
-      const analysis = await API.analyzeMBTI(testData.result);
+      // 构建消息
+      const { type, dimensions } = testData.result;
+      const prompt = `你是一位专业的心理分析师。根据用户的MBTI测试结果，提供个性化的性格分析报告。
+
+用户测试结果：
+- 类型：${type}
+- 各维度得分：
+  - 外向(E) ${dimensions.E}% vs 内向(I) ${dimensions.I}%
+  - 感觉(S) ${dimensions.S}% vs 直觉(N) ${dimensions.N}%
+  - 思考(T) ${dimensions.T}% vs 情感(F) ${dimensions.F}%
+  - 判断(J) ${dimensions.J}% vs 知觉(P) ${dimensions.P}%
+
+请从以下方面进行分析，使用 Markdown 格式输出：
+
+## 性格特征概述
+（约200字，描述该类型的核心特征）
+
+## 核心优势
+（列出3-5个优势，每个用一句话解释）
+
+## 潜在挑战
+（列出3-5个挑战，每个用一句话解释）
+
+## 职业发展建议
+（基于性格特点给出适合的职业方向和发展建议）
+
+## 人际关系特点
+（描述在社交、友情、爱情中的表现特点）
+
+## 个人成长建议
+（给出3-5条具体可操作的成长建议）`;
+
+      const messages = [
+        { role: 'system', content: '你是一位专业、温和的心理分析师，擅长 MBTI 性格分析。' },
+        { role: 'user', content: prompt }
+      ];
+
+      // 使用流式 API
+      const fullContent = await API.chatStream(
+        messages,
+        (chunk, fullText) => {
+          Utils.StreamAnalyzer.appendContent(chunk);
+        },
+        { temperature: 0.8, maxTokens: 2500 }
+      );
+
+      // 完成分析
+      Utils.StreamAnalyzer.complete();
 
       // 更新测试记录
-      testData.result.aiAnalysis = analysis;
+      testData.result.aiAnalysis = fullContent;
       await Storage.saveTest(testData);
 
-      // 更新 UI
-      content.innerHTML = `<div class="prose">${this.renderMarkdown(analysis)}</div>`;
-      btn.remove();
+      // 移除生成按钮
+      if (btn) btn.remove();
 
       Utils.showToast('分析报告生成成功', 'success');
 
     } catch (error) {
       console.error('生成分析失败:', error);
-      content.innerHTML = `
-        <div class="empty-state" style="padding: var(--spacing-xl);">
-          <div class="empty-state-icon">❌</div>
-          <h4 class="empty-state-title">生成失败</h4>
-          <p class="empty-state-desc">${error.message || '请检查网络连接和 API 配置'}</p>
-        </div>
-      `;
-      btn.disabled = false;
-      btn.innerHTML = '重试';
+      Utils.StreamAnalyzer.showError(error.message || '请检查网络连接和 API 配置');
+      
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '重试';
+      }
       
       Utils.showToast('分析报告生成失败', 'error');
     }

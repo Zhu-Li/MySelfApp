@@ -142,6 +142,23 @@
       font-size: 1.25rem;
     }
 
+    /* 记住我复选框样式 */
+    .remember-me-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+
+    .remember-me-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--color-primary);
+    }
+
     @media (max-width: 768px) {
       .bottom-nav {
         display: block;
@@ -186,6 +203,10 @@
           <span class="nav-item-icon">📔</span>
           <span>日记</span>
         </a>
+        <a href="#/chat" class="nav-item" data-nav="chat">
+          <span class="nav-item-icon">🤖</span>
+          <span>问答</span>
+        </a>
         <a href="#/report" class="nav-item" data-nav="report">
           <span class="nav-item-icon">📊</span>
           <span>报告</span>
@@ -221,13 +242,13 @@
         <span class="bottom-nav-icon">📝</span>
         <span>测试</span>
       </a>
+      <a href="#/chat" class="bottom-nav-item" data-nav="chat">
+        <span class="bottom-nav-icon">🤖</span>
+        <span>问答</span>
+      </a>
       <a href="#/diary" class="bottom-nav-item" data-nav="diary">
         <span class="bottom-nav-icon">📔</span>
         <span>日记</span>
-      </a>
-      <a href="#/report" class="bottom-nav-item" data-nav="report">
-        <span class="bottom-nav-icon">📊</span>
-        <span>报告</span>
       </a>
       <a href="#/settings" class="bottom-nav-item" data-nav="settings">
         <span class="bottom-nav-icon">⚙️</span>
@@ -308,7 +329,7 @@
                 <button type="button" class="password-toggle btn btn-ghost btn-sm" 
                         onclick="App.togglePassword('setupApiKey')">👁️</button>
               </div>
-              <span class="input-hint">可在 <a href="https://cloud.siliconflow.cn" target="_blank">硅基流动控制台</a> 获取</span>
+              <span class="input-hint">可在 <a href="https://cloud.siliconflow.cn/i/DG53MZpo" target="_blank">硅基流动控制台</a> 获取</span>
             </div>
             <div class="input-group">
               <label class="input-label">选择模型</label>
@@ -350,6 +371,10 @@
                       onclick="App.togglePassword('unlockPassword')">👁️</button>
             </div>
           </div>
+          <label class="remember-me-label">
+            <input type="checkbox" id="rememberMe" class="remember-me-checkbox">
+            <span>记住我（7天内免密登录）</span>
+          </label>
           <button type="submit" class="btn btn-primary btn-lg btn-block">解锁</button>
         </form>
         <div class="divider-text mt-lg">
@@ -400,6 +425,18 @@
   <script src="modules/mbti/questions.js"></script>
   <script src="modules/mbti/mbti.js"></script>
   <script src="modules/mbti/report.js"></script>
+  <script src="modules/bigfive/questions.js"></script>
+  <script src="modules/bigfive/bigfive.js"></script>
+  <script src="modules/bigfive/report.js"></script>
+  <script src="modules/holland/questions.js"></script>
+  <script src="modules/holland/holland.js"></script>
+  <script src="modules/holland/report.js"></script>
+  <script src="modules/comprehensive/comprehensive.js"></script>
+  <script src="modules/diary/diary.js"></script>
+  <script src="modules/donate/donate.js"></script>
+  <script src="modules/feedback/feedback.js"></script>
+  <script src="modules/changelog/changelog.js"></script>
+  <script src="modules/chat/chat.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
