@@ -684,29 +684,6 @@ const App = {
     `;
   },
 
-          <!-- 综合画像 -->
-          <div class="card card-hover">
-            <div class="card-body">
-              <div class="flex items-start gap-md">
-                <div style="font-size: 3rem;">🎯</div>
-                <div class="flex-1">
-                  <h3 class="font-semibold" style="font-size: var(--font-size-lg);">综合画像分析</h3>
-                  <p class="text-secondary mt-sm">整合多维度数据，生成完整用户画像</p>
-                  <div class="flex items-center gap-sm mt-md">
-                    <span class="badge badge-warning">需完成至少2项测试</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <a href="#/comprehensive" class="btn btn-primary btn-block">查看详情</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
   /**
    * 渲染 MBTI 介绍页
    */
