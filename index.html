@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="观己 - 静观己心，内外澄明。全方位了解自己的性格特征、兴趣爱好、能力优势，生成个性化用户画像">
+  <meta name="theme-color" content="#6366f1">
+  <title>观己 - 静观己心，内外澄明</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/theme-light.css">
+  <link rel="stylesheet" href="css/theme-dark.css">
+  
+  <style>
+    /* 应用布局样式 */
+    .app-container {
+      min-height: 100vh;
+      padding-top: var(--header-height);
+    }
+
+    .main-content {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: var(--spacing-lg);
+    }
+
+    /* 页面过渡动画 */
+    .page-container {
+      animation: fadeIn var(--transition-normal);
+    }
+
+    /* 设置页面初始化加载状态 */
+    .app-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-secondary);
+      z-index: 9999;
+    }
+
+    .app-loading-logo {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .app-loading-text {
+      color: var(--text-secondary);
+      margin-top: var(--spacing-md);
+    }
+
+    /* 初始化模态框样式 */
+    .setup-modal {
+      max-width: 480px;
+    }
+
+    .setup-step {
+      display: none;
+    }
+
+    .setup-step.active {
+      display: block;
+    }
+
+    .setup-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .setup-icon {
+      font-size: 4rem;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .setup-title {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .setup-desc {
+      color: var(--text-secondary);
+    }
+
+    .setup-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    .setup-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+
+    .setup-actions .btn {
+      flex: 1;
+    }
+
+    /* 底部导航（移动端） */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--bg-primary);
+      border-top: 1px solid var(--border-color);
+      padding: var(--spacing-sm);
+      z-index: 100;
+    }
+
+    .bottom-nav-list {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-sm);
+      color: var(--text-secondary);
+      font-size: var(--font-size-xs);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+
+    .bottom-nav-item:hover,
+    .bottom-nav-item.active {
+      color: var(--color-primary);
+    }
+
+    .bottom-nav-icon {
+      font-size: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .bottom-nav {
+        display: block;
+      }
+
+      .app-container {
+        padding-bottom: 72px;
+      }
+
+      .header-nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 加载状态 -->
+  <div class="app-loading" id="appLoading">
+    <div class="app-loading-logo">🔮</div>
+    <div class="loading-spinner loading-spinner-lg"></div>
+    <p class="app-loading-text">静观己心，内外澄明...</p>
+  </div>
+
+  <!-- 头部导航 -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#/" class="header-logo">
+        <span>🔮</span>
+        <span>观己</span>
+      </a>
+      
+      <nav class="header-nav">
+        <a href="#/" class="nav-item" data-nav="home">
+          <span class="nav-item-icon">🏠</span>
+          <span>首页</span>
+        </a>
+        <a href="#/test" class="nav-item" data-nav="test">
+          <span class="nav-item-icon">📝</span>
+          <span>测试</span>
+        </a>
+        <a href="#/diary" class="nav-item" data-nav="diary">
+          <span class="nav-item-icon">📔</span>
+          <span>日记</span>
+        </a>
+        <a href="#/report" class="nav-item" data-nav="report">
+          <span class="nav-item-icon">📊</span>
+          <span>报告</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-icon btn-ghost" id="themeToggle" title="切换主题">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <a href="#/settings" class="btn btn-icon btn-ghost" title="设置">
+          <span>⚙️</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区域 -->
+  <div class="app-container">
+    <main class="main-content" id="mainContent">
+      <!-- 页面内容由路由动态加载 -->
+    </main>
+  </div>
+
+  <!-- 底部导航（移动端） -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-list">
+      <a href="#/" class="bottom-nav-item" data-nav="home">
+        <span class="bottom-nav-icon">🏠</span>
+        <span>首页</span>
+      </a>
+      <a href="#/test" class="bottom-nav-item" data-nav="test">
+        <span class="bottom-nav-icon">📝</span>
+        <span>测试</span>
+      </a>
+      <a href="#/diary" class="bottom-nav-item" data-nav="diary">
+        <span class="bottom-nav-icon">📔</span>
+        <span>日记</span>
+      </a>
+      <a href="#/report" class="bottom-nav-item" data-nav="report">
+        <span class="bottom-nav-icon">📊</span>
+        <span>报告</span>
+      </a>
+      <a href="#/settings" class="bottom-nav-item" data-nav="settings">
+        <span class="bottom-nav-icon">⚙️</span>
+        <span>设置</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Toast 容器 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 初始化设置模态框 -->
+  <div class="modal-overlay" id="setupModal">
+    <div class="modal setup-modal">
+      <!-- 步骤1：欢迎 -->
+      <div class="setup-step active" data-step="1">
+        <div class="modal-body">
+          <div class="setup-header">
+            <div class="setup-icon">🔮</div>
+            <h2 class="setup-title">欢迎使用「观己」</h2>
+            <p class="setup-desc">静观己心，内外澄明。开始探索真实的自己，了解你的性格特征与内在世界</p>
+          </div>
+          <div class="setup-actions">
+            <button class="btn btn-primary btn-lg btn-block" onclick="App.nextSetupStep()">
+              开始设置
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤2：设置密码 -->
+      <div class="setup-step" data-step="2">
+        <div class="modal-header">
+          <h3 class="modal-title">设置访问密码</h3>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary mb-lg">设置密码保护您的隐私数据，此密码用于加密本地存储的所有信息。</p>
+          <form class="setup-form" id="passwordForm">
+            <div class="input-group">
+              <label class="input-label">设置密码</label>
+              <div class="password-input-wrapper">
+                <input type="password" class="input-field" id="setupPassword" 
+                       placeholder="请输入密码（至少6位）" minlength="6" required>
+                <button type="button" class="password-toggle btn btn-ghost btn-sm" 
+                        onclick="App.togglePassword('setupPassword')">👁️</button>
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">确认密码</label>
+              <div class="password-input-wrapper">
+                <input type="password" class="input-field" id="setupPasswordConfirm" 
+                       placeholder="请再次输入密码" minlength="6" required>
+                <button type="button" class="password-toggle btn btn-ghost btn-sm" 
+                        onclick="App.togglePassword('setupPasswordConfirm')">👁️</button>
+              </div>
+            </div>
+          </form>
+          <div class="setup-actions">
+            <button class="btn btn-secondary" onclick="App.prevSetupStep()">上一步</button>
+            <button class="btn btn-primary" onclick="App.nextSetupStep()">下一步</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤3：配置API -->
+      <div class="setup-step" data-step="3">
+        <div class="modal-header">
+          <h3 class="modal-title">配置AI服务</h3>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary mb-lg">配置硅基流动API密钥，用于AI智能分析您的测试结果。</p>
+          <form class="setup-form" id="apiForm">
+            <div class="input-group">
+              <label class="input-label">API 密钥</label>
+              <div class="password-input-wrapper">
+                <input type="password" class="input-field" id="setupApiKey" 
+                       placeholder="请输入硅基流动 API Key">
+                <button type="button" class="password-toggle btn btn-ghost btn-sm" 
+                        onclick="App.togglePassword('setupApiKey')">👁️</button>
+              </div>
+              <span class="input-hint">可在 <a href="https://cloud.siliconflow.cn" target="_blank">硅基流动控制台</a> 获取</span>
+            </div>
+            <div class="input-group">
+              <label class="input-label">选择模型</label>
+              <select class="input-field" id="setupModel">
+                <option value="deepseek-ai/DeepSeek-V3">DeepSeek-V3（推荐）</option>
+                <option value="deepseek-ai/DeepSeek-V2.5">DeepSeek-V2.5</option>
+                <option value="Qwen/Qwen2.5-72B-Instruct">Qwen2.5-72B</option>
+                <option value="Qwen/Qwen2.5-32B-Instruct">Qwen2.5-32B</option>
+              </select>
+            </div>
+          </form>
+          <div class="setup-actions">
+            <button class="btn btn-secondary" onclick="App.prevSetupStep()">上一步</button>
+            <button class="btn btn-primary" onclick="App.completeSetup()">完成设置</button>
+          </div>
+          <p class="text-center text-tertiary mt-md" style="font-size: var(--font-size-xs);">
+            暂时跳过？可稍后在设置中配置
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 密码验证模态框 -->
+  <div class="modal-overlay" id="unlockModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-body">
+        <div class="setup-header">
+          <div class="setup-icon">🔐</div>
+          <h2 class="setup-title">验证身份</h2>
+          <p class="setup-desc">请输入密码解锁应用</p>
+        </div>
+        <form class="setup-form" id="unlockForm" onsubmit="App.unlock(event)">
+          <div class="input-group">
+            <div class="password-input-wrapper">
+              <input type="password" class="input-field input-field-lg" id="unlockPassword" 
+                     placeholder="请输入密码" required autofocus>
+              <button type="button" class="password-toggle btn btn-ghost btn-sm" 
+                      onclick="App.togglePassword('unlockPassword')">👁️</button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg btn-block">解锁</button>
+        </form>
+        <div class="divider-text mt-lg">
+          <span>或</span>
+        </div>
+        <button class="btn btn-danger btn-block mt-md" onclick="App.confirmEmergencyClear()">
+          紧急清除所有数据
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认清除模态框 -->
+  <div class="modal-overlay" id="confirmClearModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">确认清除数据</h3>
+        <button class="modal-close" onclick="App.hideModal('confirmClearModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-danger mb-md"><strong>警告：此操作不可撤销！</strong></p>
+        <p class="text-secondary">将永久删除所有本地存储的数据，包括：</p>
+        <ul class="mt-md mb-lg" style="list-style: disc; padding-left: var(--spacing-lg); color: var(--text-secondary);">
+          <li>所有测试记录和结果</li>
+          <li>个人日记内容</li>
+          <li>用户画像数据</li>
+          <li>应用设置和配置</li>
+        </ul>
+        <div class="input-group">
+          <label class="input-label">请输入 "确认删除" 以继续</label>
+          <input type="text" class="input-field" id="confirmClearInput" placeholder="确认删除">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="App.hideModal('confirmClearModal')">取消</button>
+        <button class="btn btn-danger" onclick="App.emergencyClear()">永久删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/router.js"></script>
+  <script src="modules/core/profile.js"></script>
+  <script src="modules/mbti/questions.js"></script>
+  <script src="modules/mbti/mbti.js"></script>
+  <script src="modules/mbti/report.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

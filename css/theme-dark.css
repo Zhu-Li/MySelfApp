@@ -1,0 +1,285 @@
+/**
+ * theme-dark.css - 深色主题（科技感风格）
+ * 观己 - 静观己心，内外澄明
+ */
+
+[data-theme="dark"] {
+  /* 主色调 - 活力的靛蓝色 */
+  --color-primary: #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-primary-light: rgba(129, 140, 248, 0.15);
+  --color-secondary: #a78bfa;
+
+  /* 功能色 - 深色模式下更鲜艳 */
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-info: #60a5fa;
+
+  /* 背景色 - 深邃的暗色调 */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-card: #1e293b;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+
+  /* 文字颜色 */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #0f172a;
+
+  /* 边框 - 微妙的边界 */
+  --border-color: #334155;
+  --border-color-light: #1e293b;
+
+  /* 阴影 - 深色模式下更强的阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+
+  /* 渐变 */
+  --gradient-primary: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --gradient-card: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* 深色主题特定样式 */
+[data-theme="dark"] body {
+  background-color: #0f172a;
+}
+
+[data-theme="dark"] .header {
+  background-color: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .card {
+  border: 1px solid var(--border-color);
+  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+}
+
+[data-theme="dark"] .card:hover {
+  border-color: #475569;
+}
+
+/* 选项卡片发光效果 */
+[data-theme="dark"] .option-item:hover {
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.2);
+  border-color: var(--color-primary);
+}
+
+[data-theme="dark"] .option-item.selected {
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.3);
+}
+
+/* 欢迎区域背景 - 渐变星空效果 */
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #1e3a5f 100%);
+}
+
+/* 输入框样式 */
+[data-theme="dark"] .input-field {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+/* 按钮样式 */
+[data-theme="dark"] .btn-primary {
+  background: var(--gradient-primary);
+  box-shadow: 0 4px 15px rgba(129, 140, 248, 0.3);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(129, 140, 248, 0.4);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background-color: #334155;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background-color: #475569;
+}
+
+[data-theme="dark"] .btn-outline {
+  border-color: #475569;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(129, 140, 248, 0.1);
+}
+
+[data-theme="dark"] .btn-ghost:hover {
+  background-color: #334155;
+}
+
+/* 进度条样式 */
+[data-theme="dark"] .progress {
+  background-color: #334155;
+}
+
+[data-theme="dark"] .progress-bar {
+  background: var(--gradient-primary);
+}
+
+/* 标签页样式 */
+[data-theme="dark"] .tabs {
+  border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* 模态框样式 */
+[data-theme="dark"] .modal {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .modal-footer {
+  background-color: #0f172a;
+}
+
+/* Toast 样式 */
+[data-theme="dark"] .toast {
+  background-color: #334155;
+  border: 1px solid #475569;
+}
+
+/* 统计卡片样式 */
+[data-theme="dark"] .stat-card {
+  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .stat-card:hover {
+  border-color: #475569;
+  box-shadow: 0 0 30px rgba(129, 140, 248, 0.1);
+}
+
+[data-theme="dark"] .stat-icon-primary {
+  background-color: rgba(129, 140, 248, 0.15);
+}
+
+[data-theme="dark"] .stat-icon-success {
+  background-color: rgba(52, 211, 153, 0.15);
+}
+
+[data-theme="dark"] .stat-icon-warning {
+  background-color: rgba(251, 191, 36, 0.15);
+}
+
+/* 徽章样式 */
+[data-theme="dark"] .badge-primary {
+  background-color: rgba(129, 140, 248, 0.2);
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .badge-success {
+  background-color: rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .badge-warning {
+  background-color: rgba(251, 191, 36, 0.2);
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .badge-danger {
+  background-color: rgba(248, 113, 113, 0.2);
+  color: #fca5a5;
+}
+
+/* 导航项样式 */
+[data-theme="dark"] .nav-item:hover {
+  background-color: #334155;
+}
+
+[data-theme="dark"] .nav-item.active {
+  background-color: rgba(129, 140, 248, 0.15);
+  color: var(--color-primary);
+}
+
+/* 条形图样式 */
+[data-theme="dark"] .bar-track {
+  background-color: #334155;
+}
+
+[data-theme="dark"] .bar-fill-primary {
+  background: var(--gradient-primary);
+}
+
+/* 分隔线样式 */
+[data-theme="dark"] .divider {
+  background-color: #334155;
+}
+
+[data-theme="dark"] .divider-text::before,
+[data-theme="dark"] .divider-text::after {
+  background-color: #334155;
+}
+
+/* 滚动条样式 */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* 选中文本样式 */
+[data-theme="dark"] ::selection {
+  background-color: rgba(129, 140, 248, 0.3);
+  color: #f1f5f9;
+}
+
+/* 加载指示器样式 */
+[data-theme="dark"] .loading-spinner {
+  border-color: #334155;
+  border-top-color: var(--color-primary);
+}
+
+/* 空状态样式 */
+[data-theme="dark"] .empty-state-icon {
+  color: #475569;
+}
+
+/* 头像样式 */
+[data-theme="dark"] .avatar {
+  background-color: rgba(129, 140, 248, 0.2);
+  color: var(--color-primary);
+}
+
+/* 卡片底部样式 */
+[data-theme="dark"] .card-footer {
+  background-color: #0f172a;
+  border-top-color: #334155;
+}
+
+/* 卡片头部样式 */
+[data-theme="dark"] .card-header {
+  border-bottom-color: #334155;
+}

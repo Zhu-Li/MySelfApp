@@ -1,0 +1,107 @@
+/**
+ * theme-light.css - 浅色主题（简约现代风格）
+ * 观己 - 静观己心，内外澄明
+ */
+
+[data-theme="light"] {
+  /* 主色调 - 柔和的靛蓝色 */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: #e0e7ff;
+  --color-secondary: #8b5cf6;
+
+  /* 功能色 */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  /* 背景色 - 清新的灰白色调 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-overlay: rgba(15, 23, 42, 0.5);
+
+  /* 文字颜色 */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* 边框 */
+  --border-color: #e2e8f0;
+  --border-color-light: #f1f5f9;
+
+  /* 阴影 - 柔和的阴影效果 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* 渐变 */
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient-secondary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --gradient-card: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+/* 浅色主题特定样式 */
+[data-theme="light"] .header {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="light"] .card {
+  border: 1px solid var(--border-color-light);
+}
+
+[data-theme="light"] .option-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* 欢迎区域背景 */
+[data-theme="light"] .hero-section {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 50%, #fef3c7 100%);
+}
+
+/* 统计卡片悬停效果 */
+[data-theme="light"] .stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* 输入框聚焦样式 */
+[data-theme="light"] .input-field:focus {
+  background-color: #ffffff;
+}
+
+/* 按钮样式微调 */
+[data-theme="light"] .btn-secondary {
+  background-color: #f1f5f9;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+/* 进度条样式 */
+[data-theme="light"] .progress {
+  background-color: #e2e8f0;
+}
+
+/* 标签页底部边框 */
+[data-theme="light"] .tabs {
+  border-bottom-color: #e2e8f0;
+}
+
+/* 滚动条样式 */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
