@@ -21,8 +21,8 @@ const Chat = {
           <div class="chat-header">
             <div class="chat-header-icon">🤖</div>
             <div class="chat-header-info">
-              <h1 class="chat-header-title">AI 问答</h1>
-              <p class="chat-header-subtitle">有问必答，智能助手</p>
+              <h1 class="chat-header-title">AI 智障</h1>
+              <p class="chat-header-subtitle">有问必答，答非所问</p>
             </div>
             <button class="btn btn-text chat-clear-btn" onclick="Chat.clearHistory()" title="清空对话">
               <span>🗑️</span>
@@ -34,9 +34,9 @@ const Chat = {
             <div class="chat-messages" id="chatMessages">
               <!-- 欢迎消息 -->
               <div class="chat-welcome" id="chatWelcome">
-                <div class="chat-welcome-icon">💬</div>
-                <h2 class="chat-welcome-title">你好，有什么可以帮你的？</h2>
-                <p class="chat-welcome-hint">可以问我任何问题，我会尽力解答</p>
+                <div class="chat-welcome-icon">🤪</div>
+                <h2 class="chat-welcome-title">你好，我是 AI 智障</h2>
+                <p class="chat-welcome-hint">问我问题，不保证靠谱</p>
                 <div class="chat-suggestions">
                   <button class="chat-suggestion" onclick="Chat.useSuggestion('帮我写一首关于春天的诗')">
                     ✨ 帮我写一首关于春天的诗
@@ -312,9 +312,9 @@ const Chat = {
       if (messagesContainer) {
         messagesContainer.innerHTML = `
           <div class="chat-welcome" id="chatWelcome">
-            <div class="chat-welcome-icon">💬</div>
-            <h2 class="chat-welcome-title">你好，有什么可以帮你的？</h2>
-            <p class="chat-welcome-hint">可以问我任何问题，我会尽力解答</p>
+            <div class="chat-welcome-icon">🤪</div>
+            <h2 class="chat-welcome-title">你好，我是 AI 智障</h2>
+            <p class="chat-welcome-hint">问我问题，不保证靠谱</p>
             <div class="chat-suggestions">
               <button class="chat-suggestion" onclick="Chat.useSuggestion('帮我写一首关于春天的诗')">
                 ✨ 帮我写一首关于春天的诗

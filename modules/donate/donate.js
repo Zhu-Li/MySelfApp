@@ -57,6 +57,46 @@ const Donate = {
             </div>
           </div>
 
+          <!-- 开源信息 -->
+          <div class="card donate-opensource-card">
+            <div class="card-body">
+              <div class="donate-opensource">
+                <div class="donate-opensource-header">
+                  <span class="donate-opensource-icon">📦</span>
+                  <h4 class="donate-opensource-title">开源项目</h4>
+                </div>
+                <p class="donate-opensource-desc">
+                  「观己」是一个开源项目，欢迎 Star、Fork 和贡献代码！
+                </p>
+                <div class="donate-opensource-links">
+                  <a href="https://github.com/Zhu-Li/MySelfApp" target="_blank" class="donate-opensource-link">
+                    <span class="donate-link-icon">⭐</span>
+                    <span class="donate-link-text">GitHub 仓库</span>
+                    <span class="donate-link-arrow">→</span>
+                  </a>
+                </div>
+                <div class="donate-opensource-info">
+                  <div class="donate-info-item">
+                    <span class="donate-info-label">技术栈</span>
+                    <span class="donate-info-value">原生 HTML/CSS/JS</span>
+                  </div>
+                  <div class="donate-info-item">
+                    <span class="donate-info-label">AI 能力</span>
+                    <span class="donate-info-value">硅基流动 API</span>
+                  </div>
+                  <div class="donate-info-item">
+                    <span class="donate-info-label">数据存储</span>
+                    <span class="donate-info-value">本地 IndexedDB 加密</span>
+                  </div>
+                  <div class="donate-info-item">
+                    <span class="donate-info-label">开源协议</span>
+                    <span class="donate-info-value">MIT License</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 返回按钮 -->
           <div class="donate-footer">
             <button class="btn btn-secondary" onclick="Router.navigate('/')">
@@ -218,6 +258,97 @@ const Donate = {
       .donate-footer {
         text-align: center;
         margin-top: var(--spacing-xl);
+      }
+
+      /* 开源信息卡片 */
+      .donate-opensource-card {
+        margin-top: var(--spacing-lg);
+      }
+
+      .donate-opensource-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .donate-opensource-icon {
+        font-size: 1.5rem;
+      }
+
+      .donate-opensource-title {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .donate-opensource-desc {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-md);
+        line-height: 1.6;
+      }
+
+      .donate-opensource-links {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .donate-opensource-link {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md);
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: all 0.2s;
+      }
+
+      .donate-opensource-link:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateX(4px);
+      }
+
+      .donate-link-icon {
+        font-size: 1.25rem;
+      }
+
+      .donate-link-text {
+        flex: 1;
+        font-weight: 500;
+      }
+
+      .donate-link-arrow {
+        opacity: 0.6;
+      }
+
+      .donate-opensource-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+      }
+
+      .donate-info-item {
+        padding: var(--spacing-sm);
+        background: var(--bg-secondary);
+        border-radius: var(--radius-sm);
+      }
+
+      .donate-info-label {
+        display: block;
+        font-size: var(--font-size-xs);
+        color: var(--text-tertiary);
+        margin-bottom: 2px;
+      }
+
+      .donate-info-value {
+        display: block;
+        font-size: var(--font-size-sm);
+        color: var(--text-primary);
+        font-weight: 500;
       }
 
       @media (max-width: 640px) {

@@ -12,10 +12,10 @@ const Changelog = {
     {
       version: '1.2.0',
       date: '2026-02-06',
-      title: 'AI 问答功能',
+      title: 'AI 智障上线',
       changes: [
-        { type: 'feature', text: '新增 AI 问答模块，支持智能对话' },
-        { type: 'feature', text: '流式输出，实时显示 AI 回复' },
+        { type: 'feature', text: '新增 AI 智障模块，有问必答，不保证靠谱' },
+        { type: 'feature', text: '流式输出，实时显示 AI 胡说八道' },
         { type: 'feature', text: '支持 Markdown 格式渲染' },
         { type: 'improve', text: '优化版本更新提示，仅在新版本时显示' }
       ]
