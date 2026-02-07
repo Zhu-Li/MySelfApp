@@ -744,7 +744,35 @@ const DataCard = {
     Utils.showLoading('正在导入数据...');
     
     // 8. 导入数据
-    await Storage.importAll(importData);
+    // 清空现有数据
+    await Storage.clear('tests');
+    await Storage.clear('diary');
+    
+    // 导入测试数据
+    if (importData.tests && Array.isArray(importData.tests)) {
+      for (const test of importData.tests) {
+        await Storage.setRaw('tests', test);
+      }
+    }
+    
+    // 导入日记数据
+    if (importData.diary && Array.isArray(importData.diary)) {
+      for (const entry of importData.diary) {
+        await Storage.setRaw('diary', entry);
+      }
+    }
+    
+    // 导入个人资料
+    if (importData.profile) {
+      // 清空现有资料并设置新的
+      await Storage.clear('profile');
+      const profileData = {
+        ...importData.profile,
+        key: 'userProfile',
+        lastUpdated: Date.now()
+      };
+      await Storage.setRaw('profile', profileData);
+    }
     
     Utils.hideLoading();
     Utils.showToast('数据导入成功', 'success');
@@ -833,7 +861,34 @@ const DataCard = {
       Utils.showLoading('正在导入数据...');
       
       // 9. 导入数据
-      await Storage.importAll(data);
+      // 清空现有数据
+      await Storage.clear('tests');
+      await Storage.clear('diary');
+      
+      // 导入测试数据
+      if (data.tests && Array.isArray(data.tests)) {
+        for (const test of data.tests) {
+          await Storage.setRaw('tests', test);
+        }
+      }
+      
+      // 导入日记数据
+      if (data.diary && Array.isArray(data.diary)) {
+        for (const entry of data.diary) {
+          await Storage.setRaw('diary', entry);
+        }
+      }
+      
+      // 导入个人资料
+      if (data.profile) {
+        await Storage.clear('profile');
+        const profileData = {
+          ...data.profile,
+          key: 'userProfile',
+          lastUpdated: Date.now()
+        };
+        await Storage.setRaw('profile', profileData);
+      }
       
       Utils.hideLoading();
       Utils.showToast('数据导入成功，即将刷新页面', 'success');

@@ -5,10 +5,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.0',
+  currentVersion: '1.7.1',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.1',
+      date: '2026-02-07 20:00',
+      title: 'ZIP 导入修复',
+      changes: [
+        { type: 'fix', text: '修复 ZIP 数据包导入失败的问题' },
+        { type: 'fix', text: '修复旧版 PNG 卡片导入失败的问题' },
+        { type: 'improve', text: '优化数据导入逻辑，直接写入存储' }
+      ]
+    },
     {
       version: '1.7.0',
       date: '2026-02-07 19:30',
