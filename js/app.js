@@ -1572,8 +1572,20 @@ const App = {
               
               <div class="input-group">
                 <label class="input-label">出生日期</label>
-                <input type="date" class="input-field" id="profileBirthday" 
-                       value="${profile.birthday || ''}" max="${new Date().toISOString().split('T')[0]}">
+                <div class="birthday-selects">
+                  <select class="input-field" id="profileBirthYear">
+                    <option value="">年</option>
+                    ${this.generateYearOptions(profile.birthday)}
+                  </select>
+                  <select class="input-field" id="profileBirthMonth">
+                    <option value="">月</option>
+                    ${this.generateMonthOptions(profile.birthday)}
+                  </select>
+                  <select class="input-field" id="profileBirthDay">
+                    <option value="">日</option>
+                    ${this.generateDayOptions(profile.birthday)}
+                  </select>
+                </div>
               </div>
               
               <div class="input-group">
@@ -1774,6 +1786,14 @@ const App = {
           grid-template-columns: repeat(2, 1fr);
           gap: var(--spacing-md);
         }
+        .birthday-selects {
+          display: flex;
+          gap: var(--spacing-sm);
+        }
+        .birthday-selects select {
+          flex: 1;
+          min-width: 0;
+        }
         .profile-age-display {
           padding: var(--spacing-sm) var(--spacing-md);
           background-color: var(--bg-secondary);
@@ -1891,14 +1911,59 @@ const App = {
   },
 
   /**
+   * 生成年份选项
+   */
+  generateYearOptions(birthday) {
+    const currentYear = new Date().getFullYear();
+    const selectedYear = birthday ? new Date(birthday).getFullYear() : null;
+    let options = '';
+    for (let year = currentYear; year >= currentYear - 100; year--) {
+      options += `<option value="${year}" ${selectedYear === year ? 'selected' : ''}>${year}</option>`;
+    }
+    return options;
+  },
+
+  /**
+   * 生成月份选项
+   */
+  generateMonthOptions(birthday) {
+    const selectedMonth = birthday ? new Date(birthday).getMonth() + 1 : null;
+    let options = '';
+    for (let month = 1; month <= 12; month++) {
+      options += `<option value="${month}" ${selectedMonth === month ? 'selected' : ''}>${month}</option>`;
+    }
+    return options;
+  },
+
+  /**
+   * 生成日期选项
+   */
+  generateDayOptions(birthday) {
+    const selectedDay = birthday ? new Date(birthday).getDate() : null;
+    let options = '';
+    for (let day = 1; day <= 31; day++) {
+      options += `<option value="${day}" ${selectedDay === day ? 'selected' : ''}>${day}</option>`;
+    }
+    return options;
+  },
+
+  /**
    * 保存个人资料
    */
   async saveProfile() {
     const name = document.getElementById('profileName').value.trim();
     const gender = document.getElementById('profileGender').value;
-    const birthday = document.getElementById('profileBirthday').value;
+    const birthYear = document.getElementById('profileBirthYear').value;
+    const birthMonth = document.getElementById('profileBirthMonth').value;
+    const birthDay = document.getElementById('profileBirthDay').value;
     const contact = document.getElementById('profileContact').value.trim();
     const bio = document.getElementById('profileBio').value.trim();
+
+    // 组合生日
+    let birthday = '';
+    if (birthYear && birthMonth && birthDay) {
+      birthday = `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`;
+    }
 
     try {
       await Storage.updateProfile({
