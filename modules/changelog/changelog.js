@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.2',
+  currentVersion: '1.9.3',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.3',
+      date: '2026-02-08',
+      title: '本人数据导入修复',
+      changes: [
+        { type: 'fix', text: '修复导入本人数据时关系网数据未导入的问题' },
+        { type: 'improve', text: '覆盖导入与合并导入均支持关系网数据同步' }
+      ]
+    },
     {
       version: '1.9.2',
       date: '2026-02-08',

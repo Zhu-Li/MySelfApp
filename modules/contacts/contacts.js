@@ -1033,6 +1033,14 @@ const Contacts = {
       }
     }
 
+    // 清空并写入关系网数据
+    await Storage.clear('contacts');
+    if (importData.contacts) {
+      for (const contact of importData.contacts) {
+        await Storage.setRaw('contacts', contact);
+      }
+    }
+
     // 更新 profile（保留姓名）
     if (importData.profile) {
       const localProfile = await Storage.getProfile();
@@ -1072,6 +1080,15 @@ const Contacts = {
     await Storage.clear('diary');
     for (const entry of mergedDiary) {
       await Storage.setRaw('diary', entry);
+    }
+
+    // 合并关系网数据（按 id 去重，保留最新）
+    const localContacts = await Storage.getAll('contacts') || [];
+    const mergedContacts = this.mergeArrayById(localContacts, importData.contacts || [], 'importedAt');
+    
+    await Storage.clear('contacts');
+    for (const contact of mergedContacts) {
+      await Storage.setRaw('contacts', contact);
     }
 
     // 合并 profile（非空字段优先保留本地）
