@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.7',
+  currentVersion: '1.6.8',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.8',
+      date: '2026-02-07 18:30',
+      title: '导出功能优化',
+      changes: [
+        { type: 'fix', text: '名片导出选项补充心理健康和综合画像测试' },
+        { type: 'fix', text: '修复取消生成时仍显示成功提示的问题' },
+        { type: 'improve', text: '隐藏 JSON 导出功能，统一使用数据卡片' },
+        { type: 'improve', text: '个人资料判断条件优化' }
+      ]
+    },
     {
       version: '1.6.7',
       date: '2026-02-07 18:00',

@@ -1740,32 +1740,6 @@ const App = {
               </div>
             </div>
 
-            <div class="divider mb-lg"></div>
-            
-            <!-- JSON 备份 -->
-            <div class="settings-section-title mb-md">
-              <span class="text-secondary">JSON 备份</span>
-            </div>
-
-            <div class="settings-item mb-lg">
-              <div class="settings-item-info">
-                <h4 class="settings-item-title">导出数据</h4>
-                <p class="settings-item-desc">将所有数据导出为 JSON 文件</p>
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="App.exportData()">导出</button>
-            </div>
-
-            <div class="settings-item mb-lg">
-              <div class="settings-item-info">
-                <h4 class="settings-item-title">导入数据</h4>
-                <p class="settings-item-desc">从 JSON 文件恢复数据</p>
-              </div>
-              <div>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="App.importData(event)">
-                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">导入</button>
-              </div>
-            </div>
-
             <div class="divider"></div>
 
             <div class="settings-item">
@@ -2115,9 +2089,12 @@ const App = {
    */
   async exportAsImage() {
     try {
-      Utils.showToast('正在生成数据卡片...', 'info');
-      await DataCard.exportAsImage();
-      Utils.showToast('数据卡片已生成并下载', 'success');
+      const success = await DataCard.exportAsImage();
+      // DataCard.exportAsImage 内部已处理 toast 提示，这里不需要重复提示
+      if (!success) {
+        // 用户取消，不显示任何提示
+        return;
+      }
     } catch (error) {
       console.error('导出图片失败:', error);
       Utils.showToast('生成失败: ' + error.message, 'error');

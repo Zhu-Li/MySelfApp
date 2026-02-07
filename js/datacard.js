@@ -276,7 +276,8 @@ const DataCard = {
       'attachment': { name: '依恋类型测试', icon: '💕' },
       'eq': { name: '情商测试', icon: '💡' },
       'values': { name: '价值观测试', icon: '🎯' },
-      'mentalhealth': { name: '心理健康自测', icon: '🌱' }
+      'stress': { name: '心理健康自测', icon: '🌱' },
+      'comprehensive': { name: '综合画像分析', icon: '📊' }
     };
     
     // 检查每种测试是否有数据
@@ -289,7 +290,7 @@ const DataCard = {
     }
     
     const hasDiary = diaries.length > 0;
-    const hasProfile = profile && (profile.nickname || profile.bio);
+    const hasProfile = profile && (profile.name || profile.bio || profile.gender || profile.birthday);
     
     return new Promise((resolve) => {
       const modal = document.createElement('div');
