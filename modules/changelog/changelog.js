@@ -5,10 +5,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.6',
+  currentVersion: '1.6.7',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.7',
+      date: '2026-02-07 18:00',
+      title: '首页与报告优化',
+      changes: [
+        { type: 'improve', text: '首页画像新增价值观和心理健康测试结果' },
+        { type: 'fix', text: '报告列表新增测试类型中文名称显示' },
+        { type: 'fix', text: '修复新测试在报告列表显示英文的问题' }
+      ]
+    },
     {
       version: '1.6.6',
       date: '2026-02-07 17:30',

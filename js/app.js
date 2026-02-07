@@ -347,6 +347,8 @@ const App = {
     const latestHolland = await Storage.getLatestTest('holland');
     const latestAttachment = await Storage.getLatestTest('attachment');
     const latestEQ = await Storage.getLatestTest('eq');
+    const latestValues = await Storage.getLatestTest('values');
+    const latestStress = await Storage.getLatestTest('stress');
 
     // 构建测试结果卡片
     let testResultsHtml = '';
@@ -422,6 +424,36 @@ const App = {
             <div class="test-result-type">情商</div>
             <div class="test-result-value" style="color: #10b981;">${latestEQ.result.totalScore}</div>
             <div class="test-result-name">${eqLevel}</div>
+          </div>
+        </a>
+      `;
+    }
+    
+    // 价值观结果
+    if (latestValues?.result?.coreValues?.length > 0) {
+      const topValue = latestValues.result.coreValues[0];
+      testResultsHtml += `
+        <a href="#/report/${latestValues.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: #ec489920; color: #ec4899;">🎯</div>
+          <div class="test-result-info">
+            <div class="test-result-type">价值观</div>
+            <div class="test-result-value" style="color: #ec4899;">${topValue.dimension}</div>
+            <div class="test-result-name">核心价值</div>
+          </div>
+        </a>
+      `;
+    }
+    
+    // 心理健康结果
+    if (latestStress?.result) {
+      const anxietyLevel = latestStress.result.anxietyLevel?.name || '正常';
+      testResultsHtml += `
+        <a href="#/report/${latestStress.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: #06b6d420; color: #06b6d4;">🌱</div>
+          <div class="test-result-info">
+            <div class="test-result-type">心理健康</div>
+            <div class="test-result-value" style="color: #06b6d4;">${anxietyLevel}</div>
+            <div class="test-result-name">焦虑状态</div>
           </div>
         </a>
       `;
@@ -1358,7 +1390,11 @@ const App = {
       mbti: { name: 'MBTI 性格测试', icon: '🧠', color: '#6366f1' },
       bigfive: { name: '大五人格测试', icon: '🌟', color: '#8b5cf6' },
       holland: { name: '霍兰德职业兴趣', icon: '💼', color: '#f59e0b' },
-      comprehensive: { name: '综合画像分析', icon: '🎯', color: '#10b981' }
+      attachment: { name: '依恋类型测试', icon: '💕', color: '#ec4899' },
+      eq: { name: '情商测试', icon: '💡', color: '#10b981' },
+      values: { name: '价值观测试', icon: '🎯', color: '#f43f5e' },
+      stress: { name: '心理健康自测', icon: '🌱', color: '#06b6d4' },
+      comprehensive: { name: '综合画像分析', icon: '📊', color: '#8b5cf6' }
     };
 
     container.innerHTML = `
