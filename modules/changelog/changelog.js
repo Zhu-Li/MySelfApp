@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.6',
+  currentVersion: '1.8.7',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.7',
+      date: '2026-02-08',
+      title: '关键问题修复',
+      changes: [
+        { type: 'fix', text: '修复首页连续天数统计逻辑（今天无活动时从昨天开始计算）' },
+        { type: 'fix', text: '修复关系网导入确定按钮无响应的问题' }
+      ]
+    },
     {
       version: '1.8.6',
       date: '2026-02-08',

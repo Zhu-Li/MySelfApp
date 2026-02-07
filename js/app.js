@@ -919,9 +919,15 @@ const App = {
         activityDates.add(date.getTime());
       });
       
-      // 计算连续天数
+      // 计算连续天数（如果今天没有活动，从昨天开始算）
       let streak = 0;
       let checkDate = new Date(today);
+      
+      // 如果今天没有活动记录，从昨天开始检查
+      if (!activityDates.has(checkDate.getTime())) {
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+      
       while (activityDates.has(checkDate.getTime())) {
         streak++;
         checkDate.setDate(checkDate.getDate() - 1);

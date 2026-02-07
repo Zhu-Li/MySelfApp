@@ -1211,7 +1211,12 @@ const Contacts = {
 
     this._pendingImportData = null;
     this._pendingExistingContact = null;
-    this._networkConflictResolve = null;
+    
+    // 解决Promise
+    if (this._networkConflictResolve) {
+      this._networkConflictResolve();
+      this._networkConflictResolve = null;
+    }
   },
 
   /**
