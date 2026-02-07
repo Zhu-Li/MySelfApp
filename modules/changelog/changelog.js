@@ -5,10 +5,23 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.3.0',
+  currentVersion: '1.4.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.4.0',
+      date: '2026-02-07',
+      title: '心理测试扩展',
+      changes: [
+        { type: 'feature', text: '新增依恋类型测试（30道题），了解亲密关系模式' },
+        { type: 'feature', text: '新增情商测试（40道题），评估五大情商维度' },
+        { type: 'feature', text: '新增价值观测试（30道题），发现核心价值观' },
+        { type: 'feature', text: '新增心理健康自测（GAD-7 + PHQ-9 量表）' },
+        { type: 'improve', text: '测试列表新增4个测试入口' },
+        { type: 'improve', text: '所有新测试支持AI深度分析报告' }
+      ]
+    },
     {
       version: '1.3.0',
       date: '2026-02-07',
