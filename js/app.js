@@ -1449,6 +1449,38 @@ const App = {
             <h3 class="card-title">数据管理</h3>
           </div>
           <div class="card-body">
+            <!-- 图片数据卡片（推荐） -->
+            <div class="settings-section-title mb-md">
+              <span class="badge badge-primary">推荐</span>
+              <span>数据卡片</span>
+            </div>
+            
+            <div class="settings-item mb-lg">
+              <div class="settings-item-info">
+                <h4 class="settings-item-title">导出为图片</h4>
+                <p class="settings-item-desc">生成精美个人画像卡，可保存分享</p>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="App.exportAsImage()">生成卡片</button>
+            </div>
+
+            <div class="settings-item mb-lg">
+              <div class="settings-item-info">
+                <h4 class="settings-item-title">从图片导入</h4>
+                <p class="settings-item-desc">上传数据卡片恢复所有数据</p>
+              </div>
+              <div>
+                <input type="file" id="importImageFile" accept="image/png" style="display: none;" onchange="App.importFromImage(event)">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('importImageFile').click()">上传卡片</button>
+              </div>
+            </div>
+
+            <div class="divider mb-lg"></div>
+            
+            <!-- JSON 备份 -->
+            <div class="settings-section-title mb-md">
+              <span class="text-secondary">JSON 备份</span>
+            </div>
+
             <div class="settings-item mb-lg">
               <div class="settings-item-info">
                 <h4 class="settings-item-title">导出数据</h4>
@@ -1541,6 +1573,14 @@ const App = {
           display: flex;
           gap: var(--spacing-sm);
           flex-wrap: wrap;
+        }
+        .settings-section-title {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-sm);
+          font-size: var(--font-size-sm);
+          font-weight: 500;
+          color: var(--text-primary);
         }
         .theme-buttons {
           display: flex;
@@ -1687,6 +1727,50 @@ const App = {
       location.reload();
     } catch (error) {
       Utils.showToast('导入失败: 无效的数据格式', 'error');
+    }
+
+    // 清空文件选择
+    event.target.value = '';
+  },
+
+  /**
+   * 导出为图片数据卡片
+   */
+  async exportAsImage() {
+    try {
+      Utils.showToast('正在生成数据卡片...', 'info');
+      await DataCard.exportAsImage();
+      Utils.showToast('数据卡片已生成并下载', 'success');
+    } catch (error) {
+      console.error('导出图片失败:', error);
+      Utils.showToast('生成失败: ' + error.message, 'error');
+    }
+  },
+
+  /**
+   * 从图片导入数据
+   */
+  async importFromImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      Utils.showToast('正在解析数据卡片...', 'info');
+      
+      const confirmed = await Utils.confirm('导入将覆盖现有数据，确定继续吗？');
+      if (!confirmed) {
+        event.target.value = '';
+        return;
+      }
+
+      await DataCard.importFromImage(file);
+      Utils.showToast('数据导入成功', 'success');
+      
+      // 刷新页面
+      location.reload();
+    } catch (error) {
+      console.error('导入图片失败:', error);
+      Utils.showToast('导入失败: ' + error.message, 'error');
     }
 
     // 清空文件选择

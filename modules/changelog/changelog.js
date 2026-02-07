@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.4.0',
+  currentVersion: '1.5.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.5.0',
+      date: '2026-02-07',
+      title: '数据卡片迁移',
+      changes: [
+        { type: 'feature', text: '新增数据卡片导出功能，生成精美个人画像卡' },
+        { type: 'feature', text: '支持从数据卡片图片恢复所有数据' },
+        { type: 'improve', text: '数据卡片可保存分享，方便跨设备迁移' },
+        { type: 'improve', text: '采用LZString压缩，支持大量数据存储' }
+      ]
+    },
     {
       version: '1.4.0',
       date: '2026-02-07',
