@@ -12,58 +12,23 @@ const Changelog = {
     {
       version: '1.8.6',
       date: '2026-02-08',
-      title: '缓存优化',
-      changes: [
-        { type: 'improve', text: 'CSS/JS文件添加版本号参数，解决微信等浏览器缓存问题' }
-      ]
-    },
-    {
-      version: '1.8.5',
-      date: '2026-02-08',
-      title: '日记统计字段修复',
-      changes: [
-        { type: 'fix', text: '修复日记统计使用错误字段名导致计算不准确的问题' }
-      ]
-    },
-    {
-      version: '1.8.4',
-      date: '2026-02-08',
-      title: '本周日记统计修复',
-      changes: [
-        { type: 'fix', text: '修复本周日记统计计算错误，改为周一作为一周开始' }
-      ]
-    },
-    {
-      version: '1.8.3',
-      date: '2026-02-08',
-      title: '移动端顶栏优化',
-      changes: [
-        { type: 'improve', text: '移动端顶部栏显示「观己 - 静观己心，内外澄明」品牌标语' }
-      ]
-    },
-    {
-      version: '1.8.2',
-      date: '2026-02-08',
-      title: '首页体验优化与SEO增强',
+      title: '首页体验优化、综合画像增强与多项修复',
       changes: [
         { type: 'feature', text: '首页新增个性化问候语，根据时段显示不同问候' },
         { type: 'feature', text: '首页新增每日心理学语录卡片' },
         { type: 'feature', text: '首页新增打卡统计：连续使用天数、本周日记数、完成测试数' },
-        { type: 'improve', text: 'SEO优化：新增meta标签、Open Graph、结构化数据' },
-        { type: 'improve', text: '新增sitemap.xml和robots.txt，提升搜索引擎收录' }
-      ]
-    },
-    {
-      version: '1.8.1',
-      date: '2026-02-08',
-      title: '综合画像增强与体验优化',
-      changes: [
         { type: 'feature', text: '综合画像分析整合日记情绪记录，分析心理状态和情绪模式' },
         { type: 'feature', text: '综合画像分析整合关系网数据，提供人际互动建议' },
+        { type: 'improve', text: 'SEO优化：新增meta标签、Open Graph、结构化数据' },
+        { type: 'improve', text: '新增sitemap.xml和robots.txt，提升搜索引擎收录' },
         { type: 'improve', text: '「AI 问答」模块更名（原AI智障）' },
         { type: 'improve', text: '优化导航栏顺序：首页→测试→报告→日记→关系→问答' },
+        { type: 'improve', text: '移动端顶部栏显示「观己 - 静观己心，内外澄明」品牌标语' },
+        { type: 'improve', text: 'CSS/JS文件添加版本号参数，解决微信等浏览器缓存问题' },
         { type: 'fix', text: '修复关系网模块在移动端无法加载的问题' },
-        { type: 'fix', text: '修复PC端关系网导航入口缺失的问题' }
+        { type: 'fix', text: '修复PC端关系网导航入口缺失的问题' },
+        { type: 'fix', text: '修复本周日记统计计算错误（周一作为一周开始）' },
+        { type: 'fix', text: '修复日记统计使用错误字段名导致计算不准确的问题' }
       ]
     },
     {
