@@ -1236,7 +1236,8 @@ const Contacts = {
         dataVersion: importData.version
       });
       Utils.showToast('联系人已更新', 'success');
-      Router.navigate('/contacts');
+      // 强制刷新页面
+      await Router.handleRouteChange();
     } else if (choice === 'add-new' && importData) {
       // 作为新联系人添加，需要输入备注
       const remark = await this.showRemarkDialog(importData.profile.name);
@@ -1336,7 +1337,9 @@ const Contacts = {
 
     await this.save(contact);
     Utils.showToast('联系人已添加', 'success');
-    Router.navigate('/contacts');
+    
+    // 强制刷新页面
+    await Router.handleRouteChange();
   },
 
   /**
@@ -1842,7 +1845,7 @@ const Contacts = {
           ${entry.analysis ? `
             <div class="diary-detail-analysis">
               <div class="diary-detail-analysis-title">🤖 AI 情绪分析</div>
-              <div class="diary-detail-analysis-content">${entry.analysis}</div>
+              <div class="diary-detail-analysis-content">${typeof entry.analysis === 'object' ? JSON.stringify(entry.analysis, null, 2) : entry.analysis}</div>
             </div>
           ` : ''}
         </div>

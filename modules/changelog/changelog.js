@@ -5,10 +5,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.8',
+  currentVersion: '1.8.9',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.9',
+      date: '2026-02-08',
+      title: '数据导出解密与页面刷新修复',
+      changes: [
+        { type: 'fix', text: '修复Storage.getAll未解密加密字段导致导出数据加密的问题' },
+        { type: 'fix', text: '修复导入关系网成功后页面不自动刷新的问题' },
+        { type: 'fix', text: '修复日记AI分析显示为[object Object]的问题' }
+      ]
+    },
     {
       version: '1.8.8',
       date: '2026-02-08',

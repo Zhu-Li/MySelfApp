@@ -318,17 +318,39 @@ const Storage = {
   },
 
   /**
-   * 获取所有数据
+   * 获取所有数据（解密加密字段）
    */
   async getAll(storeName) {
     await this.init();
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const transaction = this.db.transaction(storeName, 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = async () => {
+        const results = request.result;
+        
+        // 解密加密字段
+        if (this.cryptoKey && results.length > 0) {
+          for (const data of results) {
+            for (const field in data) {
+              if (field.endsWith('_encrypted') && data[field] === true) {
+                const originalField = field.replace('_encrypted', '');
+                if (data[originalField]) {
+                  try {
+                    data[originalField] = await this.decryptData(data[originalField]);
+                  } catch (e) {
+                    console.error('解密失败:', originalField, e);
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        resolve(results);
+      };
       request.onerror = () => reject(request.error);
     });
   },
