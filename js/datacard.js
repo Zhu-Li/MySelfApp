@@ -9,10 +9,10 @@
 const DataCard = {
   // 卡片尺寸
   WIDTH: 800,
-  HEIGHT: 450,
+  HEIGHT: 600,
   
   // 数据区域配置（图片底部用于存储数据的像素行数）
-  DATA_ROWS: 50,
+  DATA_ROWS: 120,
   
   // 魔数标识（用于识别有效的数据卡片）
   MAGIC: 'GUANJIV2', // V2 表示加密版本
@@ -557,12 +557,36 @@ const DataCard = {
       // 筛选要导出的测试
       const selectedTests = allTests.filter(t => exportOptions.tests.includes(t.type));
       
+      // 精简测试数据（移除原始答案，只保留结果，减少数据量）
+      const compactTests = selectedTests.map(t => ({
+        id: t.id,
+        type: t.type,
+        timestamp: t.timestamp,
+        result: t.result
+        // 不导出 answers 数组，可以节省大量空间
+      }));
+      
+      // 精简日记数据（限制数量和内容长度）
+      let compactDiaries = [];
+      if (exportOptions.diary) {
+        compactDiaries = allDiaries
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .slice(0, 50) // 最多导出最近50篇日记
+          .map(d => ({
+            id: d.id,
+            timestamp: d.timestamp,
+            content: d.content?.substring(0, 2000) || '', // 限制每篇最多2000字
+            mood: d.mood,
+            weather: d.weather
+            // 不导出图片数据
+          }));
+      }
+      
       // 构建导出数据
       const exportData = {
-        tests: selectedTests,
-        diary: exportOptions.diary ? allDiaries : [],
+        tests: compactTests,
+        diary: compactDiaries,
         profile: exportOptions.profile ? profile : null,
-        config: await Storage.getAll('config') || [],
         exportedAt: Date.now(),
         version: Changelog.currentVersion,
         partial: true // 标记为部分导出

@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.8',
+  currentVersion: '1.6.9',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.9',
+      date: '2026-02-07 19:00',
+      title: '数据卡片容量扩展',
+      changes: [
+        { type: 'fix', text: '解决数据量过大无法导出的问题' },
+        { type: 'improve', text: '卡片尺寸从 800x450 扩展到 800x600' },
+        { type: 'improve', text: '数据存储区从 120KB 扩展到 288KB' },
+        { type: 'improve', text: '精简导出数据，移除原始答案只保留结果' },
+        { type: 'improve', text: '日记限制最多50篇，每篇最多2000字' }
+      ]
+    },
     {
       version: '1.6.8',
       date: '2026-02-07 18:30',
