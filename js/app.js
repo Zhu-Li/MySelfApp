@@ -342,6 +342,8 @@ const App = {
       '/diary/edit/:id': (params) => this.renderDiaryEditor(params.id),
       '/diary/:id': (params) => this.renderDiaryDetail(params.id),
       '/chat': () => this.renderChat(),
+      '/contacts': () => this.renderContacts(),
+      '/contacts/:id': (params) => this.renderContactDetail(params.id),
       '/donate': () => this.renderDonate(),
       '/feedback': () => this.renderFeedback(),
       '/changelog': () => this.renderChangelog(),
@@ -1558,6 +1560,22 @@ const App = {
   async renderDiaryDetail(id) {
     const container = document.getElementById('mainContent');
     await Diary.renderDetail(container, id);
+  },
+
+  /**
+   * 渲染关系网列表
+   */
+  async renderContacts() {
+    const container = document.getElementById('mainContent');
+    await Contacts.renderList(container);
+  },
+
+  /**
+   * 渲染联系人详情
+   */
+  async renderContactDetail(id) {
+    const container = document.getElementById('mainContent');
+    await Contacts.renderDetail(container, id);
   },
 
   /**

@@ -266,6 +266,7 @@ const DataCard = {
     // 先获取可用的数据
     const tests = await Storage.getAll('tests') || [];
     const diaries = await Storage.getAll('diary') || [];
+    const contacts = await Storage.getAllContacts() || [];
     const profile = await Storage.getProfile();
     
     // 构建可选项
@@ -290,6 +291,7 @@ const DataCard = {
     }
     
     const hasDiary = diaries.length > 0;
+    const hasContacts = contacts.length > 0;
     const hasProfile = profile && (profile.name || profile.bio || profile.gender || profile.birthday);
     
     return new Promise((resolve) => {
@@ -335,6 +337,21 @@ const DataCard = {
                   </label>
                 ` : `
                   <div class="export-option-empty">暂无日记数据</div>
+                `}
+              </div>
+              
+              <!-- 关系网数据 -->
+              <div class="export-option-group">
+                <div class="export-option-group-title">👥 关系网数据</div>
+                ${hasContacts ? `
+                  <label class="export-option-item">
+                    <input type="checkbox" name="export_contacts" value="contacts" checked>
+                    <span class="export-option-icon">🔗</span>
+                    <span class="export-option-name">关系网联系人 (${contacts.length}人)</span>
+                    <span class="export-option-check">✓</span>
+                  </label>
+                ` : `
+                  <div class="export-option-empty">暂无关系网数据</div>
                 `}
               </div>
               
@@ -390,9 +407,10 @@ const DataCard = {
     ).map(cb => cb.value);
     
     const exportDiary = document.querySelector('#exportOptionsModal input[name="export_diary"]:checked');
+    const exportContacts = document.querySelector('#exportOptionsModal input[name="export_contacts"]:checked');
     const exportProfile = document.querySelector('#exportOptionsModal input[name="export_profile"]:checked');
     
-    if (selectedTests.length === 0 && !exportDiary && !exportProfile) {
+    if (selectedTests.length === 0 && !exportDiary && !exportContacts && !exportProfile) {
       Utils.showToast('请至少选择一项导出内容', 'warning');
       return;
     }
@@ -400,6 +418,7 @@ const DataCard = {
     const options = {
       tests: selectedTests,
       diary: !!exportDiary,
+      contacts: !!exportContacts,
       profile: !!exportProfile
     };
     
@@ -563,6 +582,7 @@ const DataCard = {
       // 3. 根据选择获取数据（保留完整数据，包括图片）
       const allTests = await Storage.getAll('tests') || [];
       const allDiaries = await Storage.getAll('diary') || [];
+      const allContacts = await Storage.getAllContacts() || [];
       
       // 筛选要导出的测试（保留完整数据）
       const selectedTests = allTests.filter(t => exportOptions.tests.includes(t.type));
@@ -573,10 +593,17 @@ const DataCard = {
         selectedDiaries = allDiaries;
       }
       
+      // 筛选关系网数据
+      let selectedContacts = [];
+      if (exportOptions.contacts) {
+        selectedContacts = allContacts;
+      }
+      
       // 构建完整导出数据
       const exportData = {
         tests: selectedTests,
         diary: selectedDiaries,
+        contacts: selectedContacts,
         profile: exportOptions.profile ? profile : null,
         exportedAt: Date.now(),
         version: Changelog.currentVersion
@@ -743,6 +770,7 @@ const DataCard = {
     const confirmMsg = `即将导入以下数据：\n` +
       `• 测试记录：${importData.tests?.length || 0} 条\n` +
       `• 日记：${importData.diary?.length || 0} 篇\n` +
+      `• 关系网联系人：${importData.contacts?.length || 0} 人\n` +
       `• 个人资料：${importData.profile ? '有' : '无'}\n\n` +
       `导入将覆盖现有数据，确认继续？`;
     
@@ -757,6 +785,7 @@ const DataCard = {
     // 清空现有数据
     await Storage.clear('tests');
     await Storage.clear('diary');
+    await Storage.clear('contacts');
     
     // 导入测试数据
     if (importData.tests && Array.isArray(importData.tests)) {
@@ -769,6 +798,13 @@ const DataCard = {
     if (importData.diary && Array.isArray(importData.diary)) {
       for (const entry of importData.diary) {
         await Storage.setRaw('diary', entry);
+      }
+    }
+    
+    // 导入关系网数据
+    if (importData.contacts && Array.isArray(importData.contacts)) {
+      for (const contact of importData.contacts) {
+        await Storage.setRaw('contacts', contact);
       }
     }
     

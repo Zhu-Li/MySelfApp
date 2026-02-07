@@ -5,7 +5,7 @@
 
 const Storage = {
   dbName: 'MySelfApp',
-  dbVersion: 1,
+  dbVersion: 2,
   db: null,
   cryptoKey: null,
   isInitialized: false,
@@ -15,7 +15,8 @@ const Storage = {
     config: { keyPath: 'key' },
     tests: { keyPath: 'id', indexes: [{ name: 'type', keyPath: 'type' }, { name: 'timestamp', keyPath: 'timestamp' }] },
     diary: { keyPath: 'id', indexes: [{ name: 'date', keyPath: 'date' }] },
-    profile: { keyPath: 'key' }
+    profile: { keyPath: 'key' },
+    contacts: { keyPath: 'id', indexes: [{ name: 'name', keyPath: 'name' }, { name: 'importedAt', keyPath: 'importedAt' }] }
   },
 
   /**
@@ -646,6 +647,53 @@ const Storage = {
     
     if (!sessionData) return false;
     return Date.now() < sessionData.expiresAt;
+  },
+
+  // ============ 关系网联系人管理 ============
+
+  /**
+   * 保存联系人
+   */
+  async saveContact(contactData) {
+    const data = {
+      id: contactData.id || Utils.generateId(),
+      name: contactData.name,
+      remark: contactData.remark || '',
+      tests: contactData.tests || [],
+      diary: contactData.diary || [],
+      profile: contactData.profile || {},
+      importedAt: contactData.importedAt || Date.now(),
+      dataVersion: contactData.dataVersion || ''
+    };
+    return this.setRaw('contacts', data);
+  },
+
+  /**
+   * 获取单个联系人
+   */
+  async getContact(id) {
+    return this.getRaw('contacts', id);
+  },
+
+  /**
+   * 获取所有联系人
+   */
+  async getAllContacts() {
+    return this.getAll('contacts') || [];
+  },
+
+  /**
+   * 按姓名查询联系人
+   */
+  async getContactsByName(name) {
+    return this.getByIndex('contacts', 'name', name) || [];
+  },
+
+  /**
+   * 删除联系人
+   */
+  async deleteContact(id) {
+    return this.delete('contacts', id);
   }
 };
 

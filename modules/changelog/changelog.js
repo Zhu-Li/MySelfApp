@@ -5,10 +5,24 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.6',
+  currentVersion: '1.8.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.0',
+      date: '2026-02-07 23:00',
+      title: '关系网管理模块',
+      changes: [
+        { type: 'feature', text: '新增关系网管理模块，可导入他人数据建立关系网络' },
+        { type: 'feature', text: '支持「导入本人数据」恢复备份，智能身份验证和数据合并' },
+        { type: 'feature', text: '支持「导入关系网数据」添加联系人，自动检测同名冲突' },
+        { type: 'feature', text: '联系人详情页展示完整测试结果和日记记录' },
+        { type: 'feature', text: '支持为同名联系人添加备注以区分' },
+        { type: 'improve', text: '数据导出新增关系网数据选项' },
+        { type: 'improve', text: '底部导航新增「关系」入口' }
+      ]
+    },
     {
       version: '1.7.6',
       date: '2026-02-07 22:30',
