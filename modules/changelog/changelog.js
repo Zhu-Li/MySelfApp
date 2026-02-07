@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.1',
+  currentVersion: '1.7.2',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.2',
+      date: '2026-02-07 20:30',
+      title: '移动端兼容优化',
+      changes: [
+        { type: 'fix', text: '修复移动端导入数据时无法选择 ZIP 文件的问题' },
+        { type: 'improve', text: '简化导入提示信息为"支持 ZIP 数据包"' }
+      ]
+    },
     {
       version: '1.7.1',
       date: '2026-02-07 20:00',

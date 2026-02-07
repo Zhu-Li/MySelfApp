@@ -1732,10 +1732,10 @@ const App = {
             <div class="settings-item mb-lg">
               <div class="settings-item-info">
                 <h4 class="settings-item-title">导入数据</h4>
-                <p class="settings-item-desc">支持 ZIP 数据包或 PNG 数据卡片</p>
+                <p class="settings-item-desc">支持 ZIP 数据包</p>
               </div>
               <div>
-                <input type="file" id="importImageFile" accept=".zip,.png,image/png,application/zip" style="display: none;" onchange="App.importFromImage(event)">
+                <input type="file" id="importImageFile" accept=".zip,.png" style="display: none;" onchange="App.importFromImage(event)">
                 <button class="btn btn-primary btn-sm" onclick="document.getElementById('importImageFile').click()">选择文件</button>
               </div>
             </div>
