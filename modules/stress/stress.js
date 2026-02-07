@@ -210,6 +210,20 @@ const Stress = {
   async completeTest() {
     const result = this.calculateResult();
     
+    // 询问是否保存结果
+    const shouldSave = await Utils.confirm(
+      '测试完成！是否保存本次测试结果？\n\n如果本次测试非本人操作，可选择不保存。',
+      '保存测试结果'
+    );
+
+    if (!shouldSave) {
+      Utils.showToast('测试结果未保存', 'info');
+      Router.navigate('/test');
+      return;
+    }
+
+    Utils.showLoading('正在保存...');
+
     // 保存测试结果
     const testData = {
       id: this.testId,
@@ -230,6 +244,8 @@ const Stress = {
       anxietyLevel: result.anxietyLevel.name,
       depressionLevel: result.depressionLevel.name
     });
+
+    Utils.hideLoading();
 
     // 跳转到报告页面
     Router.navigate(`/report/${this.testId}`);

@@ -5,10 +5,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.5',
+  currentVersion: '1.6.6',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.6',
+      date: '2026-02-07 17:30',
+      title: '测试保存确认',
+      changes: [
+        { type: 'feature', text: '测试完成后询问是否保存结果' },
+        { type: 'improve', text: '防止他人使用时误保存测试数据' },
+        { type: 'improve', text: '选择不保存时返回测试列表' }
+      ]
+    },
     {
       version: '1.6.5',
       date: '2026-02-07 17:00',

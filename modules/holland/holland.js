@@ -185,6 +185,22 @@ const Holland = {
     try {
       const result = this.calculateResult();
 
+      Utils.hideLoading();
+
+      // 询问是否保存结果
+      const shouldSave = await Utils.confirm(
+        '测试完成！是否保存本次测试结果？\n\n如果本次测试非本人操作，可选择不保存。',
+        '保存测试结果'
+      );
+
+      if (!shouldSave) {
+        Utils.showToast('测试结果未保存', 'info');
+        Router.navigate('/test');
+        return;
+      }
+
+      Utils.showLoading('正在保存...');
+
       const testData = {
         id: this.testId,
         type: 'holland',
