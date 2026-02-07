@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.5',
+  currentVersion: '1.7.6',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.6',
+      date: '2026-02-07 22:30',
+      title: '日记保存性能优化',
+      changes: [
+        { type: 'improve', text: '优化日记保存速度，AI 分析改为后台异步执行' },
+        { type: 'improve', text: '保存后立即跳转，不再等待 AI 响应' }
+      ]
+    },
     {
       version: '1.7.5',
       date: '2026-02-07 22:00',

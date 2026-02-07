@@ -671,19 +671,8 @@ ${content}
         tags: document.getElementById('diaryTags').value.trim().split(/\s+/).filter(Boolean)
       };
 
-      // 如果是新日记，尝试 AI 分析
-      if (!diaryId && API.isConfigured()) {
-        const analysis = await this.analyzeContent(content);
-        if (analysis) {
-          diaryData.analysis = analysis;
-          // 如果用户没选心情，使用 AI 分析的
-          if (!diaryData.moodScore && analysis.moodScore) {
-            diaryData.moodScore = analysis.moodScore;
-          }
-        }
-      }
-
-      await this.save(diaryData);
+      // 先保存日记
+      const savedDiary = await this.save(diaryData);
 
       // 清空临时图片数组
       this.currentImages = [];
@@ -692,10 +681,40 @@ ${content}
       Utils.showToast(diaryId ? '日记已更新' : '日记已保存', 'success');
       Router.navigate('/diary');
 
+      // 如果是新日记，在后台异步执行 AI 分析（不阻塞用户）
+      if (!diaryId && API.isConfigured()) {
+        this.analyzeInBackground(savedDiary.id, content);
+      }
+
     } catch (error) {
       Utils.hideLoading();
       console.error('保存日记失败:', error);
       Utils.showToast('保存失败', 'error');
+    }
+  },
+
+  /**
+   * 后台异步分析日记内容
+   */
+  async analyzeInBackground(diaryId, content) {
+    try {
+      const analysis = await this.analyzeContent(content);
+      if (analysis) {
+        // 获取已保存的日记
+        const diary = await this.get(diaryId);
+        if (diary) {
+          diary.analysis = analysis;
+          // 如果用户没选心情，使用 AI 分析的
+          if (!diary.moodScore && analysis.moodScore) {
+            diary.moodScore = analysis.moodScore;
+          }
+          // 更新日记
+          await this.save(diary);
+          console.log('日记 AI 分析已完成并更新');
+        }
+      }
+    } catch (error) {
+      console.error('后台分析日记失败:', error);
     }
   },
 
