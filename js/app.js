@@ -415,14 +415,14 @@ const App = {
     }
     
     // 情商结果
-    if (latestEQ?.result?.totalScore !== undefined) {
-      const eqLevel = latestEQ.result.totalScore >= 80 ? '优秀' : latestEQ.result.totalScore >= 60 ? '良好' : '待提升';
+    if (latestEQ?.result?.overallScore !== undefined) {
+      const eqLevel = latestEQ.result.overallScore >= 80 ? '优秀' : latestEQ.result.overallScore >= 60 ? '良好' : '待提升';
       testResultsHtml += `
         <a href="#/report/${latestEQ.id}" class="test-result-item">
-          <div class="test-result-icon" style="background-color: #10b98120; color: #10b981;">🧠</div>
+          <div class="test-result-icon" style="background-color: #10b98120; color: #10b981;">💡</div>
           <div class="test-result-info">
             <div class="test-result-type">情商</div>
-            <div class="test-result-value" style="color: #10b981;">${latestEQ.result.totalScore}</div>
+            <div class="test-result-value" style="color: #10b981;">${latestEQ.result.overallScore}</div>
             <div class="test-result-name">${eqLevel}</div>
           </div>
         </a>
