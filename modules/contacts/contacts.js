@@ -1569,8 +1569,15 @@ const Contacts = {
           font-size: var(--font-size-sm);
           line-height: 1.8;
           color: var(--text-secondary);
-          white-space: pre-wrap;
         }
+        .test-detail-ai .md-h2 { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); margin: var(--spacing-md) 0 var(--spacing-sm); }
+        .test-detail-ai .md-h3 { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin: var(--spacing-md) 0 var(--spacing-sm); }
+        .test-detail-ai .md-h4 { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); margin: var(--spacing-sm) 0; }
+        .test-detail-ai .md-p { margin: var(--spacing-sm) 0; }
+        .test-detail-ai .md-li { margin-left: var(--spacing-lg); list-style: disc; }
+        .test-detail-ai .md-li-num { margin-left: var(--spacing-lg); list-style: decimal; }
+        .test-detail-ai .md-hr { border: none; border-top: 1px solid var(--border-color-light); margin: var(--spacing-md) 0; }
+        .test-detail-ai strong { color: var(--text-primary); font-weight: 600; }
       </style>
     `;
 
@@ -1607,54 +1614,78 @@ const Contacts = {
 
   renderMBTIDetail(result) {
     const dims = result.dimensions || {};
+    const mbtiColors = {
+      E: '#f59e0b', I: '#3b82f6',
+      S: '#22c55e', N: '#a855f7',
+      T: '#ef4444', F: '#ec4899',
+      J: '#6366f1', P: '#14b8a6'
+    };
+    
+    const mbtiDims = [
+      { left: 'E', right: 'I', leftName: '外向', rightName: '内向' },
+      { left: 'S', right: 'N', leftName: '感觉', rightName: '直觉' },
+      { left: 'T', right: 'F', leftName: '思考', rightName: '情感' },
+      { left: 'J', right: 'P', leftName: '判断', rightName: '知觉' }
+    ];
+    
     return `
       <div class="test-detail-result">${result.type || '-'}</div>
       <div class="test-detail-section">
         <div class="test-detail-section-title">维度分析</div>
         <div class="test-detail-dims">
-          <div class="test-detail-dim">
-            <span class="test-detail-dim-label">E外向/I内向</span>
-            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.E || 50}%"></div></div>
-            <span class="test-detail-dim-value">E:${dims.E || 0}%</span>
-          </div>
-          <div class="test-detail-dim">
-            <span class="test-detail-dim-label">S感觉/N直觉</span>
-            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.S || 50}%"></div></div>
-            <span class="test-detail-dim-value">S:${dims.S || 0}%</span>
-          </div>
-          <div class="test-detail-dim">
-            <span class="test-detail-dim-label">T思考/F情感</span>
-            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.T || 50}%"></div></div>
-            <span class="test-detail-dim-value">T:${dims.T || 0}%</span>
-          </div>
-          <div class="test-detail-dim">
-            <span class="test-detail-dim-label">J判断/P知觉</span>
-            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.J || 50}%"></div></div>
-            <span class="test-detail-dim-value">J:${dims.J || 0}%</span>
-          </div>
+          ${mbtiDims.map(dim => {
+            const leftScore = dims[dim.left] || 50;
+            const rightScore = 100 - leftScore;
+            const dominant = leftScore >= 50 ? dim.left : dim.right;
+            return `
+              <div class="mbti-dim-row">
+                <span class="mbti-dim-label" style="color: ${mbtiColors[dim.left]};">${dim.left} ${dim.leftName}</span>
+                <div class="mbti-dim-bar">
+                  <div class="mbti-dim-fill-left" style="width: ${leftScore}%; background-color: ${mbtiColors[dim.left]};"></div>
+                  <div class="mbti-dim-fill-right" style="width: ${rightScore}%; background-color: ${mbtiColors[dim.right]};"></div>
+                </div>
+                <span class="mbti-dim-label" style="color: ${mbtiColors[dim.right]};">${dim.rightName} ${dim.right}</span>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
+      <style>
+        .mbti-dim-row { display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+        .mbti-dim-label { font-size: var(--font-size-xs); width: 70px; text-align: center; font-weight: 500; }
+        .mbti-dim-bar { flex: 1; height: 12px; display: flex; border-radius: 6px; overflow: hidden; }
+        .mbti-dim-fill-left, .mbti-dim-fill-right { height: 100%; transition: width 0.3s; }
+      </style>
     `;
   },
 
   renderBigFiveDetail(result) {
     const dims = result.dimensions || {};
-    const labels = { O: '开放性', C: '尽责性', E: '外向性', A: '宜人性', N: '神经质' };
+    const bigFiveDims = [
+      { key: 'O', name: '开放性', color: '#a855f7', desc: '想象力、创造力' },
+      { key: 'C', name: '尽责性', color: '#3b82f6', desc: '自律、责任心' },
+      { key: 'E', name: '外向性', color: '#f59e0b', desc: '社交、活力' },
+      { key: 'A', name: '宜人性', color: '#22c55e', desc: '合作、信任' },
+      { key: 'N', name: '神经质', color: '#ef4444', desc: '情绪稳定性' }
+    ];
+    
     return `
       <div class="test-detail-section">
         <div class="test-detail-section-title">五大维度得分</div>
         <div class="test-detail-dims">
-          ${Object.entries(labels).map(([key, label]) => `
+          ${bigFiveDims.map(dim => `
             <div class="test-detail-dim">
-              <span class="test-detail-dim-label">${label}(${key})</span>
-              <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims[key] || 0}%"></div></div>
-              <span class="test-detail-dim-value">${dims[key] || 0}</span>
+              <span class="test-detail-dim-label">${dim.name}(${dim.key})</span>
+              <div class="test-detail-dim-bar">
+                <div class="test-detail-dim-fill" style="width: ${dims[dim.key] || 0}%; background-color: ${dim.color};"></div>
+              </div>
+              <span class="test-detail-dim-value" style="color: ${dim.color};">${dims[dim.key] || 0}</span>
             </div>
           `).join('')}
         </div>
@@ -1662,25 +1693,38 @@ const Contacts = {
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
     `;
   },
 
   renderHollandDetail(result) {
-    const scores = result.scores || {};
-    const labels = { R: '现实型', I: '研究型', A: '艺术型', S: '社会型', E: '企业型', C: '常规型' };
+    // 使用正确的数据结构：result.dimensions
+    const dims = result.dimensions || {};
+    const hollandDims = {
+      R: { name: '现实型', icon: '🔧', color: '#ef4444' },
+      I: { name: '研究型', icon: '🔬', color: '#3b82f6' },
+      A: { name: '艺术型', icon: '🎨', color: '#a855f7' },
+      S: { name: '社会型', icon: '🤝', color: '#22c55e' },
+      E: { name: '企业型', icon: '💼', color: '#f59e0b' },
+      C: { name: '常规型', icon: '📊', color: '#6366f1' }
+    };
+    
     return `
-      <div class="test-detail-result">${result.primaryType || '-'} ${result.secondaryType || ''}</div>
+      ${result.hollandCode ? `
+        <div class="test-detail-result">${result.hollandCode}</div>
+      ` : ''}
       <div class="test-detail-section">
         <div class="test-detail-section-title">六大类型得分</div>
         <div class="test-detail-dims">
-          ${Object.entries(labels).map(([key, label]) => `
+          ${Object.entries(hollandDims).map(([key, info]) => `
             <div class="test-detail-dim">
-              <span class="test-detail-dim-label">${label}(${key})</span>
-              <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(scores[key] || 0) * 10}%"></div></div>
-              <span class="test-detail-dim-value">${scores[key] || 0}</span>
+              <span class="test-detail-dim-label">${info.icon} ${info.name}(${key})</span>
+              <div class="test-detail-dim-bar">
+                <div class="test-detail-dim-fill" style="width: ${dims[key] || 0}%; background-color: ${info.color};"></div>
+              </div>
+              <span class="test-detail-dim-value" style="color: ${info.color};">${dims[key] || 0}%</span>
             </div>
           `).join('')}
         </div>
@@ -1688,35 +1732,51 @@ const Contacts = {
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
     `;
   },
 
   renderAttachmentDetail(result) {
-    const scores = result.scores || {};
+    // 依恋类型使用 result.anxiety 和 result.avoidance
+    const anxiety = result.anxiety || 0;
+    const avoidance = result.avoidance || 0;
+    
+    const typeInfo = {
+      'secure': { name: '安全型', desc: '低焦虑、低回避' },
+      'anxious': { name: '焦虑型', desc: '高焦虑、低回避' },
+      'avoidant': { name: '回避型', desc: '低焦虑、高回避' },
+      'fearful': { name: '恐惧型', desc: '高焦虑、高回避' }
+    };
+    const info = typeInfo[result.type] || { name: result.type, desc: '' };
+    
     return `
-      <div class="test-detail-result">${result.type || '-'}</div>
+      <div class="test-detail-result">${info.name || result.type || '-'}</div>
+      ${info.desc ? `<p class="text-center text-secondary mb-lg">${info.desc}</p>` : ''}
       <div class="test-detail-section">
         <div class="test-detail-section-title">依恋维度</div>
         <div class="test-detail-dims">
           <div class="test-detail-dim">
             <span class="test-detail-dim-label">焦虑程度</span>
-            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(scores.anxiety || 0) * 20}%"></div></div>
-            <span class="test-detail-dim-value">${scores.anxiety || 0}</span>
+            <div class="test-detail-dim-bar">
+              <div class="test-detail-dim-fill" style="width: ${anxiety}%; background-color: #ef4444;"></div>
+            </div>
+            <span class="test-detail-dim-value" style="color: #ef4444;">${anxiety}%</span>
           </div>
           <div class="test-detail-dim">
             <span class="test-detail-dim-label">回避程度</span>
-            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(scores.avoidance || 0) * 20}%"></div></div>
-            <span class="test-detail-dim-value">${scores.avoidance || 0}</span>
+            <div class="test-detail-dim-bar">
+              <div class="test-detail-dim-fill" style="width: ${avoidance}%; background-color: #3b82f6;"></div>
+            </div>
+            <span class="test-detail-dim-value" style="color: #3b82f6;">${avoidance}%</span>
           </div>
         </div>
       </div>
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
     `;
@@ -1724,71 +1784,154 @@ const Contacts = {
 
   renderEQDetail(result) {
     const dims = result.dimensions || {};
-    const labels = ['自我意识', '自我管理', '社会意识', '关系管理', '自我激励'];
+    const eqDims = [
+      { key: 'selfAwareness', name: '自我意识', color: '#3b82f6' },
+      { key: 'selfManagement', name: '自我管理', color: '#22c55e' },
+      { key: 'socialAwareness', name: '社会意识', color: '#f59e0b' },
+      { key: 'relationshipManagement', name: '关系管理', color: '#ef4444' },
+      { key: 'selfMotivation', name: '自我激励', color: '#a855f7' }
+    ];
+    
     return `
-      <div class="test-detail-result">${result.overallScore || 0} 分</div>
+      <div class="test-detail-result">${result.overallScore || result.totalScore || 0} 分</div>
       <div class="test-detail-section">
         <div class="test-detail-section-title">各维度得分</div>
         <div class="test-detail-dims">
-          ${labels.map((label, i) => `
-            <div class="test-detail-dim">
-              <span class="test-detail-dim-label">${label}</span>
-              <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(dims[label] || dims[i] || 0)}%"></div></div>
-              <span class="test-detail-dim-value">${dims[label] || dims[i] || 0}</span>
-            </div>
-          `).join('')}
+          ${eqDims.map(dim => {
+            const score = dims[dim.key] || dims[dim.name] || 0;
+            return `
+              <div class="test-detail-dim">
+                <span class="test-detail-dim-label">${dim.name}</span>
+                <div class="test-detail-dim-bar">
+                  <div class="test-detail-dim-fill" style="width: ${score}%; background-color: ${dim.color};"></div>
+                </div>
+                <span class="test-detail-dim-value" style="color: ${dim.color};">${score}%</span>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
     `;
   },
 
   renderValuesDetail(result) {
-    const topValues = result.topValues || [];
+    const topValues = result.topValues || result.values || [];
+    const scores = result.scores || {};
+    
     return `
       <div class="test-detail-section">
         <div class="test-detail-section-title">核心价值观排序</div>
-        <div class="test-detail-tags">
-          ${topValues.map((v, i) => `<span class="test-detail-tag">${i + 1}. ${v}</span>`).join('')}
-        </div>
+        ${topValues.length > 0 ? `
+          <div class="values-list">
+            ${topValues.map((v, i) => {
+              const value = typeof v === 'object' ? v.name : v;
+              const score = typeof v === 'object' ? v.score : (scores[value] || 0);
+              return `
+                <div class="value-item">
+                  <span class="value-rank">${i + 1}</span>
+                  <span class="value-name">${value}</span>
+                  ${score ? `<span class="value-score">${score}%</span>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : '<div class="text-secondary">暂无数据</div>'}
       </div>
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
+      <style>
+        .values-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+        .value-item { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm); background: var(--bg-secondary); border-radius: var(--radius-md); }
+        .value-rank { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--primary-color); color: white; border-radius: 50%; font-size: var(--font-size-xs); font-weight: 600; }
+        .value-name { flex: 1; font-weight: 500; }
+        .value-score { color: var(--primary-color); font-weight: 600; }
+      </style>
     `;
   },
 
   renderStressDetail(result) {
+    const levelInfo = {
+      '正常': { color: '#22c55e', desc: '心理状态良好' },
+      '轻度': { color: '#f59e0b', desc: '有轻微压力' },
+      '中度': { color: '#f97316', desc: '压力较大，需要关注' },
+      '重度': { color: '#ef4444', desc: '压力严重，建议寻求帮助' }
+    };
+    const info = levelInfo[result.level] || { color: 'var(--text-secondary)', desc: '' };
+    
     return `
-      <div class="test-detail-result">${result.level || '-'}</div>
+      <div class="test-detail-result" style="color: ${info.color};">${result.level || '-'}</div>
+      ${info.desc ? `<p class="text-center text-secondary mb-lg">${info.desc}</p>` : ''}
       <div class="test-detail-section">
-        <div class="test-detail-section-title">总分</div>
-        <div class="test-detail-text">得分：${result.totalScore || 0} 分</div>
+        <div class="test-detail-section-title">测试得分</div>
+        <div class="stress-score-display">
+          <div class="stress-score">${result.totalScore || 0}</div>
+          <div class="stress-label">分</div>
+        </div>
       </div>
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
-          <div class="test-detail-ai">${result.aiAnalysis}</div>
+          <div class="test-detail-ai">${this.formatMarkdown(result.aiAnalysis)}</div>
         </div>
       ` : ''}
+      <style>
+        .stress-score-display { display: flex; align-items: baseline; justify-content: center; gap: var(--spacing-xs); padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--radius-lg); }
+        .stress-score { font-size: var(--font-size-3xl); font-weight: 700; color: ${info.color}; }
+        .stress-label { font-size: var(--font-size-lg); color: var(--text-secondary); }
+      </style>
     `;
   },
 
   renderComprehensiveDetail(result) {
+    const content = result.analysis || result.aiAnalysis || '';
     return `
       <div class="test-detail-section">
         <div class="test-detail-section-title">综合分析报告</div>
-        <div class="test-detail-ai">${result.analysis || result.aiAnalysis || '暂无分析内容'}</div>
+        <div class="test-detail-ai">${content ? this.formatMarkdown(content) : '暂无分析内容'}</div>
       </div>
     `;
+  },
+
+  /**
+   * 格式化Markdown为HTML
+   */
+  formatMarkdown(text) {
+    if (!text) return '';
+    if (typeof text !== 'string') {
+      text = JSON.stringify(text, null, 2);
+    }
+    
+    return text
+      // 转义HTML特殊字符（但保留已有的HTML标签结构）
+      .replace(/&(?!amp;|lt;|gt;|quot;|#)/g, '&amp;')
+      // 标题
+      .replace(/^### (.+)$/gm, '<h4 class="md-h4">$1</h4>')
+      .replace(/^## (.+)$/gm, '<h3 class="md-h3">$1</h3>')
+      .replace(/^# (.+)$/gm, '<h2 class="md-h2">$1</h2>')
+      // 粗体和斜体
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // 列表
+      .replace(/^- (.+)$/gm, '<li class="md-li">$1</li>')
+      .replace(/^(\d+)\. (.+)$/gm, '<li class="md-li-num">$2</li>')
+      // 分隔线
+      .replace(/^---$/gm, '<hr class="md-hr">')
+      // 换行
+      .replace(/\n\n/g, '</p><p class="md-p">')
+      .replace(/\n/g, '<br>')
+      // 包装段落
+      .replace(/^(?!<)/, '<p class="md-p">')
+      .replace(/(?!>)$/, '</p>');
   },
 
   /**

@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.0',
+  currentVersion: '1.9.1',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.1',
+      date: '2026-02-08',
+      title: '测试报告详情优化',
+      changes: [
+        { type: 'improve', text: '重构联系人测试详情渲染，使用正确的数据结构' },
+        { type: 'improve', text: '霍兰德、MBTI、大五等测试显示彩色进度条和图标' },
+        { type: 'improve', text: 'AI分析内容支持Markdown格式化显示' },
+        { type: 'fix', text: '修复霍兰德测试维度得分显示为0的问题' }
+      ]
+    },
     {
       version: '1.9.0',
       date: '2026-02-08',
