@@ -5,13 +5,26 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.0',
+  currentVersion: '1.8.1',
 
   // 版本历史记录
   versions: [
     {
+      version: '1.8.1',
+      date: '2026-02-08',
+      title: '综合画像增强与体验优化',
+      changes: [
+        { type: 'feature', text: '综合画像分析整合日记情绪记录，分析心理状态和情绪模式' },
+        { type: 'feature', text: '综合画像分析整合关系网数据，提供人际互动建议' },
+        { type: 'improve', text: '「AI 问答」模块更名（原AI智障）' },
+        { type: 'improve', text: '优化导航栏顺序：首页→测试→报告→日记→关系→问答' },
+        { type: 'fix', text: '修复关系网模块在移动端无法加载的问题' },
+        { type: 'fix', text: '修复PC端关系网导航入口缺失的问题' }
+      ]
+    },
+    {
       version: '1.8.0',
-      date: '2026-02-07 23:00',
+      date: '2026-02-07',
       title: '关系网管理模块',
       changes: [
         { type: 'feature', text: '新增关系网管理模块，可导入他人数据建立关系网络' },
@@ -152,7 +165,7 @@ const Changelog = {
         { type: 'improve', text: '首页展示所有已完成测试的结果概览' },
         { type: 'improve', text: '支持显示 MBTI、大五人格、霍兰德、依恋类型、情商等测试结果' },
         { type: 'improve', text: '点击测试结果可直接跳转到详细报告' },
-        { type: 'improve', text: '快捷入口新增 AI 智障入口' }
+        { type: 'improve', text: '快捷入口新增 AI 问答入口' }
       ]
     },
     {
@@ -231,16 +244,16 @@ const Changelog = {
         { type: 'improve', text: '全面优化移动端界面适配' },
         { type: 'improve', text: '优化首页、测试、日记等页面布局' },
         { type: 'improve', text: '优化设置页面移动端显示' },
-        { type: 'improve', text: '优化 AI 智障聊天界面' },
+        { type: 'improve', text: '优化 AI 问答聊天界面' },
         { type: 'improve', text: '调整响应式断点和字体大小' }
       ]
     },
     {
       version: '1.2.0',
       date: '2026-02-06 18:00',
-      title: 'AI 智障上线',
+      title: 'AI 问答上线',
       changes: [
-        { type: 'feature', text: '新增 AI 智障模块，有问必答，不保证靠谱' },
+        { type: 'feature', text: '新增 AI 问答模块，有问必答，不保证靠谱' },
         { type: 'feature', text: '流式输出，实时显示 AI 胡说八道' },
         { type: 'feature', text: '支持 Markdown 格式渲染' },
         { type: 'improve', text: '优化版本更新提示，仅在新版本时显示' }

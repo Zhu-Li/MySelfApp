@@ -47,6 +47,30 @@ const Comprehensive = {
       holland: profile.holland
     };
 
+    // 收集日记数据（最近30篇，用于情绪分析）
+    const allDiary = await Storage.getAll('diary') || [];
+    const recentDiary = allDiary
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 30)
+      .map(d => ({
+        date: Utils.formatDate(d.createdAt, 'YYYY-MM-DD'),
+        mood: d.mood,
+        content: d.content?.substring(0, 200) // 截取前200字
+      }));
+    data.diary = recentDiary;
+
+    // 收集关系网数据
+    const contacts = await Storage.getAllContacts() || [];
+    const contactsSummary = contacts.map(c => ({
+      name: c.name,
+      remark: c.remark,
+      testsCount: c.tests?.length || 0,
+      diaryCount: c.diary?.length || 0,
+      mbtiType: c.profile?.mbti?.type,
+      importedAt: Utils.formatDate(c.importedAt, 'YYYY-MM-DD')
+    }));
+    data.contacts = contactsSummary;
+
     // 创建报告记录（分析在渲染页面时流式生成）
     const reportId = Utils.generateId();
     const report = {
@@ -128,6 +152,39 @@ const Comprehensive = {
 `;
     }
 
+    // 日记情绪数据
+    if (data.diary && data.diary.length > 0) {
+      const moodStats = {};
+      data.diary.forEach(d => {
+        if (d.mood) {
+          moodStats[d.mood] = (moodStats[d.mood] || 0) + 1;
+        }
+      });
+      const moodSummary = Object.entries(moodStats)
+        .sort((a, b) => b[1] - a[1])
+        .map(([mood, count]) => `${mood}: ${count}次`)
+        .join('、');
+      
+      prompt += `### 日记情绪记录（最近${data.diary.length}篇）
+- **情绪分布**: ${moodSummary || '无情绪标签'}
+- **近期日记摘要**:
+${data.diary.slice(0, 5).map(d => `  - [${d.date}] ${d.mood || ''} ${d.content?.substring(0, 50) || ''}...`).join('\n')}
+
+`;
+    }
+
+    // 关系网数据
+    if (data.contacts && data.contacts.length > 0) {
+      const mbtiContacts = data.contacts.filter(c => c.mbtiType);
+      prompt += `### 人际关系网络（${data.contacts.length}人）
+- **关系网概览**: 共导入 ${data.contacts.length} 位联系人数据
+${mbtiContacts.length > 0 ? `- **联系人MBTI类型分布**: ${mbtiContacts.map(c => `${c.name}${c.remark ? '(' + c.remark + ')' : ''}: ${c.mbtiType}`).join('、')}` : ''}
+- **关系网详情**:
+${data.contacts.slice(0, 10).map(c => `  - ${c.name}${c.remark ? '(' + c.remark + ')' : ''}: 测试${c.testsCount}条, 日记${c.diaryCount}篇`).join('\n')}
+
+`;
+    }
+
     prompt += `## 请提供以下深度分析
 
 ### 1. 综合人格画像
@@ -137,20 +194,26 @@ const Comprehensive = {
 - 根据多维度数据，识别用户最突出的3-5个核心优势
 - 分析这些优势在不同场景（工作、生活、人际）中的表现
 
-### 3. 发展建议
+### 3. 情绪与心理状态分析
+- 根据日记情绪记录，分析用户近期的心理状态和情绪模式
+- 识别可能的压力来源和情绪波动规律
+- 提供针对性的情绪管理建议
+
+### 4. 发展建议
 - 针对性格中可能的盲点或挑战提供建议
 - 提供具体、可行的个人成长方向
 
-### 4. 职业发展规划
+### 5. 职业发展规划
 - 整合性格特征和职业兴趣，推荐最适合的职业方向
 - 分析适合的工作环境和团队角色
 - 提供职业发展路径建议
 
-### 5. 人际关系指南
+### 6. 人际关系指南
 - 分析与不同类型人相处的模式
+- 结合关系网中联系人的性格类型，分析互动模式和潜在的相处建议
 - 提供改善人际关系的具体建议
 
-### 6. 生活建议
+### 7. 生活建议
 - 适合的生活方式和休闲活动
 - 压力管理和情绪调节建议
 

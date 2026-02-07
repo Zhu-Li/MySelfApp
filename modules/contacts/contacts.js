@@ -829,7 +829,13 @@ const Contacts = {
   /**
    * 显示本人数据冲突对比弹窗
    */
-  showSelfConflictDialog(local, imported, importData) {
+  async showSelfConflictDialog(local, imported, importData) {
+    // 在模板字符串外部获取本地数据计数
+    const localTests = await Storage.getAll('tests');
+    const localDiary = await Storage.getAll('diary');
+    const localTestsCount = localTests?.length || 0;
+    const localDiaryCount = localDiary?.length || 0;
+
     return new Promise((resolve) => {
       const localGender = local.gender === 'male' ? '男' : local.gender === 'female' ? '女' : '-';
       const importedGender = imported.gender === 'male' ? '男' : imported.gender === 'female' ? '女' : '-';
@@ -851,8 +857,8 @@ const Contacts = {
                 <div class="conflict-column-title">本地数据</div>
                 <div class="conflict-item">性别: ${localGender}</div>
                 <div class="conflict-item">生日: ${local.birthday || '-'}</div>
-                <div class="conflict-item">测试: ${(await Storage.getAll('tests'))?.length || 0} 条</div>
-                <div class="conflict-item">日记: ${(await Storage.getAll('diary'))?.length || 0} 篇</div>
+                <div class="conflict-item">测试: ${localTestsCount} 条</div>
+                <div class="conflict-item">日记: ${localDiaryCount} 篇</div>
               </div>
               <div class="conflict-column">
                 <div class="conflict-column-title">导入数据</div>

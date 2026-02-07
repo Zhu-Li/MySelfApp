@@ -540,7 +540,7 @@ const App = {
           <a href="#/chat" class="card card-hover quick-entry-card">
             <div class="card-body text-center">
               <div class="quick-entry-icon">🤖</div>
-              <h3 class="quick-entry-title">AI 智障</h3>
+              <h3 class="quick-entry-title">AI 问答</h3>
               <p class="quick-entry-desc">有问必答</p>
             </div>
           </a>
