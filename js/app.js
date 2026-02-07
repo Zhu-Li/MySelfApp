@@ -3,6 +3,29 @@
  * 观己 - 静观己心，内外澄明
  */
 
+// 抑制浏览器扩展导致的 runtime.lastError 错误
+// 这些错误来自扩展程序尝试与页面通信，不影响应用功能
+if (typeof chrome !== 'undefined' && chrome.runtime) {
+  const originalSendMessage = chrome.runtime.sendMessage;
+  if (originalSendMessage) {
+    chrome.runtime.sendMessage = function(...args) {
+      try {
+        return originalSendMessage.apply(this, args);
+      } catch (e) {
+        // 静默处理扩展通信错误
+      }
+    };
+  }
+}
+
+// 全局错误处理：过滤扩展相关错误
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason?.message?.includes('Could not establish connection') ||
+      event.reason?.message?.includes('Receiving end does not exist')) {
+    event.preventDefault();
+  }
+});
+
 const App = {
   isUnlocked: false,
   setupStep: 1,

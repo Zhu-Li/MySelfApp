@@ -11,7 +11,7 @@ const Changelog = {
   versions: [
     {
       version: '1.6.2',
-      date: '2026-02-07',
+      date: '2026-02-07 15:30',
       title: '数据卡片布局优化',
       changes: [
         { type: 'improve', text: '修复数据卡片内容重叠问题' },
@@ -22,7 +22,7 @@ const Changelog = {
     },
     {
       version: '1.6.1',
-      date: '2026-02-07',
+      date: '2026-02-07 14:00',
       title: '体验优化',
       changes: [
         { type: 'improve', text: '美化确认对话框，替换浏览器默认弹窗' },
@@ -33,7 +33,7 @@ const Changelog = {
     },
     {
       version: '1.6.0',
-      date: '2026-02-07',
+      date: '2026-02-07 12:00',
       title: '数据卡片安全升级',
       changes: [
         { type: 'feature', text: '数据卡片支持 AES-256-GCM 加密，防止数据泄露' },
@@ -45,7 +45,7 @@ const Changelog = {
     },
     {
       version: '1.5.0',
-      date: '2026-02-07',
+      date: '2026-02-07 10:00',
       title: '数据卡片迁移',
       changes: [
         { type: 'feature', text: '新增数据卡片导出功能，生成精美个人画像卡' },
@@ -56,7 +56,7 @@ const Changelog = {
     },
     {
       version: '1.4.0',
-      date: '2026-02-07',
+      date: '2026-02-07 08:00',
       title: '心理测试扩展',
       changes: [
         { type: 'feature', text: '新增依恋类型测试（30道题），了解亲密关系模式' },
@@ -69,7 +69,7 @@ const Changelog = {
     },
     {
       version: '1.3.0',
-      date: '2026-02-07',
+      date: '2026-02-07 00:00',
       title: '移动端体验优化',
       changes: [
         { type: 'improve', text: '全面优化移动端界面适配' },
@@ -81,7 +81,7 @@ const Changelog = {
     },
     {
       version: '1.2.0',
-      date: '2026-02-06',
+      date: '2026-02-06 18:00',
       title: 'AI 智障上线',
       changes: [
         { type: 'feature', text: '新增 AI 智障模块，有问必答，不保证靠谱' },
@@ -92,7 +92,7 @@ const Changelog = {
     },
     {
       version: '1.1.0',
-      date: '2026-02-06',
+      date: '2026-02-06 12:00',
       title: '功能优化更新',
       changes: [
         { type: 'feature', text: '新增意见反馈功能，支持直接提交建议' },
@@ -105,7 +105,7 @@ const Changelog = {
     },
     {
       version: '1.0.0',
-      date: '2026-02-05',
+      date: '2026-02-05 20:00',
       title: '首个正式版本',
       changes: [
         { type: 'feature', text: 'MBTI 性格测试（70道题）' },
