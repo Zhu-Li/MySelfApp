@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.4',
+  currentVersion: '1.9.5',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.5',
+      date: '2026-02-08',
+      title: '首页画像补全',
+      changes: [
+        { type: 'fix', text: '首页"我的画像"新增综合画像展示' }
+      ]
+    },
     {
       version: '1.9.4',
       date: '2026-02-08',

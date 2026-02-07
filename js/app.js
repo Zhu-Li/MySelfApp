@@ -382,6 +382,7 @@ const App = {
     const latestEQ = await Storage.getLatestTest('eq');
     const latestValues = await Storage.getLatestTest('values');
     const latestStress = await Storage.getLatestTest('stress');
+    const latestComprehensive = await Storage.getLatestTest('comprehensive');
 
     // 构建测试结果卡片
     let testResultsHtml = '';
@@ -487,6 +488,21 @@ const App = {
             <div class="test-result-type">心理健康</div>
             <div class="test-result-value" style="color: #06b6d4;">${anxietyLevel}</div>
             <div class="test-result-name">焦虑状态</div>
+          </div>
+        </a>
+      `;
+    }
+    
+    // 综合画像结果
+    if (latestComprehensive) {
+      const testCount = Object.values(latestComprehensive.sourceTests || {}).filter(Boolean).length;
+      testResultsHtml += `
+        <a href="#/report/${latestComprehensive.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: #8b5cf620; color: #8b5cf6;">📊</div>
+          <div class="test-result-info">
+            <div class="test-result-type">综合画像</div>
+            <div class="test-result-value" style="color: #8b5cf6;">已生成</div>
+            <div class="test-result-name">整合${testCount}项测试</div>
           </div>
         </a>
       `;
