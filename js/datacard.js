@@ -165,267 +165,393 @@ const DataCard = {
   },
 
   /**
-   * 绘制卡片视觉效果
+   * 绘制卡片视觉效果 - 科技风格
    */
   drawCard(ctx, stats, profile) {
     const { WIDTH, HEIGHT, DATA_ROWS } = this;
-    const visibleHeight = HEIGHT - DATA_ROWS;
     
-    // 背景渐变 - 更现代的配色
-    const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-    gradient.addColorStop(0, '#6366f1');
-    gradient.addColorStop(0.5, '#8b5cf6');
-    gradient.addColorStop(1, '#a855f7');
-    ctx.fillStyle = gradient;
+    // ===== 深色科技背景 =====
+    const bgGradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+    bgGradient.addColorStop(0, '#0a0a1a');
+    bgGradient.addColorStop(0.5, '#0d1025');
+    bgGradient.addColorStop(1, '#0a0a1a');
+    ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     
-    // 装饰图案 - 几何形状
-    ctx.globalAlpha = 0.08;
-    ctx.fillStyle = '#ffffff';
-    // 右上角大圆
-    ctx.beginPath();
-    ctx.arc(720, 50, 150, 0, Math.PI * 2);
-    ctx.fill();
-    // 左下角圆
-    ctx.beginPath();
-    ctx.arc(80, visibleHeight - 30, 100, 0, Math.PI * 2);
-    ctx.fill();
-    // 小装饰圆
-    ctx.beginPath();
-    ctx.arc(600, visibleHeight - 60, 40, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    // ===== 网格背景 =====
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.08)';
+    ctx.lineWidth = 1;
+    for (let y = 0; y < HEIGHT; y += 20) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(WIDTH, y);
+      ctx.stroke();
+    }
+    for (let x = 0; x < WIDTH; x += 20) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, HEIGHT);
+      ctx.stroke();
+    }
     
-    // 主卡片区域
+    // ===== 发光装饰 =====
+    const glow1 = ctx.createRadialGradient(700, 80, 0, 700, 80, 180);
+    glow1.addColorStop(0, 'rgba(139, 92, 246, 0.3)');
+    glow1.addColorStop(0.5, 'rgba(139, 92, 246, 0.1)');
+    glow1.addColorStop(1, 'rgba(139, 92, 246, 0)');
+    ctx.fillStyle = glow1;
+    ctx.fillRect(520, 0, 280, 260);
+    
+    const glow2 = ctx.createRadialGradient(100, HEIGHT - 80, 0, 100, HEIGHT - 80, 150);
+    glow2.addColorStop(0, 'rgba(6, 182, 212, 0.25)');
+    glow2.addColorStop(0.5, 'rgba(6, 182, 212, 0.08)');
+    glow2.addColorStop(1, 'rgba(6, 182, 212, 0)');
+    ctx.fillStyle = glow2;
+    ctx.fillRect(0, HEIGHT - 230, 250, 230);
+    
+    // ===== 电路板装饰 =====
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 60);
+    ctx.lineTo(40, 60);
+    ctx.lineTo(60, 40);
+    ctx.lineTo(120, 40);
+    ctx.stroke();
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.arc(120, 40, 4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(WIDTH, HEIGHT - 60);
+    ctx.lineTo(WIDTH - 60, HEIGHT - 60);
+    ctx.lineTo(WIDTH - 80, HEIGHT - 80);
+    ctx.lineTo(WIDTH - 140, HEIGHT - 80);
+    ctx.stroke();
+    ctx.fillStyle = '#8b5cf6';
+    ctx.beginPath();
+    ctx.arc(WIDTH - 140, HEIGHT - 80, 4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // ===== 主内容区域 =====
     const cardX = 30;
     const cardY = 25;
     const cardWidth = WIDTH - 60;
-    const cardHeight = visibleHeight - 50;
+    const cardHeight = HEIGHT - 50;
     
-    // 卡片阴影效果
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 8;
-    
-    // 卡片背景
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
-    this.roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 16);
-    ctx.fill();
-    
-    // 重置阴影
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-    
-    // 左侧装饰色条
-    const accentGradient = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardHeight);
-    accentGradient.addColorStop(0, '#6366f1');
-    accentGradient.addColorStop(1, '#a855f7');
-    ctx.fillStyle = accentGradient;
-    this.roundRectLeft(ctx, cardX, cardY, 6, cardHeight, 16);
-    ctx.fill();
-    
-    // ===== 左侧区域：个人信息 =====
-    const leftX = cardX + 35;
-    const contentY = cardY + 35;
-    
-    // Logo 和标题
-    ctx.font = 'bold 22px "Microsoft YaHei", "PingFang SC", sans-serif';
-    ctx.fillStyle = '#1e1b4b';
-    ctx.fillText('🔮 观己', leftX, contentY);
-    
-    // 副标题
-    ctx.font = '12px "Microsoft YaHei", "PingFang SC", sans-serif';
-    ctx.fillStyle = '#64748b';
-    ctx.fillText('个人画像数据卡', leftX + 85, contentY);
-    
-    // MBTI 类型区域
-    const mbtiY = contentY + 50;
-    
-    if (stats.mbtiType) {
-      // MBTI 背景框
-      ctx.fillStyle = 'rgba(99, 102, 241, 0.08)';
-      this.roundRect(ctx, leftX, mbtiY - 5, 160, 80, 12);
-      ctx.fill();
-      
-      // MBTI 类型
-      ctx.font = 'bold 42px "Microsoft YaHei", "PingFang SC", sans-serif';
-      ctx.fillStyle = '#6366f1';
-      ctx.fillText(stats.mbtiType, leftX + 20, mbtiY + 45);
-      
-      // MBTI 名称
-      const mbtiNames = {
-        'INTJ': '策略家', 'INTP': '逻辑学家', 'ENTJ': '指挥官', 'ENTP': '辩论家',
-        'INFJ': '提倡者', 'INFP': '调停者', 'ENFJ': '主人公', 'ENFP': '竞选者',
-        'ISTJ': '物流师', 'ISFJ': '守卫者', 'ESTJ': '总经理', 'ESFJ': '执政官',
-        'ISTP': '鉴赏家', 'ISFP': '探险家', 'ESTP': '企业家', 'ESFP': '表演者'
-      };
-      ctx.font = '14px "Microsoft YaHei", "PingFang SC", sans-serif';
-      ctx.fillStyle = '#8b5cf6';
-      ctx.fillText(mbtiNames[stats.mbtiType] || '', leftX + 105, mbtiY + 45);
-    } else {
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.1)';
-      this.roundRect(ctx, leftX, mbtiY - 5, 160, 80, 12);
-      ctx.fill();
-      
-      ctx.font = '16px "Microsoft YaHei", "PingFang SC", sans-serif';
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillText('暂无MBTI', leftX + 35, mbtiY + 40);
-    }
-    
-    // 统计数据
-    const statsY = mbtiY + 100;
-    
-    // 测试数量
-    ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
-    this.roundRect(ctx, leftX, statsY, 75, 55, 10);
-    ctx.fill();
-    ctx.font = 'bold 24px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#10b981';
-    ctx.fillText(stats.testCount, leftX + 25, statsY + 30);
-    ctx.font = '11px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#64748b';
-    ctx.fillText('项测试', leftX + 18, statsY + 47);
-    
-    // 日记数量
-    ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
-    this.roundRect(ctx, leftX + 85, statsY, 75, 55, 10);
-    ctx.fill();
-    ctx.font = 'bold 24px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#f59e0b';
-    ctx.fillText(stats.diaryCount, leftX + 110, statsY + 30);
-    ctx.font = '11px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#64748b';
-    ctx.fillText('篇日记', leftX + 103, statsY + 47);
-    
-    // ===== 右侧区域：大五人格 =====
-    const rightX = cardX + 220;
-    const rightWidth = cardWidth - 250;
-    
-    // 分割线
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(rightX - 20, cardY + 25);
-    ctx.lineTo(rightX - 20, cardY + cardHeight - 25);
+    this.roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 12);
     ctx.stroke();
     
-    // 大五人格标题
-    ctx.font = 'bold 15px "Microsoft YaHei", "PingFang SC", sans-serif';
-    ctx.fillStyle = '#1e1b4b';
-    ctx.fillText('大五人格特质', rightX, contentY);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+    this.roundRect(ctx, cardX + 1, cardY + 1, cardWidth - 2, cardHeight - 2, 11);
+    ctx.fill();
+    
+    this.drawCornerDecor(ctx, cardX, cardY, cardWidth, cardHeight);
+    
+    // ===== 头部区域 =====
+    const headerY = cardY + 20;
+    
+    ctx.font = 'bold 20px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#e0e7ff';
+    ctx.fillText('🔮 观己', cardX + 25, headerY + 5);
+    
+    ctx.font = '11px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('PERSONAL PROFILE CARD', cardX + 85, headerY + 5);
+    
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(cardX + cardWidth - 40, headerY, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '10px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('ACTIVE', cardX + cardWidth - 32, headerY + 4);
+    
+    const lineGradient = ctx.createLinearGradient(cardX + 25, 0, cardX + cardWidth - 25, 0);
+    lineGradient.addColorStop(0, 'rgba(99, 102, 241, 0)');
+    lineGradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.5)');
+    lineGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+    ctx.strokeStyle = lineGradient;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cardX + 25, headerY + 20);
+    ctx.lineTo(cardX + cardWidth - 25, headerY + 20);
+    ctx.stroke();
+    
+    // ===== 左侧：MBTI =====
+    const leftX = cardX + 30;
+    const contentY = headerY + 45;
+    
+    ctx.font = '10px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#06b6d4';
+    ctx.fillText('◆ PERSONALITY TYPE', leftX, contentY);
+    
+    if (stats.mbtiType) {
+      ctx.font = 'bold 52px "Consolas", monospace';
+      ctx.fillStyle = '#06b6d4';
+      ctx.shadowColor = '#06b6d4';
+      ctx.shadowBlur = 20;
+      ctx.fillText(stats.mbtiType, leftX, contentY + 60);
+      ctx.shadowBlur = 0;
+      
+      const mbtiNames = {
+        'INTJ': '策略家 Architect', 'INTP': '逻辑学家 Logician',
+        'ENTJ': '指挥官 Commander', 'ENTP': '辩论家 Debater',
+        'INFJ': '提倡者 Advocate', 'INFP': '调停者 Mediator',
+        'ENFJ': '主人公 Protagonist', 'ENFP': '竞选者 Campaigner',
+        'ISTJ': '物流师 Logistician', 'ISFJ': '守卫者 Defender',
+        'ESTJ': '总经理 Executive', 'ESFJ': '执政官 Consul',
+        'ISTP': '鉴赏家 Virtuoso', 'ISFP': '探险家 Adventurer',
+        'ESTP': '企业家 Entrepreneur', 'ESFP': '表演者 Entertainer'
+      };
+      ctx.font = '12px "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText(mbtiNames[stats.mbtiType] || '', leftX, contentY + 80);
+    } else {
+      ctx.font = 'bold 28px "Consolas", monospace';
+      ctx.fillStyle = '#334155';
+      ctx.fillText('----', leftX, contentY + 55);
+      ctx.font = '11px "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#475569';
+      ctx.fillText('未完成测试', leftX, contentY + 75);
+    }
+    
+    // ===== 统计数据 =====
+    const statsY = contentY + 110;
+    this.drawStatBox(ctx, leftX, statsY, stats.testCount, '测试', '#8b5cf6');
+    this.drawStatBox(ctx, leftX + 90, statsY, stats.diaryCount, '日记', '#06b6d4');
+    
+    // ===== 右侧：大五人格 =====
+    const rightX = cardX + 240;
+    
+    ctx.font = '10px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#8b5cf6';
+    ctx.fillText('◆ BIG FIVE PERSONALITY', rightX, contentY);
     
     if (stats.bigfiveScores) {
-      const barY = contentY + 25;
-      const barHeight = 18;
-      const barSpacing = 40;
-      const barMaxWidth = rightWidth - 80;
+      this.drawRadarChart(ctx, rightX + 150, contentY + 90, 70, stats.bigfiveScores);
       
       const dimensions = [
-        { key: 'O', name: '开放性', color: '#8b5cf6', desc: '想象力·好奇心' },
-        { key: 'C', name: '尽责性', color: '#10b981', desc: '自律·条理性' },
-        { key: 'E', name: '外向性', color: '#f59e0b', desc: '社交·活力' },
-        { key: 'A', name: '宜人性', color: '#ec4899', desc: '合作·信任' },
-        { key: 'N', name: '情绪性', color: '#6366f1', desc: '敏感·情绪波动' }
+        { key: 'O', name: '开放性' },
+        { key: 'C', name: '尽责性' },
+        { key: 'E', name: '外向性' },
+        { key: 'A', name: '宜人性' },
+        { key: 'N', name: '情绪性' }
       ];
       
+      const listX = rightX + 260;
       dimensions.forEach((dim, i) => {
-        const y = barY + i * barSpacing;
+        const y = contentY + 30 + i * 32;
         const score = stats.bigfiveScores[dim.key] || 0;
         
-        // 维度名称
-        ctx.font = 'bold 13px "Microsoft YaHei", sans-serif';
-        ctx.fillStyle = '#334155';
-        ctx.fillText(dim.name, rightX, y + 12);
-        
-        // 描述
         ctx.font = '10px "Microsoft YaHei", sans-serif';
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillText(dim.desc, rightX + 52, y + 12);
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(dim.name, listX, y);
         
-        // 背景条
-        const barStartX = rightX;
-        const barActualY = y + 20;
-        ctx.fillStyle = '#f1f5f9';
-        this.roundRect(ctx, barStartX, barActualY, barMaxWidth, barHeight, 9);
-        ctx.fill();
-        
-        // 进度条
-        const barWidth = Math.max(0, (score / 100) * barMaxWidth);
-        if (barWidth > 0) {
-          const barGradient = ctx.createLinearGradient(barStartX, barActualY, barStartX + barWidth, barActualY);
-          barGradient.addColorStop(0, dim.color);
-          barGradient.addColorStop(1, this.lightenColor(dim.color, 20));
-          ctx.fillStyle = barGradient;
-          this.roundRect(ctx, barStartX, barActualY, barWidth, barHeight, 9);
-          ctx.fill();
-        }
-        
-        // 分数
-        ctx.font = 'bold 13px "Microsoft YaHei", sans-serif';
-        ctx.fillStyle = dim.color;
+        ctx.font = 'bold 18px "Consolas", monospace';
+        ctx.fillStyle = score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
         ctx.textAlign = 'right';
-        ctx.fillText(`${score}`, rightX + barMaxWidth + 30, barActualY + 14);
+        ctx.fillText(score.toString().padStart(2, '0'), listX + 90, y + 2);
         ctx.textAlign = 'left';
       });
     } else {
-      // 无数据提示
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.1)';
-      this.roundRect(ctx, rightX, contentY + 30, rightWidth - 40, 180, 12);
-      ctx.fill();
-      
-      ctx.font = '15px "Microsoft YaHei", sans-serif';
-      ctx.fillStyle = '#94a3b8';
+      this.drawRadarChart(ctx, rightX + 150, contentY + 90, 70, null);
+      ctx.font = '11px "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#475569';
       ctx.textAlign = 'center';
-      ctx.fillText('完成大五人格测试后', rightX + (rightWidth - 40) / 2, contentY + 110);
-      ctx.fillText('将在此展示人格特质', rightX + (rightWidth - 40) / 2, contentY + 135);
+      ctx.fillText('完成大五人格测试', rightX + 150, contentY + 170);
+      ctx.fillText('解锁人格分析', rightX + 150, contentY + 185);
       ctx.textAlign = 'left';
     }
     
-    // 底部时间戳
-    ctx.font = '11px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#94a3b8';
+    // ===== 底部信息 =====
+    const footerY = cardY + cardHeight - 25;
+    ctx.font = '10px "Consolas", monospace';
+    ctx.fillStyle = '#475569';
+    ctx.fillText('EXPORTED: ' + Utils.formatDate(Date.now(), 'YYYY-MM-DD HH:mm:ss'), cardX + 25, footerY);
     ctx.textAlign = 'right';
-    ctx.fillText(Utils.formatDate(Date.now(), 'YYYY-MM-DD HH:mm'), cardX + cardWidth - 20, cardY + cardHeight - 15);
+    ctx.fillText('v' + (typeof Changelog !== 'undefined' ? Changelog.currentVersion : '1.5.0'), cardX + cardWidth - 25, footerY);
     ctx.textAlign = 'left';
     
-    // 底部数据存储区域 - 渐变过渡
-    const dataGradient = ctx.createLinearGradient(0, visibleHeight - 20, 0, HEIGHT);
-    dataGradient.addColorStop(0, '#a855f7');
-    dataGradient.addColorStop(0.3, '#8b5cf6');
-    dataGradient.addColorStop(1, '#6366f1');
-    ctx.fillStyle = dataGradient;
-    ctx.fillRect(0, visibleHeight, WIDTH, DATA_ROWS);
+    // ===== 数据存储区域（融入设计） =====
+    const dataY = HEIGHT - DATA_ROWS;
     
-    // 底部装饰纹理
-    ctx.globalAlpha = 0.1;
-    for (let i = 0; i < 8; i++) {
+    // 扫描线效果
+    for (let y = dataY; y < HEIGHT; y += 3) {
+      const alpha = 0.03 + (y - dataY) / DATA_ROWS * 0.05;
+      ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
       ctx.beginPath();
-      ctx.arc(100 * i + 50, visibleHeight + 30, 20, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
-      ctx.fill();
+      ctx.moveTo(0, y);
+      ctx.lineTo(WIDTH, y);
+      ctx.stroke();
     }
-    ctx.globalAlpha = 1;
     
-    // 底部slogan
-    ctx.font = '10px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    // 底部渐变
+    const bottomGradient = ctx.createLinearGradient(0, dataY - 20, 0, HEIGHT);
+    bottomGradient.addColorStop(0, 'rgba(10, 10, 26, 0)');
+    bottomGradient.addColorStop(0.3, 'rgba(10, 10, 26, 0.5)');
+    bottomGradient.addColorStop(1, 'rgba(10, 10, 26, 0.8)');
+    ctx.fillStyle = bottomGradient;
+    ctx.fillRect(0, dataY - 20, WIDTH, DATA_ROWS + 20);
+    
+    // 装饰性二进制
+    ctx.font = '8px "Consolas", monospace';
+    ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
+    const binary = '01001001 01001110 01000110 01001111';
+    for (let i = 0; i < 4; i++) {
+      ctx.fillText(binary, 20 + i * 200, HEIGHT - 15);
+    }
+    
+    // 底部品牌
+    ctx.font = '9px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
     ctx.textAlign = 'center';
-    ctx.fillText('静观己心 · 内外澄明', WIDTH / 2, HEIGHT - 8);
+    ctx.fillText('静观己心 · 内外澄明', WIDTH / 2, HEIGHT - 5);
     ctx.textAlign = 'left';
   },
 
   /**
-   * 颜色变亮
+   * 绘制角落装饰
    */
-  lightenColor(hex, percent) {
-    const num = parseInt(hex.replace('#', ''), 16);
-    const amt = Math.round(2.55 * percent);
-    const R = Math.min(255, (num >> 16) + amt);
-    const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
-    const B = Math.min(255, (num & 0x0000FF) + amt);
-    return `rgb(${R},${G},${B})`;
+  drawCornerDecor(ctx, x, y, width, height) {
+    const size = 15;
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y + size);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + size, y);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(x + width - size, y);
+    ctx.lineTo(x + width, y);
+    ctx.lineTo(x + width, y + size);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y + height - size);
+    ctx.lineTo(x, y + height);
+    ctx.lineTo(x + size, y + height);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(x + width - size, y + height);
+    ctx.lineTo(x + width, y + height);
+    ctx.lineTo(x + width, y + height - size);
+    ctx.stroke();
+  },
+
+  /**
+   * 绘制统计数据框
+   */
+  drawStatBox(ctx, x, y, value, label, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, 75, 50);
+    
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, 8, 2);
+    ctx.fillRect(x, y, 2, 8);
+    ctx.fillRect(x + 67, y + 48, 8, 2);
+    ctx.fillRect(x + 73, y + 42, 2, 8);
+    
+    ctx.font = 'bold 24px "Consolas", monospace';
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 10;
+    ctx.fillText(value.toString().padStart(2, '0'), x + 10, y + 30);
+    ctx.shadowBlur = 0;
+    
+    ctx.font = '10px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(label, x + 45, y + 30);
+  },
+
+  /**
+   * 绘制雷达图
+   */
+  drawRadarChart(ctx, centerX, centerY, radius, scores) {
+    const dimensions = ['O', 'C', 'E', 'A', 'N'];
+    const angleStep = (Math.PI * 2) / 5;
+    const startAngle = -Math.PI / 2;
+    
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.2)';
+    ctx.lineWidth = 1;
+    
+    for (let r = radius; r > 0; r -= radius / 4) {
+      ctx.beginPath();
+      for (let i = 0; i <= 5; i++) {
+        const angle = startAngle + i * angleStep;
+        const px = centerX + Math.cos(angle) * r;
+        const py = centerY + Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    
+    for (let i = 0; i < 5; i++) {
+      const angle = startAngle + i * angleStep;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
+      ctx.stroke();
+    }
+    
+    if (scores) {
+      ctx.beginPath();
+      dimensions.forEach((dim, i) => {
+        const score = (scores[dim] || 0) / 100;
+        const angle = startAngle + i * angleStep;
+        const px = centerX + Math.cos(angle) * radius * score;
+        const py = centerY + Math.sin(angle) * radius * score;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.3)';
+      ctx.fill();
+      
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#06b6d4';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      
+      dimensions.forEach((dim, i) => {
+        const score = (scores[dim] || 0) / 100;
+        const angle = startAngle + i * angleStep;
+        const px = centerX + Math.cos(angle) * radius * score;
+        const py = centerY + Math.sin(angle) * radius * score;
+        
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fill();
+      });
+    }
+    
+    const labels = ['O', 'C', 'E', 'A', 'N'];
+    ctx.font = 'bold 10px "Consolas", monospace';
+    ctx.fillStyle = '#8b5cf6';
+    ctx.textAlign = 'center';
+    
+    labels.forEach((label, i) => {
+      const angle = startAngle + i * angleStep;
+      const px = centerX + Math.cos(angle) * (radius + 15);
+      const py = centerY + Math.sin(angle) * (radius + 15) + 4;
+      ctx.fillText(label, px, py);
+    });
+    
+    ctx.textAlign = 'left';
   },
 
   /**
@@ -446,49 +572,16 @@ const DataCard = {
   },
 
   /**
-   * 绘制左侧圆角矩形
-   */
-  roundRectLeft(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width, y);
-    ctx.lineTo(x + width, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-  },
-
-  /**
-   * 绘制顶部圆角矩形
-   */
-  roundRectTop(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height);
-    ctx.lineTo(x, y + height);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-  },
-
-  /**
    * 将数据编码到图片像素中
-   * 使用图片底部区域存储数据
    */
   encodeData(imageData, data) {
     const { width, height } = imageData;
     const { DATA_ROWS, MAGIC } = this;
     
-    // 计算可用像素数（底部区域）
     const startY = height - DATA_ROWS;
     const availablePixels = width * DATA_ROWS;
-    const availableBytes = availablePixels * 3; // RGB各1字节
+    const availableBytes = availablePixels * 3;
     
-    // 准备数据：魔数 + 长度 + 实际数据
     const magicBytes = new TextEncoder().encode(MAGIC);
     const lengthBytes = new Uint8Array(4);
     new DataView(lengthBytes.buffer).setUint32(0, data.length, true);
@@ -500,31 +593,25 @@ const DataCard = {
       return false;
     }
     
-    // 合并所有数据
     const allData = new Uint8Array(totalLength);
     allData.set(magicBytes, 0);
     allData.set(lengthBytes, magicBytes.length);
     allData.set(data, magicBytes.length + lengthBytes.length);
     
-    // 编码到像素
     let dataIndex = 0;
     for (let y = startY; y < height && dataIndex < allData.length; y++) {
       for (let x = 0; x < width && dataIndex < allData.length; x++) {
         const pixelIndex = (y * width + x) * 4;
         
-        // R通道
         if (dataIndex < allData.length) {
           imageData.data[pixelIndex] = allData[dataIndex++];
         }
-        // G通道
         if (dataIndex < allData.length) {
           imageData.data[pixelIndex + 1] = allData[dataIndex++];
         }
-        // B通道
         if (dataIndex < allData.length) {
           imageData.data[pixelIndex + 2] = allData[dataIndex++];
         }
-        // A通道保持255（不透明）
         imageData.data[pixelIndex + 3] = 255;
       }
     }
@@ -539,21 +626,18 @@ const DataCard = {
     const { width, height } = imageData;
     const { DATA_ROWS, MAGIC } = this;
     
-    // 如果图片尺寸不匹配，尝试从底部读取
     const startY = Math.max(0, height - DATA_ROWS);
     
-    // 读取前几个像素获取魔数和长度
     const headerBytes = [];
-    const headerLength = MAGIC.length + 4; // 魔数 + 4字节长度
+    const headerLength = MAGIC.length + 4;
     
-    let pixelCount = 0;
     outer: for (let y = startY; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pixelIndex = (y * width + x) * 4;
         
-        headerBytes.push(imageData.data[pixelIndex]);     // R
-        headerBytes.push(imageData.data[pixelIndex + 1]); // G
-        headerBytes.push(imageData.data[pixelIndex + 2]); // B
+        headerBytes.push(imageData.data[pixelIndex]);
+        headerBytes.push(imageData.data[pixelIndex + 1]);
+        headerBytes.push(imageData.data[pixelIndex + 2]);
         
         if (headerBytes.length >= headerLength) {
           break outer;
@@ -561,7 +645,6 @@ const DataCard = {
       }
     }
     
-    // 验证魔数
     const magicBytes = new Uint8Array(headerBytes.slice(0, MAGIC.length));
     const magicStr = new TextDecoder().decode(magicBytes);
     
@@ -570,7 +653,6 @@ const DataCard = {
       return null;
     }
     
-    // 读取数据长度
     const lengthBytes = new Uint8Array(headerBytes.slice(MAGIC.length, MAGIC.length + 4));
     const dataLength = new DataView(lengthBytes.buffer).getUint32(0, true);
     
@@ -579,7 +661,6 @@ const DataCard = {
       return null;
     }
     
-    // 读取实际数据
     const totalLength = MAGIC.length + 4 + dataLength;
     const allBytes = [];
     
@@ -587,9 +668,9 @@ const DataCard = {
       for (let x = 0; x < width; x++) {
         const pixelIndex = (y * width + x) * 4;
         
-        allBytes.push(imageData.data[pixelIndex]);     // R
-        allBytes.push(imageData.data[pixelIndex + 1]); // G
-        allBytes.push(imageData.data[pixelIndex + 2]); // B
+        allBytes.push(imageData.data[pixelIndex]);
+        allBytes.push(imageData.data[pixelIndex + 1]);
+        allBytes.push(imageData.data[pixelIndex + 2]);
         
         if (allBytes.length >= totalLength) {
           break outer2;
@@ -597,7 +678,6 @@ const DataCard = {
       }
     }
     
-    // 提取数据部分
     const dataStart = MAGIC.length + 4;
     const data = new Uint8Array(allBytes.slice(dataStart, dataStart + dataLength));
     
