@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.4',
+  currentVersion: '1.8.5',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.5',
+      date: '2026-02-08',
+      title: '日记统计字段修复',
+      changes: [
+        { type: 'fix', text: '修复日记统计使用错误字段名导致计算不准确的问题' }
+      ]
+    },
     {
       version: '1.8.4',
       date: '2026-02-08',

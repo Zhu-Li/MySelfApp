@@ -909,7 +909,7 @@ const App = {
       // 获取所有有活动的日期
       const activityDates = new Set();
       diary.forEach(d => {
-        const date = new Date(d.createdAt);
+        const date = new Date(d.timestamp);
         date.setHours(0, 0, 0, 0);
         activityDates.add(date.getTime());
       });
@@ -935,7 +935,7 @@ const App = {
       weekStart.setDate(today.getDate() - daysToMonday);
       weekStart.setHours(0, 0, 0, 0);
       const weeklyDiary = diary.filter(d => {
-        const diaryDate = new Date(d.createdAt);
+        const diaryDate = new Date(d.timestamp);
         return diaryDate >= weekStart;
       }).length;
       
