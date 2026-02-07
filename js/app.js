@@ -366,6 +366,14 @@ const App = {
     const container = document.getElementById('mainContent');
     const profile = await Storage.getProfile();
     
+    // 获取用户名和问候语
+    const userName = profile?.name || '探索者';
+    const greeting = this.getTimeGreeting();
+    const dailyQuote = this.getDailyQuote();
+    
+    // 获取打卡统计
+    const streakData = await this.getStreakData();
+    
     // 获取所有主要测试的最新结果
     const latestMBTI = await Storage.getLatestTest('mbti');
     const latestBigFive = await Storage.getLatestTest('bigfive');
@@ -489,15 +497,42 @@ const App = {
 
     container.innerHTML = `
       <div class="page-container animate-fade-in">
-        <!-- 欢迎区域 -->
-        <div class="hero-section card mb-xl" style="padding: var(--spacing-xl);">
-          <div class="text-center">
-            <h1 class="home-title">
-              欢迎使用「观己」
-            </h1>
-            <p class="text-secondary home-subtitle">
-              静观己心，内外澄明。探索真实的自己，了解你的性格特征与内在世界
-            </p>
+        <!-- 个性化问候区域 -->
+        <div class="greeting-section mb-lg">
+          <div class="greeting-main">
+            <span class="greeting-emoji">👋</span>
+            <div class="greeting-text">
+              <div class="greeting-hello">${greeting}，${userName}</div>
+              <div class="greeting-subtitle">今天也要好好认识自己哦</div>
+            </div>
+          </div>
+          
+          <!-- 打卡统计 -->
+          <div class="streak-badges">
+            <div class="streak-badge">
+              <span class="streak-icon">🔥</span>
+              <span class="streak-value">${streakData.streak}</span>
+              <span class="streak-label">连续天数</span>
+            </div>
+            <div class="streak-badge">
+              <span class="streak-icon">📔</span>
+              <span class="streak-value">${streakData.weeklyDiary}</span>
+              <span class="streak-label">本周日记</span>
+            </div>
+            <div class="streak-badge">
+              <span class="streak-icon">✨</span>
+              <span class="streak-value">${streakData.totalTests}</span>
+              <span class="streak-label">完成测试</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 今日语录卡片 -->
+        <div class="quote-card card mb-lg">
+          <div class="quote-content">
+            <span class="quote-icon">💭</span>
+            <p class="quote-text">${dailyQuote.text}</p>
+            <span class="quote-author">—— ${dailyQuote.author}</span>
           </div>
         </div>
 
@@ -567,6 +602,87 @@ const App = {
         </div>
       </div>
       <style>
+        /* 问候区域样式 */
+        .greeting-section {
+          background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
+          border-radius: var(--radius-xl);
+          padding: var(--spacing-lg);
+          color: white;
+        }
+        .greeting-main {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+          margin-bottom: var(--spacing-lg);
+        }
+        .greeting-emoji {
+          font-size: 2.5rem;
+        }
+        .greeting-hello {
+          font-size: var(--font-size-xl);
+          font-weight: 700;
+        }
+        .greeting-subtitle {
+          font-size: var(--font-size-sm);
+          opacity: 0.9;
+          margin-top: var(--spacing-xs);
+        }
+        .streak-badges {
+          display: flex;
+          gap: var(--spacing-sm);
+        }
+        .streak-badge {
+          flex: 1;
+          background: rgba(255,255,255,0.15);
+          border-radius: var(--radius-lg);
+          padding: var(--spacing-sm) var(--spacing-md);
+          text-align: center;
+          backdrop-filter: blur(10px);
+        }
+        .streak-icon {
+          display: block;
+          font-size: 1.25rem;
+          margin-bottom: 2px;
+        }
+        .streak-value {
+          display: block;
+          font-size: var(--font-size-xl);
+          font-weight: 700;
+        }
+        .streak-label {
+          display: block;
+          font-size: var(--font-size-xs);
+          opacity: 0.85;
+        }
+        
+        /* 今日语录卡片 */
+        .quote-card {
+          background: var(--bg-card);
+          border-left: 4px solid var(--color-primary);
+        }
+        .quote-content {
+          padding: var(--spacing-md) var(--spacing-lg);
+          position: relative;
+        }
+        .quote-icon {
+          position: absolute;
+          top: var(--spacing-sm);
+          right: var(--spacing-md);
+          font-size: 1.5rem;
+          opacity: 0.3;
+        }
+        .quote-text {
+          font-size: var(--font-size-base);
+          color: var(--text-primary);
+          line-height: 1.6;
+          margin-bottom: var(--spacing-sm);
+          font-style: italic;
+        }
+        .quote-author {
+          font-size: var(--font-size-sm);
+          color: var(--text-tertiary);
+        }
+        
         .home-title {
           font-size: var(--font-size-2xl);
           font-weight: 700;
@@ -657,6 +773,24 @@ const App = {
           gap: var(--spacing-md);
         }
         @media (max-width: 768px) {
+          .greeting-section {
+            padding: var(--spacing-md);
+          }
+          .greeting-emoji {
+            font-size: 2rem;
+          }
+          .greeting-hello {
+            font-size: var(--font-size-lg);
+          }
+          .streak-badge {
+            padding: var(--spacing-xs) var(--spacing-sm);
+          }
+          .streak-value {
+            font-size: var(--font-size-lg);
+          }
+          .quote-text {
+            font-size: var(--font-size-sm);
+          }
           .home-title {
             font-size: var(--font-size-xl);
           }
@@ -721,6 +855,92 @@ const App = {
 
     // 加载统计数据
     this.loadHomeStats();
+  },
+
+  /**
+   * 获取时段问候语
+   */
+  getTimeGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return '早上好';
+    if (hour >= 12 && hour < 14) return '中午好';
+    if (hour >= 14 && hour < 18) return '下午好';
+    if (hour >= 18 && hour < 22) return '晚上好';
+    return '夜深了';
+  },
+
+  /**
+   * 获取每日语录
+   */
+  getDailyQuote() {
+    const quotes = [
+      { text: '认识你自己，这是一切智慧的开端。', author: '苏格拉底' },
+      { text: '人最难认识的是自己，最重要的也是认识自己。', author: '老子' },
+      { text: '我们的性格即我们的命运。', author: '赫拉克利特' },
+      { text: '真正的勇气是认识自己，接纳自己。', author: '卡尔·荣格' },
+      { text: '每个人都是自己故事的主角。', author: '阿德勒' },
+      { text: '了解自己是走向成功的第一步。', author: '亚里士多德' },
+      { text: '性格决定命运，习惯决定性格。', author: '威廉·詹姆斯' },
+      { text: '向内看，去发现你自己的宝藏。', author: '鲁米' },
+      { text: '成为你自己，因为别人都有人做了。', author: '王尔德' },
+      { text: '内心的平静来自对自己的接纳。', author: '埃克哈特·托利' },
+      { text: '你的潜能是无限的，只需要去发现。', author: '马斯洛' },
+      { text: '每一天都是认识自己的新机会。', author: '观己' },
+      { text: '情绪是了解内心的窗口。', author: '丹尼尔·戈尔曼' },
+      { text: '接受自己的不完美，才能真正成长。', author: '布芮尼·布朗' }
+    ];
+    // 根据日期选择语录，每天固定
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    return quotes[dayOfYear % quotes.length];
+  },
+
+  /**
+   * 获取打卡统计数据
+   */
+  async getStreakData() {
+    try {
+      const diary = await Storage.getAll('diary') || [];
+      const tests = await Storage.getAll('tests') || [];
+      
+      // 计算连续使用天数
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // 获取所有有活动的日期
+      const activityDates = new Set();
+      diary.forEach(d => {
+        const date = new Date(d.createdAt);
+        date.setHours(0, 0, 0, 0);
+        activityDates.add(date.getTime());
+      });
+      tests.forEach(t => {
+        const date = new Date(t.timestamp);
+        date.setHours(0, 0, 0, 0);
+        activityDates.add(date.getTime());
+      });
+      
+      // 计算连续天数
+      let streak = 0;
+      let checkDate = new Date(today);
+      while (activityDates.has(checkDate.getTime())) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+      
+      // 计算本周日记数
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
+      const weeklyDiary = diary.filter(d => new Date(d.createdAt) >= weekStart).length;
+      
+      return {
+        streak: streak || 0,
+        weeklyDiary,
+        totalTests: tests.length
+      };
+    } catch (e) {
+      console.error('获取打卡数据失败:', e);
+      return { streak: 0, weeklyDiary: 0, totalTests: 0 };
+    }
   },
 
   /**

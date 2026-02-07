@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.1',
+  currentVersion: '1.8.2',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.2',
+      date: '2026-02-08',
+      title: '首页体验优化与SEO增强',
+      changes: [
+        { type: 'feature', text: '首页新增个性化问候语，根据时段显示不同问候' },
+        { type: 'feature', text: '首页新增每日心理学语录卡片' },
+        { type: 'feature', text: '首页新增打卡统计：连续使用天数、本周日记数、完成测试数' },
+        { type: 'improve', text: 'SEO优化：新增meta标签、Open Graph、结构化数据' },
+        { type: 'improve', text: '新增sitemap.xml和robots.txt，提升搜索引擎收录' }
+      ]
+    },
     {
       version: '1.8.1',
       date: '2026-02-08',

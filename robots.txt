@@ -1,0 +1,6 @@
+# robots.txt for 观己
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://10226339ismm5.vicp.fun/sitemap.xml
