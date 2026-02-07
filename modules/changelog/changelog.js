@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.3',
+  currentVersion: '1.7.4',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.4',
+      date: '2026-02-07 21:30',
+      title: '导出名称校验',
+      changes: [
+        { type: 'feature', text: '导出前检查用户名称，未设置时提示先维护' },
+        { type: 'improve', text: '导出文件名包含用户名称，便于识别管理' }
+      ]
+    },
     {
       version: '1.7.3',
       date: '2026-02-07 21:00',

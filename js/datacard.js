@@ -530,6 +530,17 @@ const DataCard = {
    */
   async exportAsImage() {
     try {
+      // 0. 检查用户是否已设置名称
+      const profile = await Storage.getProfile();
+      if (!profile || !profile.name || !profile.name.trim()) {
+        await Utils.alert(
+          '请先在「个人资料」中设置您的名称，再进行数据导出。',
+          '请先设置名称',
+          'warning'
+        );
+        return false;
+      }
+      
       // 1. 显示导出内容选择
       const exportOptions = await this.showExportOptionsDialog();
       
@@ -552,7 +563,6 @@ const DataCard = {
       // 3. 根据选择获取数据（保留完整数据，包括图片）
       const allTests = await Storage.getAll('tests') || [];
       const allDiaries = await Storage.getAll('diary') || [];
-      const profile = await Storage.getProfile();
       
       // 筛选要导出的测试（保留完整数据）
       const selectedTests = allTests.filter(t => exportOptions.tests.includes(t.type));
@@ -629,7 +639,7 @@ const DataCard = {
       });
       
       // 10. 下载
-      const filename = `guanji-backup-${Utils.formatDate(Date.now(), 'YYYYMMDD-HHmmss')}.zip`;
+      const filename = `观己-${profile.name}-${Utils.formatDate(Date.now(), 'YYYYMMDD-HHmmss')}.zip`;
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
       a.href = url;
