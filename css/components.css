@@ -1036,3 +1036,79 @@
     font-size: var(--font-size-sm);
   }
 }
+
+/* ========== 量表选项组件 ========== */
+.scale-options {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-xl) 0;
+}
+
+.scale-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 80px;
+}
+
+.scale-option:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.scale-option.selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.scale-marker {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.scale-label {
+  font-size: var(--font-size-xs);
+  text-align: center;
+}
+
+/* 4点量表样式（压力测试专用） */
+.scale-options-4 {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.scale-option-4 {
+  min-width: 100px;
+  padding: var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+  .scale-options {
+    flex-wrap: wrap;
+  }
+
+  .scale-option {
+    min-width: 60px;
+    padding: var(--spacing-sm);
+  }
+
+  .scale-option-4 {
+    min-width: 70px;
+    padding: var(--spacing-sm);
+  }
+
+  .scale-option-4 .scale-label {
+    font-size: 0.625rem;
+  }
+}
