@@ -52,7 +52,7 @@
 
 ### 在线体验
 
-直接访问 [GitHub Pages](https://zhu-li.github.io/MySelfApp) 即可使用。
+直接访问 [试用](https://10226339ismm5.vicp.fun) 即可使用。
 
 ### 本地运行
 
