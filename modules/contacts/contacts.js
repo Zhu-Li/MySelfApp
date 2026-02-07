@@ -419,17 +419,18 @@ const Contacts = {
           <div class="card-body">
             ${tests.length > 0 ? `
               <div class="test-result-grid">
-                ${tests.map(test => {
+                ${tests.map((test, index) => {
                   const info = testTypeInfo[test.type] || { name: test.type, icon: '📝' };
                   const resultText = this.getTestResultSummary(test);
                   return `
-                    <div class="test-result-card">
+                    <div class="test-result-card clickable" onclick="Contacts.showTestDetail('${contact.id}', ${index})">
                       <div class="test-result-icon">${info.icon}</div>
                       <div class="test-result-info">
                         <div class="test-result-name">${info.name}</div>
                         <div class="test-result-value">${resultText}</div>
                         <div class="test-result-date">${Utils.formatDate(test.timestamp, 'YYYY-MM-DD')}</div>
                       </div>
+                      <div class="test-result-arrow">›</div>
                     </div>
                   `;
                 }).join('')}
@@ -447,14 +448,16 @@ const Contacts = {
           <div class="card-body">
             ${diary.length > 0 ? `
               <div class="diary-list">
-                ${diary.slice(0, 10).map(entry => `
-                  <div class="diary-item">
+                ${diary.slice(0, 10).map((entry, index) => `
+                  <div class="diary-item clickable" onclick="Contacts.showDiaryDetail('${contact.id}', ${index})">
                     <div class="diary-item-date">${Utils.formatDate(entry.timestamp, 'YYYY-MM-DD')}</div>
                     <div class="diary-item-title">${entry.title || '无标题'}</div>
+                    <div class="diary-item-mood">${entry.mood ? Diary.getMoodInfo(entry.mood).icon : ''}</div>
+                    <div class="diary-item-arrow">›</div>
                   </div>
                 `).join('')}
                 ${diary.length > 10 ? `
-                  <div class="diary-more">还有 ${diary.length - 10} 篇日记...</div>
+                  <div class="diary-more clickable" onclick="Contacts.showAllDiaries('${contact.id}')">查看全部 ${diary.length} 篇日记 →</div>
                 ` : ''}
               </div>
             ` : `
@@ -527,6 +530,22 @@ const Contacts = {
           border-radius: var(--radius-md);
         }
         
+        .test-result-card.clickable {
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+        
+        .test-result-card.clickable:hover {
+          background: var(--bg-tertiary);
+          transform: translateY(-2px);
+        }
+        
+        .test-result-arrow, .diary-item-arrow {
+          color: var(--text-tertiary);
+          font-size: 1.2rem;
+          margin-left: auto;
+        }
+        
         .test-result-icon {
           font-size: 1.5rem;
         }
@@ -555,9 +574,26 @@ const Contacts = {
         
         .diary-item {
           display: flex;
+          align-items: center;
           gap: var(--spacing-md);
-          padding: var(--spacing-sm) 0;
+          padding: var(--spacing-sm) var(--spacing-xs);
           border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .diary-item.clickable {
+          cursor: pointer;
+          padding: var(--spacing-sm);
+          margin: 0 calc(var(--spacing-sm) * -1);
+          border-radius: var(--radius-md);
+          transition: all var(--transition-fast);
+        }
+        
+        .diary-item.clickable:hover {
+          background: var(--bg-secondary);
+        }
+        
+        .diary-item-mood {
+          flex-shrink: 0;
         }
         
         .diary-item:last-child {
@@ -1396,6 +1432,628 @@ const Contacts = {
       await this.delete(contactId);
       Utils.showToast('联系人已删除', 'success');
       Router.navigate('/contacts');
+    }
+  },
+
+  /**
+   * 显示测试详情弹窗
+   */
+  async showTestDetail(contactId, testIndex) {
+    const contact = await this.get(contactId);
+    if (!contact || !contact.tests || !contact.tests[testIndex]) return;
+
+    const test = contact.tests[testIndex];
+    const result = test.result || {};
+    
+    // 测试类型信息
+    const typeInfo = {
+      'mbti': { name: 'MBTI人格类型', icon: '🧠' },
+      'bigfive': { name: '大五人格', icon: '⭐' },
+      'holland': { name: '霍兰德职业兴趣', icon: '💼' },
+      'attachment': { name: '依恋类型', icon: '💕' },
+      'eq': { name: '情商测试', icon: '💡' },
+      'values': { name: '价值观测试', icon: '🎯' },
+      'stress': { name: '心理健康', icon: '🌱' },
+      'comprehensive': { name: '综合画像', icon: '📊' }
+    };
+    
+    const info = typeInfo[test.type] || { name: test.type, icon: '📝' };
+    const detailContent = this.renderTestDetailContent(test);
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.id = 'testDetailModal';
+    modal.innerHTML = `
+      <div class="modal" style="max-width: 600px; max-height: 90vh;">
+        <div class="modal-header">
+          <h3 class="modal-title">${info.icon} ${info.name}</h3>
+          <button class="modal-close" onclick="Contacts.closeTestDetailModal()">✕</button>
+        </div>
+        <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 120px);">
+          <div class="test-detail-meta">
+            <span class="test-detail-user">👤 ${contact.name}</span>
+            <span class="test-detail-time">📅 ${Utils.formatDate(test.timestamp, 'YYYY-MM-DD HH:mm')}</span>
+          </div>
+          ${detailContent}
+        </div>
+      </div>
+      <style>
+        .test-detail-meta {
+          display: flex;
+          gap: var(--spacing-lg);
+          padding: var(--spacing-md);
+          background: var(--bg-secondary);
+          border-radius: var(--radius-md);
+          margin-bottom: var(--spacing-lg);
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+        }
+        .test-detail-section {
+          margin-bottom: var(--spacing-lg);
+        }
+        .test-detail-section-title {
+          font-size: var(--font-size-base);
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: var(--spacing-md);
+          padding-bottom: var(--spacing-sm);
+          border-bottom: 1px solid var(--border-color-light);
+        }
+        .test-detail-result {
+          font-size: var(--font-size-2xl);
+          font-weight: 700;
+          color: var(--primary-color);
+          text-align: center;
+          padding: var(--spacing-lg);
+          background: var(--bg-secondary);
+          border-radius: var(--radius-lg);
+          margin-bottom: var(--spacing-lg);
+        }
+        .test-detail-dims {
+          display: grid;
+          gap: var(--spacing-md);
+        }
+        .test-detail-dim {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+        }
+        .test-detail-dim-label {
+          width: 80px;
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+        }
+        .test-detail-dim-bar {
+          flex: 1;
+          height: 8px;
+          background: var(--bg-tertiary);
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .test-detail-dim-fill {
+          height: 100%;
+          background: var(--primary-color);
+          border-radius: 4px;
+        }
+        .test-detail-dim-value {
+          width: 50px;
+          text-align: right;
+          font-size: var(--font-size-sm);
+          font-weight: 600;
+        }
+        .test-detail-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-sm);
+        }
+        .test-detail-tag {
+          padding: var(--spacing-xs) var(--spacing-sm);
+          background: var(--primary-color-light);
+          color: var(--primary-color);
+          border-radius: var(--radius-sm);
+          font-size: var(--font-size-sm);
+        }
+        .test-detail-text {
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+          line-height: 1.8;
+          white-space: pre-wrap;
+        }
+        .test-detail-ai {
+          padding: var(--spacing-md);
+          background: var(--bg-secondary);
+          border-radius: var(--radius-md);
+          font-size: var(--font-size-sm);
+          line-height: 1.8;
+          color: var(--text-secondary);
+          white-space: pre-wrap;
+        }
+      </style>
+    `;
+
+    document.body.appendChild(modal);
+  },
+
+  /**
+   * 渲染测试详情内容
+   */
+  renderTestDetailContent(test) {
+    const result = test.result || {};
+    
+    switch (test.type) {
+      case 'mbti':
+        return this.renderMBTIDetail(result);
+      case 'bigfive':
+        return this.renderBigFiveDetail(result);
+      case 'holland':
+        return this.renderHollandDetail(result);
+      case 'attachment':
+        return this.renderAttachmentDetail(result);
+      case 'eq':
+        return this.renderEQDetail(result);
+      case 'values':
+        return this.renderValuesDetail(result);
+      case 'stress':
+        return this.renderStressDetail(result);
+      case 'comprehensive':
+        return this.renderComprehensiveDetail(result);
+      default:
+        return `<div class="test-detail-text">${JSON.stringify(result, null, 2)}</div>`;
+    }
+  },
+
+  renderMBTIDetail(result) {
+    const dims = result.dimensions || {};
+    return `
+      <div class="test-detail-result">${result.type || '-'}</div>
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">维度分析</div>
+        <div class="test-detail-dims">
+          <div class="test-detail-dim">
+            <span class="test-detail-dim-label">E外向/I内向</span>
+            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.E || 50}%"></div></div>
+            <span class="test-detail-dim-value">E:${dims.E || 0}%</span>
+          </div>
+          <div class="test-detail-dim">
+            <span class="test-detail-dim-label">S感觉/N直觉</span>
+            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.S || 50}%"></div></div>
+            <span class="test-detail-dim-value">S:${dims.S || 0}%</span>
+          </div>
+          <div class="test-detail-dim">
+            <span class="test-detail-dim-label">T思考/F情感</span>
+            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.T || 50}%"></div></div>
+            <span class="test-detail-dim-value">T:${dims.T || 0}%</span>
+          </div>
+          <div class="test-detail-dim">
+            <span class="test-detail-dim-label">J判断/P知觉</span>
+            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims.J || 50}%"></div></div>
+            <span class="test-detail-dim-value">J:${dims.J || 0}%</span>
+          </div>
+        </div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderBigFiveDetail(result) {
+    const dims = result.dimensions || {};
+    const labels = { O: '开放性', C: '尽责性', E: '外向性', A: '宜人性', N: '神经质' };
+    return `
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">五大维度得分</div>
+        <div class="test-detail-dims">
+          ${Object.entries(labels).map(([key, label]) => `
+            <div class="test-detail-dim">
+              <span class="test-detail-dim-label">${label}(${key})</span>
+              <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${dims[key] || 0}%"></div></div>
+              <span class="test-detail-dim-value">${dims[key] || 0}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderHollandDetail(result) {
+    const scores = result.scores || {};
+    const labels = { R: '现实型', I: '研究型', A: '艺术型', S: '社会型', E: '企业型', C: '常规型' };
+    return `
+      <div class="test-detail-result">${result.primaryType || '-'} ${result.secondaryType || ''}</div>
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">六大类型得分</div>
+        <div class="test-detail-dims">
+          ${Object.entries(labels).map(([key, label]) => `
+            <div class="test-detail-dim">
+              <span class="test-detail-dim-label">${label}(${key})</span>
+              <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(scores[key] || 0) * 10}%"></div></div>
+              <span class="test-detail-dim-value">${scores[key] || 0}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderAttachmentDetail(result) {
+    const scores = result.scores || {};
+    return `
+      <div class="test-detail-result">${result.type || '-'}</div>
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">依恋维度</div>
+        <div class="test-detail-dims">
+          <div class="test-detail-dim">
+            <span class="test-detail-dim-label">焦虑程度</span>
+            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(scores.anxiety || 0) * 20}%"></div></div>
+            <span class="test-detail-dim-value">${scores.anxiety || 0}</span>
+          </div>
+          <div class="test-detail-dim">
+            <span class="test-detail-dim-label">回避程度</span>
+            <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(scores.avoidance || 0) * 20}%"></div></div>
+            <span class="test-detail-dim-value">${scores.avoidance || 0}</span>
+          </div>
+        </div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderEQDetail(result) {
+    const dims = result.dimensions || {};
+    const labels = ['自我意识', '自我管理', '社会意识', '关系管理', '自我激励'];
+    return `
+      <div class="test-detail-result">${result.overallScore || 0} 分</div>
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">各维度得分</div>
+        <div class="test-detail-dims">
+          ${labels.map((label, i) => `
+            <div class="test-detail-dim">
+              <span class="test-detail-dim-label">${label}</span>
+              <div class="test-detail-dim-bar"><div class="test-detail-dim-fill" style="width: ${(dims[label] || dims[i] || 0)}%"></div></div>
+              <span class="test-detail-dim-value">${dims[label] || dims[i] || 0}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderValuesDetail(result) {
+    const topValues = result.topValues || [];
+    return `
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">核心价值观排序</div>
+        <div class="test-detail-tags">
+          ${topValues.map((v, i) => `<span class="test-detail-tag">${i + 1}. ${v}</span>`).join('')}
+        </div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderStressDetail(result) {
+    return `
+      <div class="test-detail-result">${result.level || '-'}</div>
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">总分</div>
+        <div class="test-detail-text">得分：${result.totalScore || 0} 分</div>
+      </div>
+      ${result.aiAnalysis ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">AI 分析</div>
+          <div class="test-detail-ai">${result.aiAnalysis}</div>
+        </div>
+      ` : ''}
+    `;
+  },
+
+  renderComprehensiveDetail(result) {
+    return `
+      <div class="test-detail-section">
+        <div class="test-detail-section-title">综合分析报告</div>
+        <div class="test-detail-ai">${result.analysis || result.aiAnalysis || '暂无分析内容'}</div>
+      </div>
+    `;
+  },
+
+  /**
+   * 关闭测试详情弹窗
+   */
+  closeTestDetailModal() {
+    const modal = document.getElementById('testDetailModal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
+    }
+  },
+
+  /**
+   * 显示日记详情弹窗
+   */
+  async showDiaryDetail(contactId, diaryIndex) {
+    const contact = await this.get(contactId);
+    if (!contact || !contact.diary || !contact.diary[diaryIndex]) return;
+
+    const entry = contact.diary[diaryIndex];
+    const moodInfo = entry.mood ? Diary.getMoodInfo(entry.mood) : null;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.id = 'diaryDetailModal';
+    modal.innerHTML = `
+      <div class="modal" style="max-width: 600px; max-height: 90vh;">
+        <div class="modal-header">
+          <h3 class="modal-title">📔 ${entry.title || '无标题'}</h3>
+          <button class="modal-close" onclick="Contacts.closeDiaryDetailModal()">✕</button>
+        </div>
+        <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 120px);">
+          <div class="diary-detail-meta">
+            <span class="diary-detail-user">👤 ${contact.name}</span>
+            <span class="diary-detail-time">📅 ${Utils.formatDate(entry.timestamp, 'YYYY-MM-DD HH:mm')}</span>
+            ${moodInfo ? `<span class="diary-detail-mood">${moodInfo.icon} ${moodInfo.label}</span>` : ''}
+          </div>
+          
+          ${entry.tags && entry.tags.length > 0 ? `
+            <div class="diary-detail-tags">
+              ${entry.tags.map(tag => `<span class="diary-detail-tag">#${tag}</span>`).join('')}
+            </div>
+          ` : ''}
+          
+          <div class="diary-detail-content">${this.formatDiaryContent(entry.content)}</div>
+          
+          ${entry.images && entry.images.length > 0 ? `
+            <div class="diary-detail-images">
+              ${entry.images.map(img => `<img src="${img}" class="diary-detail-image" onclick="Contacts.viewImage('${img}')">`).join('')}
+            </div>
+          ` : ''}
+          
+          ${entry.analysis ? `
+            <div class="diary-detail-analysis">
+              <div class="diary-detail-analysis-title">🤖 AI 情绪分析</div>
+              <div class="diary-detail-analysis-content">${entry.analysis}</div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      <style>
+        .diary-detail-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-md);
+          padding: var(--spacing-md);
+          background: var(--bg-secondary);
+          border-radius: var(--radius-md);
+          margin-bottom: var(--spacing-md);
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+        }
+        .diary-detail-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-xs);
+          margin-bottom: var(--spacing-md);
+        }
+        .diary-detail-tag {
+          padding: var(--spacing-xs) var(--spacing-sm);
+          background: var(--primary-color-light);
+          color: var(--primary-color);
+          border-radius: var(--radius-sm);
+          font-size: var(--font-size-xs);
+        }
+        .diary-detail-content {
+          font-size: var(--font-size-base);
+          line-height: 1.8;
+          color: var(--text-primary);
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+        .diary-detail-images {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: var(--spacing-sm);
+          margin-top: var(--spacing-md);
+        }
+        .diary-detail-image {
+          width: 100%;
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          transition: transform var(--transition-fast);
+        }
+        .diary-detail-image:hover {
+          transform: scale(1.02);
+        }
+        .diary-detail-analysis {
+          margin-top: var(--spacing-lg);
+          padding: var(--spacing-md);
+          background: var(--bg-secondary);
+          border-radius: var(--radius-md);
+        }
+        .diary-detail-analysis-title {
+          font-size: var(--font-size-sm);
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: var(--spacing-sm);
+        }
+        .diary-detail-analysis-content {
+          font-size: var(--font-size-sm);
+          line-height: 1.6;
+          color: var(--text-secondary);
+        }
+      </style>
+    `;
+
+    document.body.appendChild(modal);
+  },
+
+  /**
+   * 格式化日记内容（简单的Markdown支持）
+   */
+  formatDiaryContent(content) {
+    if (!content) return '';
+    return content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+  },
+
+  /**
+   * 关闭日记详情弹窗
+   */
+  closeDiaryDetailModal() {
+    const modal = document.getElementById('diaryDetailModal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
+    }
+  },
+
+  /**
+   * 查看大图
+   */
+  viewImage(src) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.id = 'imageViewModal';
+    modal.style.cssText = 'background: rgba(0,0,0,0.9); cursor: zoom-out;';
+    modal.innerHTML = `
+      <img src="${src}" style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: var(--radius-md);">
+    `;
+    modal.onclick = () => {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
+    };
+    document.body.appendChild(modal);
+  },
+
+  /**
+   * 显示所有日记列表
+   */
+  async showAllDiaries(contactId) {
+    const contact = await this.get(contactId);
+    if (!contact || !contact.diary) return;
+
+    const diary = contact.diary;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.id = 'allDiariesModal';
+    modal.innerHTML = `
+      <div class="modal" style="max-width: 500px; max-height: 90vh;">
+        <div class="modal-header">
+          <h3 class="modal-title">📔 ${contact.name} 的日记 (${diary.length}篇)</h3>
+          <button class="modal-close" onclick="Contacts.closeAllDiariesModal()">✕</button>
+        </div>
+        <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 120px); padding: 0;">
+          <div class="all-diaries-list">
+            ${diary.map((entry, index) => {
+              const moodInfo = entry.mood ? Diary.getMoodInfo(entry.mood) : null;
+              return `
+                <div class="all-diaries-item" onclick="Contacts.closeAllDiariesModal(); Contacts.showDiaryDetail('${contactId}', ${index})">
+                  <div class="all-diaries-date">${Utils.formatDate(entry.timestamp, 'MM-DD')}</div>
+                  <div class="all-diaries-info">
+                    <div class="all-diaries-title">${entry.title || '无标题'}</div>
+                    <div class="all-diaries-preview">${(entry.content || '').slice(0, 50)}${(entry.content || '').length > 50 ? '...' : ''}</div>
+                  </div>
+                  ${moodInfo ? `<div class="all-diaries-mood">${moodInfo.icon}</div>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+      <style>
+        .all-diaries-list {
+          display: flex;
+          flex-direction: column;
+        }
+        .all-diaries-item {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+          padding: var(--spacing-md) var(--spacing-lg);
+          border-bottom: 1px solid var(--border-color-light);
+          cursor: pointer;
+          transition: background var(--transition-fast);
+        }
+        .all-diaries-item:hover {
+          background: var(--bg-secondary);
+        }
+        .all-diaries-date {
+          font-size: var(--font-size-sm);
+          color: var(--text-tertiary);
+          flex-shrink: 0;
+          width: 50px;
+        }
+        .all-diaries-info {
+          flex: 1;
+          min-width: 0;
+        }
+        .all-diaries-title {
+          font-size: var(--font-size-base);
+          color: var(--text-primary);
+          font-weight: 500;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .all-diaries-preview {
+          font-size: var(--font-size-xs);
+          color: var(--text-tertiary);
+          margin-top: var(--spacing-xs);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .all-diaries-mood {
+          flex-shrink: 0;
+        }
+      </style>
+    `;
+
+    document.body.appendChild(modal);
+  },
+
+  /**
+   * 关闭所有日记列表弹窗
+   */
+  closeAllDiariesModal() {
+    const modal = document.getElementById('allDiariesModal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
     }
   }
 };

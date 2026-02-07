@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.7',
+  currentVersion: '1.8.8',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.8',
+      date: '2026-02-08',
+      title: '关系网详情页增强',
+      changes: [
+        { type: 'feature', text: '联系人详情页支持点击查看测试报告完整内容' },
+        { type: 'feature', text: '联系人详情页支持点击查看日记详细内容' },
+        { type: 'feature', text: '支持查看联系人日记的图片、标签、AI分析' },
+        { type: 'feature', text: '新增查看全部日记列表功能' },
+        { type: 'improve', text: '测试卡片和日记条目添加点击交互样式' }
+      ]
+    },
     {
       version: '1.8.7',
       date: '2026-02-08',
