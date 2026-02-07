@@ -342,7 +342,7 @@ const DataCard = {
       
     } catch (error) {
       console.error('导出数据卡片失败:', error);
-      Utils.showToast('导出失败: ' + error.message, 'error');
+      await Utils.alert(error.message, '导出失败', 'error');
       return false;
     }
   },
@@ -427,7 +427,7 @@ const DataCard = {
       
     } catch (error) {
       console.error('导入数据卡片失败:', error);
-      Utils.showToast('导入失败: ' + error.message, 'error');
+      await Utils.alert(error.message, '导入失败', 'error');
       return false;
     }
   },

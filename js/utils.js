@@ -296,12 +296,108 @@ const Utils = {
   },
 
   /**
-   * 确认对话框
+   * 确认对话框（美化版）
    */
   confirm(message, title = '确认') {
     return new Promise((resolve) => {
-      // 简单使用原生 confirm，后续可替换为自定义模态框
-      resolve(window.confirm(message));
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay active';
+      modal.id = 'confirmModal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 400px;">
+          <div class="modal-header">
+            <h3 class="modal-title">${title}</h3>
+          </div>
+          <div class="modal-body">
+            <p class="text-secondary" style="line-height: 1.6;">${message}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="confirmCancel">取消</button>
+            <button class="btn btn-primary" id="confirmOk">确定</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      const closeModal = (result) => {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+        resolve(result);
+      };
+      
+      document.getElementById('confirmOk').onclick = () => closeModal(true);
+      document.getElementById('confirmCancel').onclick = () => closeModal(false);
+      
+      // 点击遮罩关闭
+      modal.onclick = (e) => {
+        if (e.target === modal) closeModal(false);
+      };
+      
+      // ESC 键关闭
+      const handleKeydown = (e) => {
+        if (e.key === 'Escape') {
+          closeModal(false);
+          document.removeEventListener('keydown', handleKeydown);
+        } else if (e.key === 'Enter') {
+          closeModal(true);
+          document.removeEventListener('keydown', handleKeydown);
+        }
+      };
+      document.addEventListener('keydown', handleKeydown);
+    });
+  },
+
+  /**
+   * 提示对话框（美化版）
+   */
+  alert(message, title = '提示', type = 'info') {
+    return new Promise((resolve) => {
+      const icons = {
+        info: '💡',
+        success: '✅',
+        warning: '⚠️',
+        error: '❌'
+      };
+      const icon = icons[type] || icons.info;
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay active';
+      modal.id = 'alertModal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 380px;">
+          <div class="modal-body" style="text-align: center; padding: var(--spacing-xl);">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">${icon}</div>
+            <h3 style="font-size: var(--font-size-lg); font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">${title}</h3>
+            <p class="text-secondary" style="line-height: 1.6; margin-bottom: var(--spacing-lg);">${message}</p>
+            <button class="btn btn-primary btn-block" id="alertOk">确定</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      const closeModal = () => {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+        resolve();
+      };
+      
+      document.getElementById('alertOk').onclick = closeModal;
+      
+      // 点击遮罩关闭
+      modal.onclick = (e) => {
+        if (e.target === modal) closeModal();
+      };
+      
+      // 任意键关闭
+      const handleKeydown = (e) => {
+        if (e.key === 'Escape' || e.key === 'Enter') {
+          closeModal();
+          document.removeEventListener('keydown', handleKeydown);
+        }
+      };
+      document.addEventListener('keydown', handleKeydown);
     });
   },
 

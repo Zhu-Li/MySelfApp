@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.0',
+  currentVersion: '1.6.1',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.1',
+      date: '2026-02-07',
+      title: '体验优化',
+      changes: [
+        { type: 'improve', text: '美化确认对话框，替换浏览器默认弹窗' },
+        { type: 'improve', text: '新增美化提示对话框，支持多种类型图标' },
+        { type: 'improve', text: '无效数据卡片导入时显示友好错误提示' },
+        { type: 'fix', text: '优化导入/导出失败的错误提示方式' }
+      ]
+    },
     {
       version: '1.6.0',
       date: '2026-02-07',
