@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.3',
+  currentVersion: '1.8.4',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.4',
+      date: '2026-02-08',
+      title: '本周日记统计修复',
+      changes: [
+        { type: 'fix', text: '修复本周日记统计计算错误，改为周一作为一周开始' }
+      ]
+    },
     {
       version: '1.8.3',
       date: '2026-02-08',

@@ -927,10 +927,17 @@ const App = {
         checkDate.setDate(checkDate.getDate() - 1);
       }
       
-      // 计算本周日记数
+      // 计算本周日记数（周一为一周开始）
       const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - today.getDay());
-      const weeklyDiary = diary.filter(d => new Date(d.createdAt) >= weekStart).length;
+      const dayOfWeek = today.getDay();
+      // 周日是0，需要特殊处理：周日时往前推6天到周一
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      weekStart.setDate(today.getDate() - daysToMonday);
+      weekStart.setHours(0, 0, 0, 0);
+      const weeklyDiary = diary.filter(d => {
+        const diaryDate = new Date(d.createdAt);
+        return diaryDate >= weekStart;
+      }).length;
       
       return {
         streak: streak || 0,
