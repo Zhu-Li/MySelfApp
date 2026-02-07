@@ -134,6 +134,29 @@ const App = {
         return;
       }
     }
+    
+    if (this.setupStep === 3) {
+      // 验证姓名
+      const userName = document.getElementById('setupUserName').value.trim();
+      
+      if (!userName || userName.length < 2) {
+        Utils.showToast('请输入至少2个字符的名称', 'error');
+        return;
+      }
+      
+      if (userName.length > 20) {
+        Utils.showToast('名称不能超过20个字符', 'error');
+        return;
+      }
+      
+      // 保存姓名到 profile
+      try {
+        await Storage.updateProfile({ name: userName });
+      } catch (error) {
+        Utils.showToast('名称保存失败', 'error');
+        return;
+      }
+    }
 
     this.setupStep++;
     this.updateSetupStep();

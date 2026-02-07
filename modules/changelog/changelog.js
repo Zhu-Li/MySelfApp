@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.4',
+  currentVersion: '1.7.5',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.5',
+      date: '2026-02-07 22:00',
+      title: '首次登录填写名称',
+      changes: [
+        { type: 'feature', text: '首次登录设置向导增加名称填写步骤' },
+        { type: 'improve', text: '名称为必填项，2-20个字符' }
+      ]
+    },
     {
       version: '1.7.4',
       date: '2026-02-07 21:30',

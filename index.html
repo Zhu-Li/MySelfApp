@@ -365,8 +365,30 @@
         </div>
       </div>
 
-      <!-- 步骤3：配置API -->
+      <!-- 步骤3：填写姓名 -->
       <div class="setup-step" data-step="3">
+        <div class="modal-header">
+          <h3 class="modal-title">设置您的名称</h3>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary mb-lg">请填写您的名称，用于标识数据归属和导出文件命名。</p>
+          <form class="setup-form" id="nameForm">
+            <div class="input-group">
+              <label class="input-label">您的名称 <span class="text-danger">*</span></label>
+              <input type="text" class="input-field" id="setupUserName" 
+                     placeholder="请输入您的名称" maxlength="20" required>
+              <span class="input-hint">2-20个字符，可以是昵称或真实姓名</span>
+            </div>
+          </form>
+          <div class="setup-actions">
+            <button class="btn btn-secondary" onclick="App.prevSetupStep()">上一步</button>
+            <button class="btn btn-primary" onclick="App.nextSetupStep()">下一步</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤4：配置API -->
+      <div class="setup-step" data-step="4">
         <div class="modal-header">
           <h3 class="modal-title">配置AI服务</h3>
         </div>
