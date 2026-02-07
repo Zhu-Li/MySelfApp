@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.1',
+  currentVersion: '1.9.2',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.2',
+      date: '2026-02-08',
+      title: '统一测试结果显示',
+      changes: [
+        { type: 'fix', text: '统一联系人列表与首页的测试结果摘要显示' },
+        { type: 'fix', text: '修复霍兰德显示hollandCode、依恋显示中文名、价值观显示coreValues' },
+        { type: 'fix', text: '修复心理健康显示anxietyLevel' },
+        { type: 'improve', text: '依恋类型详情显示核心特质标签' }
+      ]
+    },
     {
       version: '1.9.1',
       date: '2026-02-08',

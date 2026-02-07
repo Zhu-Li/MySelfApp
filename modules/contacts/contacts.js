@@ -641,30 +641,73 @@ const Contacts = {
   },
 
   /**
-   * 获取测试结果摘要
+   * 获取测试结果摘要（与首页显示一致）
    */
   getTestResultSummary(test) {
     if (!test.result) return '-';
+    const result = test.result;
     
     switch (test.type) {
       case 'mbti':
-        return test.result.type || '-';
+        return result.type || '-';
+      
       case 'bigfive':
-        const dims = test.result.dimensions;
-        if (dims) {
-          return `O:${dims.O || 0} C:${dims.C || 0}`;
+        // 显示最高分维度
+        if (result.dimensions) {
+          const dims = result.dimensions;
+          const entries = Object.entries(dims).filter(([k]) => ['O', 'C', 'E', 'A', 'N'].includes(k));
+          if (entries.length > 0) {
+            const topDim = entries.sort((a, b) => b[1] - a[1])[0];
+            const dimNames = { O: '开放性', C: '尽责性', E: '外向性', A: '宜人性', N: '情绪性' };
+            return `${topDim[0]}:${topDim[1]}`;
+          }
         }
         return '-';
+      
       case 'holland':
-        return test.result.primaryType || '-';
+        // 使用hollandCode
+        return result.hollandCode || '-';
+      
       case 'attachment':
-        return test.result.type || '-';
+        // 使用typeInfo.name中文名
+        if (result.typeInfo?.name) {
+          return result.typeInfo.name;
+        }
+        // 兼容旧格式，将英文转中文
+        const typeMap = {
+          'secure': '安全型',
+          'anxious': '焦虑型', 
+          'avoidant': '回避型',
+          'fearful': '恐惧型'
+        };
+        return typeMap[result.type] || result.type || '-';
+      
       case 'eq':
-        return test.result.overallScore ? `${test.result.overallScore}分` : '-';
+        if (result.overallScore !== undefined) {
+          return `${result.overallScore}分`;
+        }
+        return '-';
+      
       case 'values':
-        return test.result.topValues?.[0] || '-';
+        // 使用coreValues
+        if (result.coreValues?.length > 0) {
+          return result.coreValues[0].dimension || result.coreValues[0].name || result.coreValues[0];
+        }
+        if (result.topValues?.length > 0) {
+          return result.topValues[0];
+        }
+        return '-';
+      
       case 'stress':
-        return test.result.level || '-';
+        // 使用anxietyLevel.name
+        if (result.anxietyLevel?.name) {
+          return result.anxietyLevel.name;
+        }
+        return result.level || '-';
+      
+      case 'comprehensive':
+        return '已完成';
+      
       default:
         return '已完成';
     }
@@ -1739,30 +1782,43 @@ const Contacts = {
   },
 
   renderAttachmentDetail(result) {
-    // 依恋类型使用 result.anxiety 和 result.avoidance
-    const anxiety = result.anxiety || 0;
-    const avoidance = result.avoidance || 0;
+    // 使用正确的数据结构：result.typeInfo 和 result.dimensions
+    const dims = result.dimensions || {};
+    const anxiety = dims.anxiety || 0;
+    const avoidance = dims.avoidance || 0;
     
-    const typeInfo = {
-      'secure': { name: '安全型', desc: '低焦虑、低回避' },
-      'anxious': { name: '焦虑型', desc: '高焦虑、低回避' },
-      'avoidant': { name: '回避型', desc: '低焦虑、高回避' },
-      'fearful': { name: '恐惧型', desc: '高焦虑、高回避' }
-    };
-    const info = typeInfo[result.type] || { name: result.type, desc: '' };
+    // 优先使用typeInfo，兼容旧格式
+    let typeName = result.typeInfo?.name || '';
+    let typeDesc = result.typeInfo?.description || '';
+    let typeIcon = result.typeInfo?.icon || '💕';
+    let typeColor = result.typeInfo?.color || '#ec4899';
+    
+    // 兼容旧格式
+    if (!typeName && result.type) {
+      const typeMap = {
+        'secure': { name: '安全型', desc: '低焦虑、低回避', color: '#22c55e' },
+        'anxious': { name: '焦虑型', desc: '高焦虑、低回避', color: '#f59e0b' },
+        'avoidant': { name: '回避型', desc: '低焦虑、高回避', color: '#3b82f6' },
+        'fearful': { name: '恐惧型', desc: '高焦虑、高回避', color: '#ef4444' }
+      };
+      const info = typeMap[result.type] || {};
+      typeName = info.name || result.type;
+      typeDesc = info.desc || '';
+      typeColor = info.color || '#ec4899';
+    }
     
     return `
-      <div class="test-detail-result">${info.name || result.type || '-'}</div>
-      ${info.desc ? `<p class="text-center text-secondary mb-lg">${info.desc}</p>` : ''}
+      <div class="test-detail-result" style="color: ${typeColor};">${typeName || '-'}</div>
+      ${typeDesc ? `<p class="text-center text-secondary mb-lg">${typeDesc}</p>` : ''}
       <div class="test-detail-section">
-        <div class="test-detail-section-title">依恋维度</div>
+        <div class="test-detail-section-title">💓 依恋维度</div>
         <div class="test-detail-dims">
           <div class="test-detail-dim">
             <span class="test-detail-dim-label">焦虑程度</span>
             <div class="test-detail-dim-bar">
-              <div class="test-detail-dim-fill" style="width: ${anxiety}%; background-color: #ef4444;"></div>
+              <div class="test-detail-dim-fill" style="width: ${anxiety}%; background-color: #f59e0b;"></div>
             </div>
-            <span class="test-detail-dim-value" style="color: #ef4444;">${anxiety}%</span>
+            <span class="test-detail-dim-value" style="color: #f59e0b;">${anxiety}%</span>
           </div>
           <div class="test-detail-dim">
             <span class="test-detail-dim-label">回避程度</span>
@@ -1773,6 +1829,14 @@ const Contacts = {
           </div>
         </div>
       </div>
+      ${result.typeInfo?.traits?.length > 0 ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">核心特质</div>
+          <div class="test-detail-tags">
+            ${result.typeInfo.traits.map(t => `<span class="test-detail-tag" style="background: ${typeColor}20; color: ${typeColor};">${t}</span>`).join('')}
+          </div>
+        </div>
+      ` : ''}
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
@@ -1860,24 +1924,32 @@ const Contacts = {
   },
 
   renderStressDetail(result) {
-    const levelInfo = {
-      '正常': { color: '#22c55e', desc: '心理状态良好' },
-      '轻度': { color: '#f59e0b', desc: '有轻微压力' },
-      '中度': { color: '#f97316', desc: '压力较大，需要关注' },
-      '重度': { color: '#ef4444', desc: '压力严重，建议寻求帮助' }
-    };
-    const info = levelInfo[result.level] || { color: 'var(--text-secondary)', desc: '' };
+    // 使用正确的数据结构：result.anxietyLevel
+    const anxietyLevel = result.anxietyLevel || {};
+    const levelName = anxietyLevel.name || result.level || '-';
+    const levelColor = anxietyLevel.color || '#22c55e';
+    const levelDesc = anxietyLevel.description || '';
     
     return `
-      <div class="test-detail-result" style="color: ${info.color};">${result.level || '-'}</div>
-      ${info.desc ? `<p class="text-center text-secondary mb-lg">${info.desc}</p>` : ''}
-      <div class="test-detail-section">
-        <div class="test-detail-section-title">测试得分</div>
-        <div class="stress-score-display">
-          <div class="stress-score">${result.totalScore || 0}</div>
-          <div class="stress-label">分</div>
+      <div class="test-detail-result" style="color: ${levelColor};">${levelName}</div>
+      ${levelDesc ? `<p class="text-center text-secondary mb-lg">${levelDesc}</p>` : ''}
+      ${result.anxietyScore !== undefined ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">焦虑得分</div>
+          <div class="stress-score-display">
+            <div class="stress-score" style="color: ${levelColor};">${result.anxietyScore}</div>
+            <div class="stress-label">分</div>
+          </div>
         </div>
-      </div>
+      ` : ''}
+      ${result.depressionLevel ? `
+        <div class="test-detail-section">
+          <div class="test-detail-section-title">抑郁状态</div>
+          <div class="stress-level-display" style="color: ${result.depressionLevel.color || '#22c55e'};">
+            ${result.depressionLevel.name || '-'}
+          </div>
+        </div>
+      ` : ''}
       ${result.aiAnalysis ? `
         <div class="test-detail-section">
           <div class="test-detail-section-title">AI 分析</div>
@@ -1886,8 +1958,9 @@ const Contacts = {
       ` : ''}
       <style>
         .stress-score-display { display: flex; align-items: baseline; justify-content: center; gap: var(--spacing-xs); padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--radius-lg); }
-        .stress-score { font-size: var(--font-size-3xl); font-weight: 700; color: ${info.color}; }
+        .stress-score { font-size: var(--font-size-3xl); font-weight: 700; }
         .stress-label { font-size: var(--font-size-lg); color: var(--text-secondary); }
+        .stress-level-display { text-align: center; font-size: var(--font-size-xl); font-weight: 600; padding: var(--spacing-md); background: var(--bg-secondary); border-radius: var(--radius-md); }
       </style>
     `;
   },
