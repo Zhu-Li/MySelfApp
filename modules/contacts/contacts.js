@@ -394,6 +394,12 @@ const Contacts = {
                 <span class="profile-label">生日</span>
                 <span class="profile-value">${profile.birthday || '-'}</span>
               </div>
+              ${profile.contact ? `
+                <div class="profile-item">
+                  <span class="profile-label">联系方式</span>
+                  <span class="profile-value">${profile.contact}</span>
+                </div>
+              ` : ''}
               <div class="profile-item">
                 <span class="profile-label">导入时间</span>
                 <span class="profile-value">${Utils.formatDate(contact.importedAt, 'YYYY-MM-DD HH:mm')}</span>

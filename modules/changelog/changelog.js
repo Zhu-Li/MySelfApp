@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.6',
+  currentVersion: '1.9.7',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.7',
+      date: '2026-02-08',
+      title: '联系人信息补全',
+      changes: [
+        { type: 'feature', text: '联系人详情页新增联系方式展示' }
+      ]
+    },
     {
       version: '1.9.6',
       date: '2026-02-08',
