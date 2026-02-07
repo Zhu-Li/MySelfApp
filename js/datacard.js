@@ -526,7 +526,7 @@ const DataCard = {
   },
 
   /**
-   * 导出数据为加密图片
+   * 导出数据为 ZIP 包（包含数据卡片 + 完整加密数据）
    */
   async exportAsImage() {
     try {
@@ -540,62 +540,42 @@ const DataCard = {
       // 2. 获取密码
       const password = await this.showPasswordDialog(
         '设置加密密码',
-        '为数据卡片设置密码，防止他人读取您的数据。'
+        '为数据包设置密码，防止他人读取您的数据。'
       );
       
       if (!password) {
         return false; // 用户取消
       }
       
-      Utils.showToast('正在生成加密数据卡片...', 'info');
+      Utils.showToast('正在生成数据包...', 'info');
       
-      // 3. 根据选择获取数据
+      // 3. 根据选择获取数据（保留完整数据，包括图片）
       const allTests = await Storage.getAll('tests') || [];
       const allDiaries = await Storage.getAll('diary') || [];
       const profile = await Storage.getProfile();
       
-      // 筛选要导出的测试
+      // 筛选要导出的测试（保留完整数据）
       const selectedTests = allTests.filter(t => exportOptions.tests.includes(t.type));
       
-      // 精简测试数据（移除原始答案，只保留结果，减少数据量）
-      const compactTests = selectedTests.map(t => ({
-        id: t.id,
-        type: t.type,
-        timestamp: t.timestamp,
-        result: t.result
-        // 不导出 answers 数组，可以节省大量空间
-      }));
-      
-      // 精简日记数据（限制数量和内容长度）
-      let compactDiaries = [];
+      // 筛选日记（保留完整数据，包括图片）
+      let selectedDiaries = [];
       if (exportOptions.diary) {
-        compactDiaries = allDiaries
-          .sort((a, b) => b.timestamp - a.timestamp)
-          .slice(0, 50) // 最多导出最近50篇日记
-          .map(d => ({
-            id: d.id,
-            timestamp: d.timestamp,
-            content: d.content?.substring(0, 2000) || '', // 限制每篇最多2000字
-            mood: d.mood,
-            weather: d.weather
-            // 不导出图片数据
-          }));
+        selectedDiaries = allDiaries;
       }
       
-      // 构建导出数据
+      // 构建完整导出数据
       const exportData = {
-        tests: compactTests,
-        diary: compactDiaries,
+        tests: selectedTests,
+        diary: selectedDiaries,
         profile: exportOptions.profile ? profile : null,
         exportedAt: Date.now(),
-        version: Changelog.currentVersion,
-        partial: true // 标记为部分导出
+        version: Changelog.currentVersion
       };
       
       // 4. 准备统计信息（用于卡片显示）
       const stats = {
         testCount: selectedTests.length,
-        diaryCount: exportOptions.diary ? allDiaries.length : 0,
+        diaryCount: selectedDiaries.length,
         mbtiType: null,
         bigfiveScores: null
       };
@@ -610,57 +590,174 @@ const DataCard = {
         stats.bigfiveScores = bigfiveTest.result.dimensions;
       }
       
-      // 5. 创建Canvas
+      // 5. 创建数据卡片图片（仅用于展示，不编码数据）
       const canvas = document.createElement('canvas');
       canvas.width = this.WIDTH;
       canvas.height = this.HEIGHT;
       const ctx = canvas.getContext('2d');
-      
-      // 6. 绘制卡片视觉效果
       this.drawCard(ctx, stats, profile, true);
       
-      // 7. 压缩数据
+      // 6. 生成卡片图片 Blob
+      const cardBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      
+      // 7. 压缩和加密数据
       const jsonStr = JSON.stringify(exportData);
       const compressed = LZString.compressToUint8Array(jsonStr);
-      
-      // 8. 加密数据
       const encrypted = await this.encryptWithPassword(compressed, password);
       
-      // 9. 将数据编码到图片底部像素
-      const imageData = ctx.getImageData(0, 0, this.WIDTH, this.HEIGHT);
-      const success = this.encodeData(imageData, encrypted, true);
+      // 8. 创建 ZIP 包
+      const zip = new JSZip();
       
-      if (!success) {
-        throw new Error('数据量过大，无法编码到图片中');
-      }
+      // 添加数据卡片图片
+      zip.file('card.png', cardBlob);
       
-      ctx.putImageData(imageData, 0, 0);
+      // 添加加密数据文件
+      zip.file('data.enc', encrypted);
       
-      // 10. 导出为PNG
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      const filename = `guanji-card-${Utils.formatDate(Date.now(), 'YYYYMMDD-HHmmss')}.png`;
+      // 添加版本信息（明文，用于兼容性检查）
+      zip.file('version.json', JSON.stringify({
+        version: Changelog.currentVersion,
+        format: 'guanji-v3',
+        exportedAt: Date.now()
+      }));
       
-      const url = URL.createObjectURL(blob);
+      // 9. 生成 ZIP 文件
+      const zipBlob = await zip.generateAsync({ 
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 9 }
+      });
+      
+      // 10. 下载
+      const filename = `guanji-backup-${Utils.formatDate(Date.now(), 'YYYYMMDD-HHmmss')}.zip`;
+      const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
       
-      Utils.showToast('加密数据卡片已生成', 'success');
+      Utils.showToast('数据包已生成', 'success');
       return true;
       
     } catch (error) {
-      console.error('导出数据卡片失败:', error);
+      console.error('导出数据包失败:', error);
       await Utils.alert(error.message, '导出失败', 'error');
       return false;
     }
   },
 
   /**
-   * 从图片导入数据
+   * 从文件导入数据（支持 ZIP 包和旧版 PNG 图片）
    */
   async importFromImage(file) {
+    try {
+      const fileName = file.name.toLowerCase();
+      
+      // 判断文件类型
+      if (fileName.endsWith('.zip')) {
+        return await this.importFromZip(file);
+      } else if (fileName.endsWith('.png')) {
+        return await this.importFromPng(file);
+      } else {
+        throw new Error('不支持的文件格式，请选择 .zip 或 .png 文件');
+      }
+      
+    } catch (error) {
+      console.error('导入失败:', error);
+      await Utils.alert(error.message, '导入失败', 'error');
+      return false;
+    }
+  },
+
+  /**
+   * 从 ZIP 包导入数据
+   */
+  async importFromZip(file) {
+    // 1. 读取 ZIP 文件
+    const zip = await JSZip.loadAsync(file);
+    
+    // 2. 检查版本信息
+    const versionFile = zip.file('version.json');
+    if (!versionFile) {
+      throw new Error('无效的数据包：缺少版本信息');
+    }
+    
+    const versionInfo = JSON.parse(await versionFile.async('string'));
+    if (versionInfo.format !== 'guanji-v3') {
+      throw new Error('不支持的数据包格式');
+    }
+    
+    // 3. 读取加密数据
+    const dataFile = zip.file('data.enc');
+    if (!dataFile) {
+      throw new Error('无效的数据包：缺少数据文件');
+    }
+    
+    const encrypted = new Uint8Array(await dataFile.async('arraybuffer'));
+    
+    // 4. 获取密码
+    const password = await this.showPasswordDialog(
+      '输入密码',
+      '请输入数据包的加密密码',
+      false
+    );
+    
+    if (!password) {
+      return false; // 用户取消
+    }
+    
+    Utils.showLoading('正在解密数据...');
+    
+    // 5. 解密数据
+    let decrypted;
+    try {
+      decrypted = await this.decryptWithPassword(encrypted, password);
+    } catch (error) {
+      Utils.hideLoading();
+      throw new Error('密码错误或数据已损坏');
+    }
+    
+    // 6. 解压数据
+    const jsonStr = LZString.decompressFromUint8Array(decrypted);
+    if (!jsonStr) {
+      Utils.hideLoading();
+      throw new Error('数据解压失败');
+    }
+    
+    const importData = JSON.parse(jsonStr);
+    
+    // 7. 确认导入
+    Utils.hideLoading();
+    
+    const confirmMsg = `即将导入以下数据：\n` +
+      `• 测试记录：${importData.tests?.length || 0} 条\n` +
+      `• 日记：${importData.diary?.length || 0} 篇\n` +
+      `• 个人资料：${importData.profile ? '有' : '无'}\n\n` +
+      `导入将覆盖现有数据，确认继续？`;
+    
+    const confirmed = await Utils.confirm(confirmMsg, '确认导入');
+    if (!confirmed) {
+      return false;
+    }
+    
+    Utils.showLoading('正在导入数据...');
+    
+    // 8. 导入数据
+    await Storage.importAll(importData);
+    
+    Utils.hideLoading();
+    Utils.showToast('数据导入成功', 'success');
+    
+    // 刷新页面
+    setTimeout(() => location.reload(), 1000);
+    return true;
+  },
+
+  /**
+   * 从 PNG 图片导入数据（兼容旧版）
+   */
+  async importFromPng(file) {
     try {
       // 1. 加载图片
       const img = await this.loadImage(file);
@@ -696,16 +793,19 @@ const DataCard = {
           return false; // 用户取消
         }
         
-        Utils.showToast('正在验证和解密...', 'info');
+        Utils.showLoading('正在验证和解密...');
         
         try {
           decompressed = await this.decryptWithPassword(encodedData, password);
         } catch (e) {
+          Utils.hideLoading();
           if (e.message.includes('篡改')) {
             throw e;
           }
           throw new Error('密码错误或数据已损坏');
         }
+        
+        Utils.hideLoading();
       } else {
         // 5b. 旧版未加密数据
         decompressed = encodedData;
@@ -721,24 +821,29 @@ const DataCard = {
       const data = JSON.parse(jsonStr);
       
       // 8. 确认导入
-      const confirmed = await Utils.confirm(
-        `检测到有效的数据卡片${isEncrypted ? '（已验证签名）' : ''}，导入将覆盖现有数据，确定继续吗？`
-      );
+      const confirmMsg = `检测到有效的数据卡片${isEncrypted ? '（已验证签名）' : ''}\n` +
+        `• 测试记录：${data.tests?.length || 0} 条\n` +
+        `• 日记：${data.diary?.length || 0} 篇\n\n` +
+        `导入将覆盖现有数据，确定继续吗？`;
+      
+      const confirmed = await Utils.confirm(confirmMsg, '确认导入');
       
       if (!confirmed) return false;
+      
+      Utils.showLoading('正在导入数据...');
       
       // 9. 导入数据
       await Storage.importAll(data);
       
+      Utils.hideLoading();
       Utils.showToast('数据导入成功，即将刷新页面', 'success');
       setTimeout(() => location.reload(), 1500);
       
       return true;
       
     } catch (error) {
-      console.error('导入数据卡片失败:', error);
-      await Utils.alert(error.message, '导入失败', 'error');
-      return false;
+      Utils.hideLoading();
+      throw error;
     }
   },
 

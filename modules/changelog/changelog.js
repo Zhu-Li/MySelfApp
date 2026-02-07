@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.9',
+  currentVersion: '1.7.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.0',
+      date: '2026-02-07 19:30',
+      title: 'ZIP 数据包导出',
+      changes: [
+        { type: 'feature', text: '全新 ZIP 打包导出方案，支持无限容量数据' },
+        { type: 'feature', text: '导出包含精美数据卡片 + 完整加密数据' },
+        { type: 'feature', text: '完整导出所有测试数据、日记内容和图片' },
+        { type: 'improve', text: '导入支持 ZIP 包和旧版 PNG 卡片两种格式' },
+        { type: 'improve', text: '使用 JSZip 库实现高效压缩' }
+      ]
+    },
     {
       version: '1.6.9',
       date: '2026-02-07 19:00',

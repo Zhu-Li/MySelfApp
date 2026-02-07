@@ -1723,20 +1723,20 @@ const App = {
             
             <div class="settings-item mb-lg">
               <div class="settings-item-info">
-                <h4 class="settings-item-title">导出为图片</h4>
-                <p class="settings-item-desc">生成精美个人画像卡，可保存分享</p>
+                <h4 class="settings-item-title">导出数据包</h4>
+                <p class="settings-item-desc">生成数据卡片 + 完整数据 ZIP 包</p>
               </div>
-              <button class="btn btn-primary btn-sm" onclick="App.exportAsImage()">生成卡片</button>
+              <button class="btn btn-primary btn-sm" onclick="App.exportAsImage()">生成数据包</button>
             </div>
 
             <div class="settings-item mb-lg">
               <div class="settings-item-info">
-                <h4 class="settings-item-title">从图片导入</h4>
-                <p class="settings-item-desc">上传数据卡片恢复所有数据</p>
+                <h4 class="settings-item-title">导入数据</h4>
+                <p class="settings-item-desc">支持 ZIP 数据包或 PNG 数据卡片</p>
               </div>
               <div>
-                <input type="file" id="importImageFile" accept="image/png" style="display: none;" onchange="App.importFromImage(event)">
-                <button class="btn btn-primary btn-sm" onclick="document.getElementById('importImageFile').click()">上传卡片</button>
+                <input type="file" id="importImageFile" accept=".zip,.png,image/png,application/zip" style="display: none;" onchange="App.importFromImage(event)">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('importImageFile').click()">选择文件</button>
               </div>
             </div>
 
