@@ -5,10 +5,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.2',
+  currentVersion: '1.6.3',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.3',
+      date: '2026-02-07 16:00',
+      title: '导出内容可选',
+      changes: [
+        { type: 'feature', text: '导出数据卡片时可选择导出内容' },
+        { type: 'improve', text: '支持按测试类型、日记、个人资料分别选择' },
+        { type: 'improve', text: '控制分享给他人的信息量，保护隐私' }
+      ]
+    },
     {
       version: '1.6.2',
       date: '2026-02-07 15:30',

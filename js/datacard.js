@@ -260,11 +260,283 @@ const DataCard = {
   },
 
   /**
+   * 显示导出内容选择弹窗
+   */
+  async showExportOptionsDialog() {
+    // 先获取可用的数据
+    const tests = await Storage.getAll('tests') || [];
+    const diaries = await Storage.getAll('diary') || [];
+    const profile = await Storage.getProfile();
+    
+    // 构建可选项
+    const testTypes = {
+      'mbti': { name: 'MBTI 性格测试', icon: '🧠' },
+      'bigfive': { name: '大五人格测试', icon: '⭐' },
+      'holland': { name: '霍兰德职业兴趣', icon: '💼' },
+      'attachment': { name: '依恋类型测试', icon: '💕' },
+      'eq': { name: '情商测试', icon: '💡' },
+      'values': { name: '价值观测试', icon: '🎯' },
+      'mentalhealth': { name: '心理健康自测', icon: '🌱' }
+    };
+    
+    // 检查每种测试是否有数据
+    const availableTests = [];
+    for (const [type, info] of Object.entries(testTypes)) {
+      const test = tests.find(t => t.type === type);
+      if (test?.result) {
+        availableTests.push({ type, ...info, data: test });
+      }
+    }
+    
+    const hasDiary = diaries.length > 0;
+    const hasProfile = profile && (profile.nickname || profile.bio);
+    
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay active';
+      modal.id = 'exportOptionsModal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 480px;">
+          <div class="modal-header">
+            <h3 class="modal-title">📤 选择导出内容</h3>
+            <button class="modal-close" onclick="DataCard.closeExportOptions(null)">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="text-secondary mb-md" style="font-size: var(--font-size-sm);">
+              选择你想要导出到数据卡片的内容，可以控制分享给他人的信息量
+            </p>
+            
+            <div class="export-options-list">
+              <!-- 测试结果 -->
+              <div class="export-option-group">
+                <div class="export-option-group-title">📊 测试结果</div>
+                ${availableTests.length > 0 ? availableTests.map(test => `
+                  <label class="export-option-item">
+                    <input type="checkbox" name="export_test" value="${test.type}" checked>
+                    <span class="export-option-icon">${test.icon}</span>
+                    <span class="export-option-name">${test.name}</span>
+                    <span class="export-option-check">✓</span>
+                  </label>
+                `).join('') : `
+                  <div class="export-option-empty">暂无测试数据</div>
+                `}
+              </div>
+              
+              <!-- 日记数据 -->
+              <div class="export-option-group">
+                <div class="export-option-group-title">📔 日记数据</div>
+                ${hasDiary ? `
+                  <label class="export-option-item">
+                    <input type="checkbox" name="export_diary" value="diary" checked>
+                    <span class="export-option-icon">📝</span>
+                    <span class="export-option-name">个人日记 (${diaries.length}篇)</span>
+                    <span class="export-option-check">✓</span>
+                  </label>
+                ` : `
+                  <div class="export-option-empty">暂无日记数据</div>
+                `}
+              </div>
+              
+              <!-- 个人资料 -->
+              <div class="export-option-group">
+                <div class="export-option-group-title">👤 个人资料</div>
+                ${hasProfile ? `
+                  <label class="export-option-item">
+                    <input type="checkbox" name="export_profile" value="profile" checked>
+                    <span class="export-option-icon">📋</span>
+                    <span class="export-option-name">基本资料</span>
+                    <span class="export-option-check">✓</span>
+                  </label>
+                ` : `
+                  <div class="export-option-empty">暂无个人资料</div>
+                `}
+              </div>
+            </div>
+            
+            <div class="export-options-actions">
+              <button class="btn btn-ghost btn-sm" onclick="DataCard.toggleAllOptions(true)">全选</button>
+              <button class="btn btn-ghost btn-sm" onclick="DataCard.toggleAllOptions(false)">取消全选</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="DataCard.closeExportOptions(null)">取消</button>
+            <button class="btn btn-primary" onclick="DataCard.submitExportOptions()">下一步</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      this.addExportOptionsStyles();
+      
+      this._exportOptionsResolve = resolve;
+    });
+  },
+
+  /**
+   * 切换全选/取消全选
+   */
+  toggleAllOptions(checked) {
+    const checkboxes = document.querySelectorAll('#exportOptionsModal input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = checked);
+  },
+
+  /**
+   * 提交导出选项
+   */
+  submitExportOptions() {
+    const selectedTests = Array.from(
+      document.querySelectorAll('#exportOptionsModal input[name="export_test"]:checked')
+    ).map(cb => cb.value);
+    
+    const exportDiary = document.querySelector('#exportOptionsModal input[name="export_diary"]:checked');
+    const exportProfile = document.querySelector('#exportOptionsModal input[name="export_profile"]:checked');
+    
+    if (selectedTests.length === 0 && !exportDiary && !exportProfile) {
+      Utils.showToast('请至少选择一项导出内容', 'warning');
+      return;
+    }
+    
+    const options = {
+      tests: selectedTests,
+      diary: !!exportDiary,
+      profile: !!exportProfile
+    };
+    
+    this.closeExportOptions(options);
+  },
+
+  /**
+   * 关闭导出选项弹窗
+   */
+  closeExportOptions(options) {
+    const modal = document.getElementById('exportOptionsModal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
+    }
+    
+    if (this._exportOptionsResolve) {
+      this._exportOptionsResolve(options);
+      this._exportOptionsResolve = null;
+    }
+  },
+
+  /**
+   * 添加导出选项样式
+   */
+  addExportOptionsStyles() {
+    if (document.getElementById('export-options-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'export-options-styles';
+    style.textContent = `
+      .export-options-list {
+        max-height: 350px;
+        overflow-y: auto;
+      }
+      
+      .export-option-group {
+        margin-bottom: var(--spacing-md);
+      }
+      
+      .export-option-group-title {
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        color: var(--text-tertiary);
+        margin-bottom: var(--spacing-sm);
+        padding-left: var(--spacing-xs);
+      }
+      
+      .export-option-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        background-color: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-xs);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .export-option-item:hover {
+        background-color: var(--bg-tertiary);
+      }
+      
+      .export-option-item input[type="checkbox"] {
+        display: none;
+      }
+      
+      .export-option-icon {
+        font-size: 1.1rem;
+      }
+      
+      .export-option-name {
+        flex: 1;
+        font-size: var(--font-size-sm);
+        color: var(--text-primary);
+      }
+      
+      .export-option-check {
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-primary);
+        border: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: transparent;
+        transition: all 0.2s ease;
+      }
+      
+      .export-option-item input:checked + .export-option-icon + .export-option-name + .export-option-check,
+      .export-option-item input:checked ~ .export-option-check {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: white;
+      }
+      
+      .export-option-empty {
+        font-size: var(--font-size-sm);
+        color: var(--text-tertiary);
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: center;
+        background-color: var(--bg-secondary);
+        border-radius: var(--radius-md);
+      }
+      
+      .export-options-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-md);
+        border-top: 1px solid var(--border-color-light);
+      }
+      
+      @media (max-width: 640px) {
+        .export-options-list {
+          max-height: 280px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  },
+
+  /**
    * 导出数据为加密图片
    */
   async exportAsImage() {
     try {
-      // 1. 获取密码
+      // 1. 显示导出内容选择
+      const exportOptions = await this.showExportOptionsDialog();
+      
+      if (!exportOptions) {
+        return false; // 用户取消
+      }
+      
+      // 2. 获取密码
       const password = await this.showPasswordDialog(
         '设置加密密码',
         '为数据卡片设置密码，防止他人读取您的数据。'
@@ -276,49 +548,62 @@ const DataCard = {
       
       Utils.showToast('正在生成加密数据卡片...', 'info');
       
-      // 2. 获取所有数据
-      const exportData = await Storage.exportAll();
+      // 3. 根据选择获取数据
+      const allTests = await Storage.getAll('tests') || [];
+      const allDiaries = await Storage.getAll('diary') || [];
       const profile = await Storage.getProfile();
-      const tests = await Storage.getAll('tests');
-      const diaries = await Storage.getAll('diary');
       
-      // 3. 准备统计信息
+      // 筛选要导出的测试
+      const selectedTests = allTests.filter(t => exportOptions.tests.includes(t.type));
+      
+      // 构建导出数据
+      const exportData = {
+        tests: selectedTests,
+        diary: exportOptions.diary ? allDiaries : [],
+        profile: exportOptions.profile ? profile : null,
+        config: await Storage.getAll('config') || [],
+        exportedAt: Date.now(),
+        version: Changelog.currentVersion,
+        partial: true // 标记为部分导出
+      };
+      
+      // 4. 准备统计信息（用于卡片显示）
       const stats = {
-        testCount: tests?.length || 0,
-        diaryCount: diaries?.length || 0,
+        testCount: selectedTests.length,
+        diaryCount: exportOptions.diary ? allDiaries.length : 0,
         mbtiType: null,
         bigfiveScores: null
       };
       
-      const mbtiTest = tests?.find(t => t.type === 'mbti');
+      const mbtiTest = selectedTests.find(t => t.type === 'mbti');
       if (mbtiTest?.result?.type) {
         stats.mbtiType = mbtiTest.result.type;
       }
       
-      const bigfiveTest = tests?.find(t => t.type === 'bigfive');
+      const bigfiveTest = selectedTests.find(t => t.type === 'bigfive');
       if (bigfiveTest?.result?.dimensions) {
         stats.bigfiveScores = bigfiveTest.result.dimensions;
       }
       
-      // 4. 创建Canvas
+      // 5. 创建Canvas
       const canvas = document.createElement('canvas');
       canvas.width = this.WIDTH;
       canvas.height = this.HEIGHT;
       const ctx = canvas.getContext('2d');
       
-      // 5. 绘制卡片视觉效果
-      this.drawCard(ctx, stats, profile, true); // true 表示加密版本
+      // 6. 绘制卡片视觉效果
+      this.drawCard(ctx, stats, profile, true);
       
-      // 6. 压缩数据
+      // 7. 压缩数据
       const jsonStr = JSON.stringify(exportData);
       const compressed = LZString.compressToUint8Array(jsonStr);
       
-      // 7. 加密数据
+      // 8. 加密数据
       const encrypted = await this.encryptWithPassword(compressed, password);
       
-      // 8. 将数据编码到图片底部像素
+      // 9. 将数据编码到图片底部像素
       const imageData = ctx.getImageData(0, 0, this.WIDTH, this.HEIGHT);
-      const success = this.encodeData(imageData, encrypted, true); // true 表示加密版本
+      const success = this.encodeData(imageData, encrypted, true);
       
       if (!success) {
         throw new Error('数据量过大，无法编码到图片中');
@@ -326,7 +611,7 @@ const DataCard = {
       
       ctx.putImageData(imageData, 0, 0);
       
-      // 9. 导出为PNG
+      // 10. 导出为PNG
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       const filename = `guanji-card-${Utils.formatDate(Date.now(), 'YYYYMMDD-HHmmss')}.png`;
       
