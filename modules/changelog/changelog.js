@@ -15,7 +15,8 @@ const Changelog = {
       title: '关键问题修复',
       changes: [
         { type: 'fix', text: '修复首页连续天数统计逻辑（今天无活动时从昨天开始计算）' },
-        { type: 'fix', text: '修复关系网导入确定按钮无响应的问题' }
+        { type: 'fix', text: '修复关系网导入确定按钮无响应的问题' },
+        { type: 'fix', text: '修复确认弹窗按钮点击无效的问题（ID冲突导致事件绑定失败）' }
       ]
     },
     {

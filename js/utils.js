@@ -300,6 +300,10 @@ const Utils = {
    */
   confirm(message, title = '确认') {
     return new Promise((resolve) => {
+      // 先清理可能存在的旧confirm弹窗
+      const oldModal = document.getElementById('confirmModal');
+      if (oldModal) oldModal.remove();
+      
       const modal = document.createElement('div');
       modal.className = 'modal-overlay active';
       modal.id = 'confirmModal';
@@ -312,8 +316,8 @@ const Utils = {
             <p class="text-secondary" style="line-height: 1.6;">${message}</p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" id="confirmCancel">取消</button>
-            <button class="btn btn-primary" id="confirmOk">确定</button>
+            <button class="btn btn-secondary confirm-cancel-btn">取消</button>
+            <button class="btn btn-primary confirm-ok-btn">确定</button>
           </div>
         </div>
       `;
@@ -326,8 +330,9 @@ const Utils = {
         resolve(result);
       };
       
-      document.getElementById('confirmOk').onclick = () => closeModal(true);
-      document.getElementById('confirmCancel').onclick = () => closeModal(false);
+      // 使用modal内部查询而非全局getElementById，避免ID冲突
+      modal.querySelector('.confirm-ok-btn').onclick = () => closeModal(true);
+      modal.querySelector('.confirm-cancel-btn').onclick = () => closeModal(false);
       
       // 点击遮罩关闭
       modal.onclick = (e) => {
