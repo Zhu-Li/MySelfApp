@@ -464,15 +464,15 @@ const DataCard = {
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     
     // ===== 网格背景 =====
-    ctx.strokeStyle = 'rgba(99, 102, 241, 0.08)';
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.06)';
     ctx.lineWidth = 1;
-    for (let y = 0; y < HEIGHT; y += 20) {
+    for (let y = 0; y < HEIGHT; y += 25) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(WIDTH, y);
       ctx.stroke();
     }
-    for (let x = 0; x < WIDTH; x += 20) {
+    for (let x = 0; x < WIDTH; x += 25) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, HEIGHT);
@@ -480,204 +480,248 @@ const DataCard = {
     }
     
     // ===== 发光装饰 =====
-    const glow1 = ctx.createRadialGradient(700, 80, 0, 700, 80, 180);
-    glow1.addColorStop(0, 'rgba(139, 92, 246, 0.3)');
-    glow1.addColorStop(0.5, 'rgba(139, 92, 246, 0.1)');
+    const glow1 = ctx.createRadialGradient(680, 60, 0, 680, 60, 150);
+    glow1.addColorStop(0, 'rgba(139, 92, 246, 0.2)');
     glow1.addColorStop(1, 'rgba(139, 92, 246, 0)');
     ctx.fillStyle = glow1;
-    ctx.fillRect(520, 0, 280, 260);
+    ctx.fillRect(530, 0, 270, 200);
     
-    const glow2 = ctx.createRadialGradient(100, HEIGHT - 80, 0, 100, HEIGHT - 80, 150);
-    glow2.addColorStop(0, 'rgba(6, 182, 212, 0.25)');
-    glow2.addColorStop(0.5, 'rgba(6, 182, 212, 0.08)');
+    const glow2 = ctx.createRadialGradient(120, HEIGHT - 60, 0, 120, HEIGHT - 60, 120);
+    glow2.addColorStop(0, 'rgba(6, 182, 212, 0.15)');
     glow2.addColorStop(1, 'rgba(6, 182, 212, 0)');
     ctx.fillStyle = glow2;
-    ctx.fillRect(0, HEIGHT - 230, 250, 230);
+    ctx.fillRect(0, HEIGHT - 180, 240, 180);
     
     // ===== 电路板装饰 =====
-    ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(0, 60);
-    ctx.lineTo(40, 60);
-    ctx.lineTo(60, 40);
-    ctx.lineTo(120, 40);
+    ctx.moveTo(0, 50);
+    ctx.lineTo(30, 50);
+    ctx.lineTo(45, 35);
+    ctx.lineTo(90, 35);
     ctx.stroke();
     ctx.fillStyle = '#06b6d4';
     ctx.beginPath();
-    ctx.arc(120, 40, 4, 0, Math.PI * 2);
+    ctx.arc(90, 35, 3, 0, Math.PI * 2);
     ctx.fill();
     
-    ctx.strokeStyle = 'rgba(139, 92, 246, 0.4)';
+    ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
     ctx.beginPath();
-    ctx.moveTo(WIDTH, HEIGHT - 60);
-    ctx.lineTo(WIDTH - 60, HEIGHT - 60);
-    ctx.lineTo(WIDTH - 80, HEIGHT - 80);
-    ctx.lineTo(WIDTH - 140, HEIGHT - 80);
+    ctx.moveTo(WIDTH, HEIGHT - 50);
+    ctx.lineTo(WIDTH - 50, HEIGHT - 50);
+    ctx.lineTo(WIDTH - 65, HEIGHT - 65);
+    ctx.lineTo(WIDTH - 110, HEIGHT - 65);
     ctx.stroke();
     ctx.fillStyle = '#8b5cf6';
     ctx.beginPath();
-    ctx.arc(WIDTH - 140, HEIGHT - 80, 4, 0, Math.PI * 2);
+    ctx.arc(WIDTH - 110, HEIGHT - 65, 3, 0, Math.PI * 2);
     ctx.fill();
     
     // ===== 主内容区域 =====
-    const cardX = 30;
-    const cardY = 25;
-    const cardWidth = WIDTH - 60;
-    const cardHeight = HEIGHT - 50;
+    const cardX = 25;
+    const cardY = 20;
+    const cardWidth = WIDTH - 50;
+    const cardHeight = HEIGHT - 40;
     
-    ctx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
+    // 边框
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.4)';
     ctx.lineWidth = 1;
-    this.roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 12);
+    this.roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 10);
     ctx.stroke();
     
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
-    this.roundRect(ctx, cardX + 1, cardY + 1, cardWidth - 2, cardHeight - 2, 11);
+    // 背景
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+    this.roundRect(ctx, cardX + 1, cardY + 1, cardWidth - 2, cardHeight - 2, 9);
     ctx.fill();
     
+    // 角落装饰
     this.drawCornerDecor(ctx, cardX, cardY, cardWidth, cardHeight);
     
     // ===== 头部区域 =====
-    const headerY = cardY + 20;
+    const headerY = cardY + 18;
     
-    ctx.font = 'bold 20px "Microsoft YaHei", sans-serif';
+    ctx.font = 'bold 18px "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#e0e7ff';
-    ctx.fillText('🔮 观己', cardX + 25, headerY + 5);
+    ctx.fillText('🔮 观己', cardX + 20, headerY + 3);
     
-    ctx.font = '11px "Microsoft YaHei", sans-serif';
+    ctx.font = '10px "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#64748b';
-    ctx.fillText('PERSONAL PROFILE CARD', cardX + 85, headerY + 5);
+    ctx.fillText('PERSONAL PROFILE CARD', cardX + 78, headerY + 3);
     
-    // 加密状态指示
+    // 加密状态
     if (isEncrypted) {
       ctx.fillStyle = '#10b981';
       ctx.beginPath();
-      ctx.arc(cardX + cardWidth - 60, headerY, 4, 0, Math.PI * 2);
+      ctx.arc(cardX + cardWidth - 80, headerY, 3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.font = '10px "Microsoft YaHei", sans-serif';
+      ctx.font = '9px "Microsoft YaHei", sans-serif';
       ctx.fillStyle = '#10b981';
-      ctx.fillText('🔒 ENCRYPTED', cardX + cardWidth - 52, headerY + 4);
-    } else {
-      ctx.fillStyle = '#f59e0b';
-      ctx.beginPath();
-      ctx.arc(cardX + cardWidth - 40, headerY, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.font = '10px "Microsoft YaHei", sans-serif';
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillText('ACTIVE', cardX + cardWidth - 32, headerY + 4);
+      ctx.fillText('🔒 ENCRYPTED', cardX + cardWidth - 73, headerY + 3);
     }
     
-    const lineGradient = ctx.createLinearGradient(cardX + 25, 0, cardX + cardWidth - 25, 0);
+    // 分割线
+    const lineGradient = ctx.createLinearGradient(cardX + 20, 0, cardX + cardWidth - 20, 0);
     lineGradient.addColorStop(0, 'rgba(99, 102, 241, 0)');
-    lineGradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.5)');
+    lineGradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.4)');
     lineGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
     ctx.strokeStyle = lineGradient;
-    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(cardX + 25, headerY + 20);
-    ctx.lineTo(cardX + cardWidth - 25, headerY + 20);
+    ctx.moveTo(cardX + 20, headerY + 18);
+    ctx.lineTo(cardX + cardWidth - 20, headerY + 18);
     ctx.stroke();
     
-    // ===== 左侧：MBTI =====
-    const leftX = cardX + 30;
-    const contentY = headerY + 45;
+    // ===== 内容区域 =====
+    const contentY = headerY + 35;
+    const leftWidth = 220;  // 左侧区域宽度
+    const dividerX = cardX + leftWidth + 20;  // 分割线位置
     
-    ctx.font = '10px "Microsoft YaHei", sans-serif';
+    // ===== 左侧：MBTI + 统计 =====
+    const leftX = cardX + 25;
+    
+    ctx.font = '9px "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#06b6d4';
     ctx.fillText('◆ PERSONALITY TYPE', leftX, contentY);
     
     if (stats.mbtiType) {
-      ctx.font = 'bold 52px "Consolas", monospace';
+      // MBTI 类型
+      ctx.font = 'bold 44px "Consolas", monospace';
       ctx.fillStyle = '#06b6d4';
       ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 20;
-      ctx.fillText(stats.mbtiType, leftX, contentY + 60);
+      ctx.shadowBlur = 15;
+      ctx.fillText(stats.mbtiType, leftX, contentY + 50);
       ctx.shadowBlur = 0;
       
+      // MBTI 名称
       const mbtiNames = {
-        'INTJ': '策略家 Architect', 'INTP': '逻辑学家 Logician',
-        'ENTJ': '指挥官 Commander', 'ENTP': '辩论家 Debater',
-        'INFJ': '提倡者 Advocate', 'INFP': '调停者 Mediator',
-        'ENFJ': '主人公 Protagonist', 'ENFP': '竞选者 Campaigner',
-        'ISTJ': '物流师 Logistician', 'ISFJ': '守卫者 Defender',
-        'ESTJ': '总经理 Executive', 'ESFJ': '执政官 Consul',
-        'ISTP': '鉴赏家 Virtuoso', 'ISFP': '探险家 Adventurer',
-        'ESTP': '企业家 Entrepreneur', 'ESFP': '表演者 Entertainer'
+        'INTJ': '策略家', 'INTP': '逻辑学家', 'ENTJ': '指挥官', 'ENTP': '辩论家',
+        'INFJ': '提倡者', 'INFP': '调停者', 'ENFJ': '主人公', 'ENFP': '竞选者',
+        'ISTJ': '物流师', 'ISFJ': '守卫者', 'ESTJ': '总经理', 'ESFJ': '执政官',
+        'ISTP': '鉴赏家', 'ISFP': '探险家', 'ESTP': '企业家', 'ESFP': '表演者'
       };
-      ctx.font = '12px "Microsoft YaHei", sans-serif';
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillText(mbtiNames[stats.mbtiType] || '', leftX, contentY + 80);
-    } else {
-      ctx.font = 'bold 28px "Consolas", monospace';
-      ctx.fillStyle = '#334155';
-      ctx.fillText('----', leftX, contentY + 55);
       ctx.font = '11px "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText(mbtiNames[stats.mbtiType] || '', leftX, contentY + 68);
+    } else {
+      ctx.font = 'bold 24px "Consolas", monospace';
+      ctx.fillStyle = '#334155';
+      ctx.fillText('----', leftX, contentY + 45);
+      ctx.font = '10px "Microsoft YaHei", sans-serif';
       ctx.fillStyle = '#475569';
-      ctx.fillText('未完成测试', leftX, contentY + 75);
+      ctx.fillText('未完成测试', leftX, contentY + 65);
     }
     
-    // ===== 统计数据 =====
-    const statsY = contentY + 110;
+    // 统计数据
+    const statsY = contentY + 95;
     this.drawStatBox(ctx, leftX, statsY, stats.testCount, '测试', '#8b5cf6');
-    this.drawStatBox(ctx, leftX + 90, statsY, stats.diaryCount, '日记', '#06b6d4');
+    this.drawStatBox(ctx, leftX + 85, statsY, stats.diaryCount, '日记', '#06b6d4');
+    
+    // ===== 垂直分割线 =====
+    const dividerGradient = ctx.createLinearGradient(0, contentY - 10, 0, contentY + 180);
+    dividerGradient.addColorStop(0, 'rgba(99, 102, 241, 0)');
+    dividerGradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.3)');
+    dividerGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+    ctx.strokeStyle = dividerGradient;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(dividerX, contentY - 10);
+    ctx.lineTo(dividerX, contentY + 180);
+    ctx.stroke();
     
     // ===== 右侧：大五人格 =====
-    const rightX = cardX + 240;
+    const rightX = dividerX + 25;
+    const rightWidth = cardWidth - leftWidth - 70;
     
-    ctx.font = '10px "Microsoft YaHei", sans-serif';
+    ctx.font = '9px "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#8b5cf6';
     ctx.fillText('◆ BIG FIVE PERSONALITY', rightX, contentY);
     
     if (stats.bigfiveScores) {
-      this.drawRadarChart(ctx, rightX + 150, contentY + 90, 70, stats.bigfiveScores);
-      
       const dimensions = [
-        { key: 'O', name: '开放性' },
-        { key: 'C', name: '尽责性' },
-        { key: 'E', name: '外向性' },
-        { key: 'A', name: '宜人性' },
-        { key: 'N', name: '情绪性' }
+        { key: 'O', name: '开放性', fullName: 'Openness', color: '#8b5cf6' },
+        { key: 'C', name: '尽责性', fullName: 'Conscientiousness', color: '#10b981' },
+        { key: 'E', name: '外向性', fullName: 'Extraversion', color: '#f59e0b' },
+        { key: 'A', name: '宜人性', fullName: 'Agreeableness', color: '#ec4899' },
+        { key: 'N', name: '情绪性', fullName: 'Neuroticism', color: '#6366f1' }
       ];
       
-      const listX = rightX + 260;
+      const barStartY = contentY + 20;
+      const barHeight = 14;
+      const barSpacing = 30;
+      const barMaxWidth = rightWidth - 60;
+      
       dimensions.forEach((dim, i) => {
-        const y = contentY + 30 + i * 32;
+        const y = barStartY + i * barSpacing;
         const score = stats.bigfiveScores[dim.key] || 0;
         
-        ctx.font = '10px "Microsoft YaHei", sans-serif';
-        ctx.fillStyle = '#64748b';
-        ctx.fillText(dim.name, listX, y);
+        // 维度标签
+        ctx.font = 'bold 10px "Microsoft YaHei", sans-serif';
+        ctx.fillStyle = dim.color;
+        ctx.fillText(dim.key, rightX, y + 11);
         
-        ctx.font = 'bold 18px "Consolas", monospace';
-        ctx.fillStyle = score >= 70 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
+        ctx.font = '9px "Microsoft YaHei", sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(dim.name, rightX + 18, y + 11);
+        
+        // 进度条背景
+        const barX = rightX + 65;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        this.roundRect(ctx, barX, y, barMaxWidth, barHeight, 3);
+        ctx.fill();
+        
+        // 进度条边框
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 0.5;
+        this.roundRect(ctx, barX, y, barMaxWidth, barHeight, 3);
+        ctx.stroke();
+        
+        // 进度条填充
+        const barWidth = Math.max(0, (score / 100) * barMaxWidth);
+        if (barWidth > 0) {
+          const barGradient = ctx.createLinearGradient(barX, y, barX + barWidth, y);
+          barGradient.addColorStop(0, dim.color);
+          barGradient.addColorStop(1, this.adjustAlpha(dim.color, 0.6));
+          ctx.fillStyle = barGradient;
+          this.roundRect(ctx, barX, y, barWidth, barHeight, 3);
+          ctx.fill();
+        }
+        
+        // 分数
+        ctx.font = 'bold 11px "Consolas", monospace';
+        ctx.fillStyle = '#e0e7ff';
         ctx.textAlign = 'right';
-        ctx.fillText(score.toString().padStart(2, '0'), listX + 90, y + 2);
+        ctx.fillText(score.toString(), barX + barMaxWidth + 25, y + 11);
         ctx.textAlign = 'left';
       });
     } else {
-      this.drawRadarChart(ctx, rightX + 150, contentY + 90, 70, null);
-      ctx.font = '11px "Microsoft YaHei", sans-serif';
+      // 无数据状态
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+      this.roundRect(ctx, rightX, contentY + 20, rightWidth - 20, 150, 8);
+      ctx.fill();
+      
+      ctx.font = '12px "Microsoft YaHei", sans-serif';
       ctx.fillStyle = '#475569';
       ctx.textAlign = 'center';
-      ctx.fillText('完成大五人格测试', rightX + 150, contentY + 170);
-      ctx.fillText('解锁人格分析', rightX + 150, contentY + 185);
+      ctx.fillText('完成大五人格测试', rightX + (rightWidth - 20) / 2, contentY + 85);
+      ctx.fillText('解锁人格特质分析', rightX + (rightWidth - 20) / 2, contentY + 105);
       ctx.textAlign = 'left';
     }
     
     // ===== 底部信息 =====
-    const footerY = cardY + cardHeight - 25;
-    ctx.font = '10px "Consolas", monospace';
+    const footerY = cardY + cardHeight - 20;
+    ctx.font = '9px "Consolas", monospace';
     ctx.fillStyle = '#475569';
-    ctx.fillText('EXPORTED: ' + Utils.formatDate(Date.now(), 'YYYY-MM-DD HH:mm:ss'), cardX + 25, footerY);
+    ctx.fillText('EXPORTED: ' + Utils.formatDate(Date.now(), 'YYYY-MM-DD HH:mm:ss'), cardX + 20, footerY);
     ctx.textAlign = 'right';
-    ctx.fillText('v' + (typeof Changelog !== 'undefined' ? Changelog.currentVersion : '1.5.0'), cardX + cardWidth - 25, footerY);
+    ctx.fillText('v' + (typeof Changelog !== 'undefined' ? Changelog.currentVersion : '1.6.1'), cardX + cardWidth - 20, footerY);
     ctx.textAlign = 'left';
     
     // ===== 数据存储区域 =====
     const dataY = HEIGHT - DATA_ROWS;
     
-    for (let y = dataY; y < HEIGHT; y += 3) {
-      const alpha = 0.03 + (y - dataY) / DATA_ROWS * 0.05;
+    // 扫描线效果
+    for (let y = dataY; y < HEIGHT; y += 4) {
+      const alpha = 0.02 + (y - dataY) / DATA_ROWS * 0.04;
       ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
       ctx.beginPath();
       ctx.moveTo(0, y);
@@ -685,25 +729,36 @@ const DataCard = {
       ctx.stroke();
     }
     
-    const bottomGradient = ctx.createLinearGradient(0, dataY - 20, 0, HEIGHT);
+    // 底部渐变
+    const bottomGradient = ctx.createLinearGradient(0, dataY - 15, 0, HEIGHT);
     bottomGradient.addColorStop(0, 'rgba(10, 10, 26, 0)');
-    bottomGradient.addColorStop(0.3, 'rgba(10, 10, 26, 0.5)');
-    bottomGradient.addColorStop(1, 'rgba(10, 10, 26, 0.8)');
+    bottomGradient.addColorStop(0.4, 'rgba(10, 10, 26, 0.6)');
+    bottomGradient.addColorStop(1, 'rgba(10, 10, 26, 0.9)');
     ctx.fillStyle = bottomGradient;
-    ctx.fillRect(0, dataY - 20, WIDTH, DATA_ROWS + 20);
+    ctx.fillRect(0, dataY - 15, WIDTH, DATA_ROWS + 15);
     
+    // 底部文字
     ctx.font = '8px "Consolas", monospace';
-    ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
-    const binary = isEncrypted ? 'AES-256-GCM HMAC-SHA256 ENCRYPTED' : '01001001 01001110 01000110 01001111';
-    for (let i = 0; i < 3; i++) {
-      ctx.fillText(binary, 30 + i * 270, HEIGHT - 15);
-    }
-    
-    ctx.font = '9px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+    ctx.fillStyle = 'rgba(6, 182, 212, 0.12)';
+    const binary = isEncrypted ? 'AES-256-GCM · HMAC-SHA256 · ENCRYPTED' : '01001111 01001011';
     ctx.textAlign = 'center';
-    ctx.fillText('静观己心 · 内外澄明', WIDTH / 2, HEIGHT - 5);
+    ctx.fillText(binary, WIDTH / 2, HEIGHT - 18);
+    
+    ctx.font = '8px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.3)';
+    ctx.fillText('静观己心 · 内外澄明', WIDTH / 2, HEIGHT - 6);
     ctx.textAlign = 'left';
+  },
+
+  /**
+   * 调整颜色透明度
+   */
+  adjustAlpha(hex, alpha) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   },
 
   /**

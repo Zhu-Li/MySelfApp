@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.1',
+  currentVersion: '1.6.2',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.2',
+      date: '2026-02-07',
+      title: '数据卡片布局优化',
+      changes: [
+        { type: 'improve', text: '修复数据卡片内容重叠问题' },
+        { type: 'improve', text: '大五人格改用水平进度条展示，更直观清晰' },
+        { type: 'improve', text: '添加左右内容区域分割线' },
+        { type: 'improve', text: '优化卡片整体间距和视觉层级' }
+      ]
+    },
     {
       version: '1.6.1',
       date: '2026-02-07',
