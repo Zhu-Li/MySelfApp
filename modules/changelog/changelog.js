@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.3',
+  currentVersion: '1.9.4',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.4',
+      date: '2026-02-08',
+      title: '备注编辑体验优化',
+      changes: [
+        { type: 'fix', text: '修复编辑联系人备注后页面不刷新的问题' }
+      ]
+    },
     {
       version: '1.9.3',
       date: '2026-02-08',

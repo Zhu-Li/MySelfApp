@@ -1414,7 +1414,8 @@ const Contacts = {
       contact.remark = newRemark;
       await this.save(contact);
       Utils.showToast('备注已更新', 'success');
-      Router.navigate(`/contacts/${contactId}`);
+      // 强制刷新当前页面
+      Router.handleRouteChange();
     }
   },
 
