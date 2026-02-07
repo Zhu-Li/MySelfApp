@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.7.2',
+  currentVersion: '1.7.3',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.7.3',
+      date: '2026-02-07 21:00',
+      title: '微信浏览器兼容',
+      changes: [
+        { type: 'fix', text: '修复微信内置浏览器无法选择 ZIP 文件的问题' },
+        { type: 'improve', text: '移除文件类型限制，支持选择任意文件' }
+      ]
+    },
     {
       version: '1.7.2',
       date: '2026-02-07 20:30',

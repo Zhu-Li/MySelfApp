@@ -1735,7 +1735,7 @@ const App = {
                 <p class="settings-item-desc">支持 ZIP 数据包</p>
               </div>
               <div>
-                <input type="file" id="importImageFile" accept=".zip,.png" style="display: none;" onchange="App.importFromImage(event)">
+                <input type="file" id="importImageFile" accept="*/*" style="display: none;" onchange="App.importFromImage(event)">
                 <button class="btn btn-primary btn-sm" onclick="document.getElementById('importImageFile').click()">选择文件</button>
               </div>
             </div>
