@@ -1838,14 +1838,17 @@ const Contacts = {
           
           ${entry.images && entry.images.length > 0 ? `
             <div class="diary-detail-images">
-              ${entry.images.map(img => `<img src="${img}" class="diary-detail-image" onclick="Contacts.viewImage('${img}')">`).join('')}
+              ${entry.images.map((img, idx) => {
+                const imgSrc = typeof img === 'object' ? img.data : img;
+                return `<img src="${imgSrc}" class="diary-detail-image" onclick="Contacts.viewDiaryImage('${entry.id || ''}', ${idx})">`;
+              }).join('')}
             </div>
           ` : ''}
           
           ${entry.analysis ? `
             <div class="diary-detail-analysis">
               <div class="diary-detail-analysis-title">🤖 AI 情绪分析</div>
-              <div class="diary-detail-analysis-content">${typeof entry.analysis === 'object' ? JSON.stringify(entry.analysis, null, 2) : entry.analysis}</div>
+              ${this.renderAnalysisContent(entry.analysis)}
             </div>
           ` : ''}
         </div>
@@ -1930,6 +1933,139 @@ const Contacts = {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/\n/g, '<br>');
+  },
+
+  /**
+   * 渲染AI分析内容（美化显示）
+   */
+  renderAnalysisContent(analysis) {
+    if (!analysis) return '';
+    
+    // 如果是字符串，直接显示
+    if (typeof analysis === 'string') {
+      return `<div class="diary-detail-analysis-text">${analysis}</div>`;
+    }
+    
+    // 如果是对象，格式化显示
+    const moodLabels = {
+      '兴奋': '😊', '开心': '😄', '平静': '😌', '忧虑': '😟', 
+      '焦虑': '😰', '悲伤': '😢', '愤怒': '😠', '疲惫': '😴'
+    };
+    
+    let html = '<div class="analysis-formatted">';
+    
+    // 心情
+    if (analysis.mood) {
+      const moodIcon = moodLabels[analysis.mood] || '💭';
+      html += `
+        <div class="analysis-item">
+          <span class="analysis-label">心情</span>
+          <span class="analysis-value">${moodIcon} ${analysis.mood}${analysis.moodScore ? ` (${analysis.moodScore}/5)` : ''}</span>
+        </div>
+      `;
+    }
+    
+    // 关键词
+    if (analysis.keywords && analysis.keywords.length > 0) {
+      html += `
+        <div class="analysis-item">
+          <span class="analysis-label">关键词</span>
+          <div class="analysis-keywords">
+            ${analysis.keywords.map(k => `<span class="analysis-keyword">${k}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    // 主题
+    if (analysis.themes && analysis.themes.length > 0) {
+      html += `
+        <div class="analysis-item">
+          <span class="analysis-label">主题</span>
+          <div class="analysis-themes">
+            ${analysis.themes.map(t => `<span class="analysis-theme">${t}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    // 洞察
+    if (analysis.insights) {
+      html += `
+        <div class="analysis-item analysis-insights">
+          <span class="analysis-label">AI 洞察</span>
+          <p class="analysis-insight-text">${analysis.insights}</p>
+        </div>
+      `;
+    }
+    
+    html += '</div>';
+    
+    // 添加样式
+    html += `
+      <style>
+        .analysis-formatted {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-md);
+        }
+        .analysis-item {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-xs);
+        }
+        .analysis-label {
+          font-size: var(--font-size-xs);
+          color: var(--text-tertiary);
+          font-weight: 500;
+        }
+        .analysis-value {
+          font-size: var(--font-size-base);
+          color: var(--text-primary);
+        }
+        .analysis-keywords, .analysis-themes {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--spacing-xs);
+        }
+        .analysis-keyword {
+          padding: var(--spacing-xs) var(--spacing-sm);
+          background: var(--primary-color-light);
+          color: var(--primary-color);
+          border-radius: var(--radius-full);
+          font-size: var(--font-size-xs);
+        }
+        .analysis-theme {
+          padding: var(--spacing-xs) var(--spacing-sm);
+          background: var(--bg-tertiary);
+          color: var(--text-secondary);
+          border-radius: var(--radius-sm);
+          font-size: var(--font-size-xs);
+        }
+        .analysis-insight-text {
+          font-size: var(--font-size-sm);
+          color: var(--text-secondary);
+          line-height: 1.6;
+          margin: 0;
+        }
+      </style>
+    `;
+    
+    return html;
+  },
+
+  /**
+   * 查看日记图片（支持对象格式）
+   */
+  viewDiaryImage(diaryId, imageIndex) {
+    // 从当前弹窗获取图片数据
+    const modal = document.getElementById('diaryDetailModal');
+    if (!modal) return;
+    
+    const images = modal.querySelectorAll('.diary-detail-image');
+    if (images[imageIndex]) {
+      this.viewImage(images[imageIndex].src);
+    }
   },
 
   /**

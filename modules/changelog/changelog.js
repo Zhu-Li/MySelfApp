@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.9',
+  currentVersion: '1.9.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.0',
+      date: '2026-02-08',
+      title: '日记详情显示优化',
+      changes: [
+        { type: 'fix', text: '修复联系人日记图片显示问题（支持对象格式图片数据）' },
+        { type: 'improve', text: '优化AI情绪分析展示样式，格式化显示心情、关键词、主题和洞察' }
+      ]
+    },
     {
       version: '1.8.9',
       date: '2026-02-08',
