@@ -340,33 +340,95 @@ const App = {
   async renderHome() {
     const container = document.getElementById('mainContent');
     const profile = await Storage.getProfile();
+    
+    // 获取所有主要测试的最新结果
     const latestMBTI = await Storage.getLatestTest('mbti');
+    const latestBigFive = await Storage.getLatestTest('bigfive');
+    const latestHolland = await Storage.getLatestTest('holland');
+    const latestAttachment = await Storage.getLatestTest('attachment');
+    const latestEQ = await Storage.getLatestTest('eq');
 
-    let profileCard = '';
-    if (latestMBTI && latestMBTI.result) {
-      const mbtiType = latestMBTI.result.type;
-      profileCard = `
-        <div class="card card-hover mb-lg">
-          <div class="card-body">
-            <div class="flex items-center gap-lg">
-              <div class="avatar avatar-xl" style="background-color: ${Utils.getMBTIColor(mbtiType)}20; color: ${Utils.getMBTIColor(mbtiType)};">
-                ${mbtiType.charAt(0)}
-              </div>
-              <div class="flex-1">
-                <h3 class="text-primary font-bold" style="font-size: var(--font-size-2xl);">${mbtiType}</h3>
-                <p class="text-secondary">${Utils.getMBTIName(mbtiType)}</p>
-                <p class="text-tertiary mt-sm" style="font-size: var(--font-size-sm);">
-                  测试于 ${Utils.formatRelativeTime(latestMBTI.timestamp)}
-                </p>
-              </div>
-              <a href="#/report/${latestMBTI.id}" class="btn btn-outline">
-                查看报告
-              </a>
-            </div>
+    // 构建测试结果卡片
+    let testResultsHtml = '';
+    
+    // MBTI 结果
+    if (latestMBTI?.result?.type) {
+      testResultsHtml += `
+        <a href="#/report/${latestMBTI.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: ${Utils.getMBTIColor(latestMBTI.result.type)}20; color: ${Utils.getMBTIColor(latestMBTI.result.type)};">
+            ${latestMBTI.result.type.charAt(0)}
           </div>
-        </div>
+          <div class="test-result-info">
+            <div class="test-result-type">MBTI</div>
+            <div class="test-result-value" style="color: ${Utils.getMBTIColor(latestMBTI.result.type)};">${latestMBTI.result.type}</div>
+            <div class="test-result-name">${Utils.getMBTIName(latestMBTI.result.type)}</div>
+          </div>
+        </a>
       `;
     }
+    
+    // 大五人格结果
+    if (latestBigFive?.result?.dimensions) {
+      const dims = latestBigFive.result.dimensions;
+      const topDim = Object.entries(dims).sort((a, b) => b[1] - a[1])[0];
+      const dimNames = { O: '开放性', C: '尽责性', E: '外向性', A: '宜人性', N: '情绪性' };
+      testResultsHtml += `
+        <a href="#/report/${latestBigFive.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: #8b5cf620; color: #8b5cf6;">⭐</div>
+          <div class="test-result-info">
+            <div class="test-result-type">大五人格</div>
+            <div class="test-result-value" style="color: #8b5cf6;">${topDim[0]}</div>
+            <div class="test-result-name">${dimNames[topDim[0]]} ${topDim[1]}%</div>
+          </div>
+        </a>
+      `;
+    }
+    
+    // 霍兰德结果
+    if (latestHolland?.result?.hollandCode) {
+      testResultsHtml += `
+        <a href="#/report/${latestHolland.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: #f59e0b20; color: #f59e0b;">💼</div>
+          <div class="test-result-info">
+            <div class="test-result-type">霍兰德</div>
+            <div class="test-result-value" style="color: #f59e0b;">${latestHolland.result.hollandCode}</div>
+            <div class="test-result-name">职业兴趣代码</div>
+          </div>
+        </a>
+      `;
+    }
+    
+    // 依恋类型结果
+    if (latestAttachment?.result?.typeInfo) {
+      testResultsHtml += `
+        <a href="#/report/${latestAttachment.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: ${latestAttachment.result.typeInfo.color}20; color: ${latestAttachment.result.typeInfo.color};">${latestAttachment.result.typeInfo.icon}</div>
+          <div class="test-result-info">
+            <div class="test-result-type">依恋类型</div>
+            <div class="test-result-value" style="color: ${latestAttachment.result.typeInfo.color};">${latestAttachment.result.typeInfo.name}</div>
+            <div class="test-result-name">亲密关系模式</div>
+          </div>
+        </a>
+      `;
+    }
+    
+    // 情商结果
+    if (latestEQ?.result?.totalScore !== undefined) {
+      const eqLevel = latestEQ.result.totalScore >= 80 ? '优秀' : latestEQ.result.totalScore >= 60 ? '良好' : '待提升';
+      testResultsHtml += `
+        <a href="#/report/${latestEQ.id}" class="test-result-item">
+          <div class="test-result-icon" style="background-color: #10b98120; color: #10b981;">🧠</div>
+          <div class="test-result-info">
+            <div class="test-result-type">情商</div>
+            <div class="test-result-value" style="color: #10b981;">${latestEQ.result.totalScore}</div>
+            <div class="test-result-name">${eqLevel}</div>
+          </div>
+        </a>
+      `;
+    }
+
+    // 如果没有任何测试结果，显示引导
+    const hasAnyTest = testResultsHtml !== '';
 
     container.innerHTML = `
       <div class="page-container animate-fade-in">
@@ -382,8 +444,13 @@ const App = {
           </div>
         </div>
 
-        <!-- 用户画像卡片 -->
-        ${profileCard || `
+        <!-- 测试结果概览 -->
+        ${hasAnyTest ? `
+          <h2 class="section-title">我的画像</h2>
+          <div class="test-results-grid mb-xl">
+            ${testResultsHtml}
+          </div>
+        ` : `
           <div class="card card-hover mb-lg">
             <div class="card-body">
               <div class="empty-state" style="padding: var(--spacing-lg);">
@@ -413,11 +480,11 @@ const App = {
               <p class="quick-entry-desc">记录日常感受</p>
             </div>
           </a>
-          <a href="#/report" class="card card-hover quick-entry-card">
+          <a href="#/chat" class="card card-hover quick-entry-card">
             <div class="card-body text-center">
-              <div class="quick-entry-icon">📊</div>
-              <h3 class="quick-entry-title">分析报告</h3>
-              <p class="quick-entry-desc">查看画像报告</p>
+              <div class="quick-entry-icon">🤖</div>
+              <h3 class="quick-entry-title">AI 智障</h3>
+              <p class="quick-entry-desc">有问必答</p>
             </div>
           </a>
         </div>
@@ -458,6 +525,57 @@ const App = {
           font-weight: 600;
           margin-bottom: var(--spacing-md);
         }
+        
+        /* 测试结果网格 */
+        .test-results-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: var(--spacing-md);
+        }
+        .test-result-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: var(--spacing-lg) var(--spacing-md);
+          background-color: var(--bg-card);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-sm);
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+        .test-result-item:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+        }
+        .test-result-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: var(--radius-lg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.25rem;
+          font-weight: 700;
+          margin-bottom: var(--spacing-sm);
+        }
+        .test-result-info {
+          text-align: center;
+        }
+        .test-result-type {
+          font-size: var(--font-size-xs);
+          color: var(--text-tertiary);
+          margin-bottom: 2px;
+        }
+        .test-result-value {
+          font-size: var(--font-size-xl);
+          font-weight: 700;
+          margin-bottom: 2px;
+        }
+        .test-result-name {
+          font-size: var(--font-size-xs);
+          color: var(--text-secondary);
+        }
+        
         .quick-entry-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -488,6 +606,21 @@ const App = {
           .home-subtitle {
             font-size: var(--font-size-sm);
           }
+          .test-results-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+          }
+          .test-result-item {
+            padding: var(--spacing-md) var(--spacing-sm);
+          }
+          .test-result-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+          }
+          .test-result-value {
+            font-size: var(--font-size-lg);
+          }
           .quick-entry-grid {
             grid-template-columns: repeat(3, 1fr);
             gap: var(--spacing-sm);
@@ -506,6 +639,12 @@ const App = {
         @media (max-width: 480px) {
           .home-title {
             font-size: var(--font-size-lg);
+          }
+          .test-results-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .test-result-name {
+            display: none;
           }
           .quick-entry-icon {
             font-size: 1.5rem;

@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.3',
+  currentVersion: '1.6.4',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.4',
+      date: '2026-02-07 16:30',
+      title: '首页画像优化',
+      changes: [
+        { type: 'improve', text: '首页展示所有已完成测试的结果概览' },
+        { type: 'improve', text: '支持显示 MBTI、大五人格、霍兰德、依恋类型、情商等测试结果' },
+        { type: 'improve', text: '点击测试结果可直接跳转到详细报告' },
+        { type: 'improve', text: '快捷入口新增 AI 智障入口' }
+      ]
+    },
     {
       version: '1.6.3',
       date: '2026-02-07 16:00',
