@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.5',
+  currentVersion: '1.8.6',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.6',
+      date: '2026-02-08',
+      title: '缓存优化',
+      changes: [
+        { type: 'improve', text: 'CSS/JS文件添加版本号参数，解决微信等浏览器缓存问题' }
+      ]
+    },
     {
       version: '1.8.5',
       date: '2026-02-08',
