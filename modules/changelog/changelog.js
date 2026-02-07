@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.5.0',
+  currentVersion: '1.6.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.0',
+      date: '2026-02-07',
+      title: '数据卡片安全升级',
+      changes: [
+        { type: 'feature', text: '数据卡片支持 AES-256-GCM 加密，防止数据泄露' },
+        { type: 'feature', text: '添加 HMAC-SHA256 签名验证，防止数据篡改' },
+        { type: 'feature', text: '导出时设置密码，导入时验证密码' },
+        { type: 'improve', text: '卡片显示加密状态标识（🔒 ENCRYPTED）' },
+        { type: 'improve', text: '兼容旧版未加密数据卡片导入' }
+      ]
+    },
     {
       version: '1.5.0',
       date: '2026-02-07',

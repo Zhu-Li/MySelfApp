@@ -3,6 +3,7 @@
  * 观己 - 静观己心，内外澄明
  * 
  * 将用户数据编码到图片中，生成可分享的个人画像卡片
+ * 支持 AES-256-GCM 加密和 HMAC-SHA256 签名防篡改
  */
 
 const DataCard = {
@@ -14,20 +15,274 @@ const DataCard = {
   DATA_ROWS: 60,
   
   // 魔数标识（用于识别有效的数据卡片）
-  MAGIC: 'GUANJI',
+  MAGIC: 'GUANJIV2', // V2 表示加密版本
+  
+  // 旧版魔数（兼容未加密版本）
+  MAGIC_V1: 'GUANJI',
 
   /**
-   * 导出数据为图片
+   * 从密码派生加密密钥和签名密钥
+   */
+  async deriveKeys(password, salt = null) {
+    const encoder = new TextEncoder();
+    
+    // 如果没有提供 salt，生成新的
+    if (!salt) {
+      salt = crypto.getRandomValues(new Uint8Array(16));
+    }
+    
+    // 导入密码作为密钥材料
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password),
+      'PBKDF2',
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+
+    // 派生 AES-GCM 加密密钥
+    const encryptKey = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+
+    // 派生 HMAC 签名密钥（使用不同的 salt 派生）
+    const hmacSalt = new Uint8Array(salt.length);
+    salt.forEach((b, i) => hmacSalt[i] = b ^ 0xFF); // 简单异或生成不同 salt
+    
+    const hmacKey = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: hmacSalt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: 'HMAC', hash: 'SHA-256', length: 256 },
+      false,
+      ['sign', 'verify']
+    );
+
+    return { encryptKey, hmacKey, salt };
+  },
+
+  /**
+   * 加密数据
+   */
+  async encryptWithPassword(data, password) {
+    const { encryptKey, hmacKey, salt } = await this.deriveKeys(password);
+    
+    // 生成随机 IV
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    
+    // 加密数据
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      encryptKey,
+      data
+    );
+    
+    // 构建加密包：salt(16) + iv(12) + encrypted(n)
+    const encryptedArray = new Uint8Array(encrypted);
+    const combined = new Uint8Array(salt.length + iv.length + encryptedArray.length);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(encryptedArray, salt.length + iv.length);
+    
+    // 计算 HMAC 签名
+    const signature = await crypto.subtle.sign(
+      'HMAC',
+      hmacKey,
+      combined
+    );
+    
+    // 最终数据：signature(32) + combined
+    const signatureArray = new Uint8Array(signature);
+    const final = new Uint8Array(signatureArray.length + combined.length);
+    final.set(signatureArray, 0);
+    final.set(combined, signatureArray.length);
+    
+    return final;
+  },
+
+  /**
+   * 解密数据
+   */
+  async decryptWithPassword(encryptedData, password) {
+    // 提取签名和加密数据
+    const signature = encryptedData.slice(0, 32);
+    const combined = encryptedData.slice(32);
+    
+    // 提取 salt, iv, encrypted
+    const salt = combined.slice(0, 16);
+    const iv = combined.slice(16, 28);
+    const encrypted = combined.slice(28);
+    
+    // 派生密钥
+    const { encryptKey, hmacKey } = await this.deriveKeys(password, salt);
+    
+    // 验证签名
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      hmacKey,
+      signature,
+      combined
+    );
+    
+    if (!isValid) {
+      throw new Error('数据签名验证失败，可能已被篡改');
+    }
+    
+    // 解密数据
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      encryptKey,
+      encrypted
+    );
+    
+    return new Uint8Array(decrypted);
+  },
+
+  /**
+   * 显示密码输入弹窗
+   */
+  showPasswordDialog(title, message, isExport = true) {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay active';
+      modal.id = 'passwordModal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 400px;">
+          <div class="modal-header">
+            <h3 class="modal-title">${title}</h3>
+            <button class="modal-close" onclick="DataCard.closePasswordDialog(null)">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="text-secondary mb-lg">${message}</p>
+            <form id="passwordDialogForm" onsubmit="event.preventDefault(); DataCard.submitPassword();">
+              <div class="input-group mb-md">
+                <label class="input-label">密码</label>
+                <div class="password-input-wrapper">
+                  <input type="password" class="input-field" id="cardPassword" 
+                         placeholder="请输入密码（至少6位）" minlength="6" required autofocus>
+                  <button type="button" class="password-toggle btn btn-ghost btn-sm" 
+                          onclick="DataCard.togglePasswordVisibility()">👁️</button>
+                </div>
+              </div>
+              ${isExport ? `
+              <div class="input-group mb-md">
+                <label class="input-label">确认密码</label>
+                <div class="password-input-wrapper">
+                  <input type="password" class="input-field" id="cardPasswordConfirm" 
+                         placeholder="请再次输入密码" minlength="6" required>
+                  <button type="button" class="password-toggle btn btn-ghost btn-sm" 
+                          onclick="DataCard.togglePasswordVisibility('cardPasswordConfirm')">👁️</button>
+                </div>
+              </div>
+              ` : ''}
+            </form>
+            <div class="alert alert-info mt-md" style="font-size: var(--font-size-xs);">
+              <strong>🔒 安全提示：</strong><br>
+              ${isExport ? 
+                '密码用于加密数据卡片，导入时需要相同密码。请牢记此密码！' : 
+                '请输入导出时设置的密码来解密数据卡片。'}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="DataCard.closePasswordDialog(null)">取消</button>
+            <button class="btn btn-primary" onclick="DataCard.submitPassword()">确定</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // 保存 resolve 函数
+      this._passwordResolve = resolve;
+      this._isExportDialog = isExport;
+    });
+  },
+
+  /**
+   * 切换密码可见性
+   */
+  togglePasswordVisibility(inputId = 'cardPassword') {
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+  },
+
+  /**
+   * 提交密码
+   */
+  submitPassword() {
+    const password = document.getElementById('cardPassword').value;
+    
+    if (password.length < 6) {
+      Utils.showToast('密码至少6位', 'error');
+      return;
+    }
+    
+    if (this._isExportDialog) {
+      const confirm = document.getElementById('cardPasswordConfirm').value;
+      if (password !== confirm) {
+        Utils.showToast('两次密码不一致', 'error');
+        return;
+      }
+    }
+    
+    this.closePasswordDialog(password);
+  },
+
+  /**
+   * 关闭密码弹窗
+   */
+  closePasswordDialog(password) {
+    const modal = document.getElementById('passwordModal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
+    }
+    
+    if (this._passwordResolve) {
+      this._passwordResolve(password);
+      this._passwordResolve = null;
+    }
+  },
+
+  /**
+   * 导出数据为加密图片
    */
   async exportAsImage() {
     try {
-      // 1. 获取所有数据
+      // 1. 获取密码
+      const password = await this.showPasswordDialog(
+        '设置加密密码',
+        '为数据卡片设置密码，防止他人读取您的数据。'
+      );
+      
+      if (!password) {
+        return false; // 用户取消
+      }
+      
+      Utils.showToast('正在生成加密数据卡片...', 'info');
+      
+      // 2. 获取所有数据
       const exportData = await Storage.exportAll();
       const profile = await Storage.getProfile();
       const tests = await Storage.getAll('tests');
       const diaries = await Storage.getAll('diary');
       
-      // 2. 准备统计信息
+      // 3. 准备统计信息
       const stats = {
         testCount: tests?.length || 0,
         diaryCount: diaries?.length || 0,
@@ -35,34 +290,35 @@ const DataCard = {
         bigfiveScores: null
       };
       
-      // 获取最新的MBTI结果
       const mbtiTest = tests?.find(t => t.type === 'mbti');
       if (mbtiTest?.result?.type) {
         stats.mbtiType = mbtiTest.result.type;
       }
       
-      // 获取大五人格分数
       const bigfiveTest = tests?.find(t => t.type === 'bigfive');
       if (bigfiveTest?.result?.dimensions) {
         stats.bigfiveScores = bigfiveTest.result.dimensions;
       }
       
-      // 3. 创建Canvas
+      // 4. 创建Canvas
       const canvas = document.createElement('canvas');
       canvas.width = this.WIDTH;
       canvas.height = this.HEIGHT;
       const ctx = canvas.getContext('2d');
       
-      // 4. 绘制卡片视觉效果
-      this.drawCard(ctx, stats, profile);
+      // 5. 绘制卡片视觉效果
+      this.drawCard(ctx, stats, profile, true); // true 表示加密版本
       
-      // 5. 压缩数据
+      // 6. 压缩数据
       const jsonStr = JSON.stringify(exportData);
       const compressed = LZString.compressToUint8Array(jsonStr);
       
-      // 6. 将数据编码到图片底部像素
+      // 7. 加密数据
+      const encrypted = await this.encryptWithPassword(compressed, password);
+      
+      // 8. 将数据编码到图片底部像素
       const imageData = ctx.getImageData(0, 0, this.WIDTH, this.HEIGHT);
-      const success = this.encodeData(imageData, compressed);
+      const success = this.encodeData(imageData, encrypted, true); // true 表示加密版本
       
       if (!success) {
         throw new Error('数据量过大，无法编码到图片中');
@@ -70,11 +326,10 @@ const DataCard = {
       
       ctx.putImageData(imageData, 0, 0);
       
-      // 7. 导出为PNG
+      // 9. 导出为PNG
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       const filename = `guanji-card-${Utils.formatDate(Date.now(), 'YYYYMMDD-HHmmss')}.png`;
       
-      // 下载文件
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -82,7 +337,7 @@ const DataCard = {
       a.click();
       URL.revokeObjectURL(url);
       
-      Utils.showToast('数据卡片已生成', 'success');
+      Utils.showToast('加密数据卡片已生成', 'success');
       return true;
       
     } catch (error) {
@@ -110,29 +365,59 @@ const DataCard = {
       // 3. 获取像素数据
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       
-      // 4. 解码数据
-      const compressed = this.decodeData(imageData);
-      if (!compressed) {
+      // 4. 检测版本并解码数据
+      const { data: encodedData, isEncrypted } = this.decodeData(imageData);
+      
+      if (!encodedData) {
         throw new Error('无法识别的图片格式，请确保是观己数据卡片');
       }
       
-      // 5. 解压数据
-      const jsonStr = LZString.decompressFromUint8Array(compressed);
+      let decompressed;
+      
+      if (isEncrypted) {
+        // 5a. 加密版本：获取密码并解密
+        const password = await this.showPasswordDialog(
+          '输入解密密码',
+          '此数据卡片已加密，请输入导出时设置的密码。',
+          false
+        );
+        
+        if (!password) {
+          return false; // 用户取消
+        }
+        
+        Utils.showToast('正在验证和解密...', 'info');
+        
+        try {
+          decompressed = await this.decryptWithPassword(encodedData, password);
+        } catch (e) {
+          if (e.message.includes('篡改')) {
+            throw e;
+          }
+          throw new Error('密码错误或数据已损坏');
+        }
+      } else {
+        // 5b. 旧版未加密数据
+        decompressed = encodedData;
+      }
+      
+      // 6. 解压数据
+      const jsonStr = LZString.decompressFromUint8Array(decompressed);
       if (!jsonStr) {
         throw new Error('数据解压失败');
       }
       
-      // 6. 解析JSON
+      // 7. 解析JSON
       const data = JSON.parse(jsonStr);
       
-      // 7. 确认导入
+      // 8. 确认导入
       const confirmed = await Utils.confirm(
-        '检测到有效的数据卡片，导入将覆盖现有数据，确定继续吗？'
+        `检测到有效的数据卡片${isEncrypted ? '（已验证签名）' : ''}，导入将覆盖现有数据，确定继续吗？`
       );
       
       if (!confirmed) return false;
       
-      // 8. 导入数据
+      // 9. 导入数据
       await Storage.importAll(data);
       
       Utils.showToast('数据导入成功，即将刷新页面', 'success');
@@ -167,7 +452,7 @@ const DataCard = {
   /**
    * 绘制卡片视觉效果 - 科技风格
    */
-  drawCard(ctx, stats, profile) {
+  drawCard(ctx, stats, profile, isEncrypted = false) {
     const { WIDTH, HEIGHT, DATA_ROWS } = this;
     
     // ===== 深色科技背景 =====
@@ -263,13 +548,24 @@ const DataCard = {
     ctx.fillStyle = '#64748b';
     ctx.fillText('PERSONAL PROFILE CARD', cardX + 85, headerY + 5);
     
-    ctx.fillStyle = '#10b981';
-    ctx.beginPath();
-    ctx.arc(cardX + cardWidth - 40, headerY, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.font = '10px "Microsoft YaHei", sans-serif';
-    ctx.fillStyle = '#10b981';
-    ctx.fillText('ACTIVE', cardX + cardWidth - 32, headerY + 4);
+    // 加密状态指示
+    if (isEncrypted) {
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(cardX + cardWidth - 60, headerY, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = '10px "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('🔒 ENCRYPTED', cardX + cardWidth - 52, headerY + 4);
+    } else {
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(cardX + cardWidth - 40, headerY, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = '10px "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText('ACTIVE', cardX + cardWidth - 32, headerY + 4);
+    }
     
     const lineGradient = ctx.createLinearGradient(cardX + 25, 0, cardX + cardWidth - 25, 0);
     lineGradient.addColorStop(0, 'rgba(99, 102, 241, 0)');
@@ -377,10 +673,9 @@ const DataCard = {
     ctx.fillText('v' + (typeof Changelog !== 'undefined' ? Changelog.currentVersion : '1.5.0'), cardX + cardWidth - 25, footerY);
     ctx.textAlign = 'left';
     
-    // ===== 数据存储区域（融入设计） =====
+    // ===== 数据存储区域 =====
     const dataY = HEIGHT - DATA_ROWS;
     
-    // 扫描线效果
     for (let y = dataY; y < HEIGHT; y += 3) {
       const alpha = 0.03 + (y - dataY) / DATA_ROWS * 0.05;
       ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
@@ -390,7 +685,6 @@ const DataCard = {
       ctx.stroke();
     }
     
-    // 底部渐变
     const bottomGradient = ctx.createLinearGradient(0, dataY - 20, 0, HEIGHT);
     bottomGradient.addColorStop(0, 'rgba(10, 10, 26, 0)');
     bottomGradient.addColorStop(0.3, 'rgba(10, 10, 26, 0.5)');
@@ -398,15 +692,13 @@ const DataCard = {
     ctx.fillStyle = bottomGradient;
     ctx.fillRect(0, dataY - 20, WIDTH, DATA_ROWS + 20);
     
-    // 装饰性二进制
     ctx.font = '8px "Consolas", monospace';
     ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
-    const binary = '01001001 01001110 01000110 01001111';
-    for (let i = 0; i < 4; i++) {
-      ctx.fillText(binary, 20 + i * 200, HEIGHT - 15);
+    const binary = isEncrypted ? 'AES-256-GCM HMAC-SHA256 ENCRYPTED' : '01001001 01001110 01000110 01001111';
+    for (let i = 0; i < 3; i++) {
+      ctx.fillText(binary, 30 + i * 270, HEIGHT - 15);
     }
     
-    // 底部品牌
     ctx.font = '9px "Microsoft YaHei", sans-serif';
     ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
     ctx.textAlign = 'center';
@@ -574,15 +866,16 @@ const DataCard = {
   /**
    * 将数据编码到图片像素中
    */
-  encodeData(imageData, data) {
+  encodeData(imageData, data, isEncrypted = false) {
     const { width, height } = imageData;
-    const { DATA_ROWS, MAGIC } = this;
+    const { DATA_ROWS, MAGIC, MAGIC_V1 } = this;
+    const magic = isEncrypted ? MAGIC : MAGIC_V1;
     
     const startY = height - DATA_ROWS;
     const availablePixels = width * DATA_ROWS;
     const availableBytes = availablePixels * 3;
     
-    const magicBytes = new TextEncoder().encode(MAGIC);
+    const magicBytes = new TextEncoder().encode(magic);
     const lengthBytes = new Uint8Array(4);
     new DataView(lengthBytes.buffer).setUint32(0, data.length, true);
     
@@ -624,12 +917,14 @@ const DataCard = {
    */
   decodeData(imageData) {
     const { width, height } = imageData;
-    const { DATA_ROWS, MAGIC } = this;
+    const { DATA_ROWS, MAGIC, MAGIC_V1 } = this;
     
     const startY = Math.max(0, height - DATA_ROWS);
     
+    // 读取足够的字节来检测魔数
+    const maxMagicLength = Math.max(MAGIC.length, MAGIC_V1.length);
     const headerBytes = [];
-    const headerLength = MAGIC.length + 4;
+    const headerLength = maxMagicLength + 4;
     
     outer: for (let y = startY; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -645,23 +940,42 @@ const DataCard = {
       }
     }
     
-    const magicBytes = new Uint8Array(headerBytes.slice(0, MAGIC.length));
-    const magicStr = new TextDecoder().decode(magicBytes);
+    // 检测版本
+    let isEncrypted = false;
+    let magicLength = 0;
     
-    if (magicStr !== MAGIC) {
-      console.error('魔数不匹配:', magicStr);
-      return null;
+    // 先检测 V2 (加密版本)
+    const magicV2Bytes = new Uint8Array(headerBytes.slice(0, MAGIC.length));
+    const magicV2Str = new TextDecoder().decode(magicV2Bytes);
+    
+    if (magicV2Str === MAGIC) {
+      isEncrypted = true;
+      magicLength = MAGIC.length;
+    } else {
+      // 检测 V1 (未加密版本)
+      const magicV1Bytes = new Uint8Array(headerBytes.slice(0, MAGIC_V1.length));
+      const magicV1Str = new TextDecoder().decode(magicV1Bytes);
+      
+      if (magicV1Str === MAGIC_V1) {
+        isEncrypted = false;
+        magicLength = MAGIC_V1.length;
+      } else {
+        console.error('魔数不匹配');
+        return { data: null, isEncrypted: false };
+      }
     }
     
-    const lengthBytes = new Uint8Array(headerBytes.slice(MAGIC.length, MAGIC.length + 4));
+    // 读取数据长度
+    const lengthBytes = new Uint8Array(headerBytes.slice(magicLength, magicLength + 4));
     const dataLength = new DataView(lengthBytes.buffer).getUint32(0, true);
     
     if (dataLength <= 0 || dataLength > width * height * 3) {
       console.error('数据长度无效:', dataLength);
-      return null;
+      return { data: null, isEncrypted: false };
     }
     
-    const totalLength = MAGIC.length + 4 + dataLength;
+    // 读取实际数据
+    const totalLength = magicLength + 4 + dataLength;
     const allBytes = [];
     
     outer2: for (let y = startY; y < height; y++) {
@@ -678,10 +992,10 @@ const DataCard = {
       }
     }
     
-    const dataStart = MAGIC.length + 4;
+    const dataStart = magicLength + 4;
     const data = new Uint8Array(allBytes.slice(dataStart, dataStart + dataLength));
     
-    return data;
+    return { data, isEncrypted };
   }
 };
 
