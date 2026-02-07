@@ -887,7 +887,7 @@ const App = {
                 <h2 class="card-title">MBTI 性格测试</h2>
                 <p class="card-subtitle" id="mbtiProgress">第 1 题 / 共 ${MBTI.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/mbti')">退出测试</button>
+              <button class="btn btn-outline" onclick="App.confirmQuitTest('/mbti')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="mbtiProgressBar" style="width: 0%;"></div>
@@ -1014,7 +1014,7 @@ const App = {
                 <h2 class="card-title">大五人格测试</h2>
                 <p class="card-subtitle" id="bigfiveProgress">第 1 题 / 共 ${BigFive.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/bigfive')">退出测试</button>
+              <button class="btn btn-outline" onclick="App.confirmQuitTest('/bigfive')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="bigfiveProgressBar" style="width: 0%;"></div>
@@ -1148,7 +1148,7 @@ const App = {
                 <h2 class="card-title">霍兰德职业兴趣测试</h2>
                 <p class="card-subtitle" id="hollandProgress">第 1 题 / 共 ${Holland.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/holland')">退出测试</button>
+              <button class="btn btn-outline" onclick="App.confirmQuitTest('/holland')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="hollandProgressBar" style="width: 0%;"></div>
@@ -1822,7 +1822,7 @@ const App = {
                 <h2 class="card-title">依恋类型测试</h2>
                 <p class="card-subtitle" id="attachmentProgress">第 1 题 / 共 ${Attachment.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/attachment')">退出测试</button>
+              <button class="btn btn-outline" onclick="App.confirmQuitTest('/attachment')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="attachmentProgressBar" style="width: 0%;"></div>
@@ -1942,7 +1942,7 @@ const App = {
                 <h2 class="card-title">情商测试</h2>
                 <p class="card-subtitle" id="eqProgress">第 1 题 / 共 ${EQ.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/eq')">退出测试</button>
+              <button class="btn btn-outline" onclick="App.confirmQuitTest('/eq')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="eqProgressBar" style="width: 0%;"></div>
@@ -2061,7 +2061,7 @@ const App = {
                 <h2 class="card-title">价值观测试</h2>
                 <p class="card-subtitle" id="valuesProgress">第 1 题 / 共 ${Values.questions.length} 题</p>
               </div>
-              <button class="btn btn-ghost" onclick="App.confirmQuitTest('/values')">退出测试</button>
+              <button class="btn btn-outline" onclick="App.confirmQuitTest('/values')">退出测试</button>
             </div>
             <div class="progress mt-md">
               <div class="progress-bar" id="valuesProgressBar" style="width: 0%;"></div>
@@ -2193,7 +2193,7 @@ const App = {
               </div>
               <div class="flex items-center gap-md">
                 <span class="badge" id="stressScaleBadge" style="background: #f59e0b20; color: #f59e0b;">焦虑自评 (GAD-7)</span>
-                <button class="btn btn-ghost" onclick="App.confirmQuitTest('/stress')">退出测试</button>
+                <button class="btn btn-outline" onclick="App.confirmQuitTest('/stress')">退出测试</button>
               </div>
             </div>
             <div class="progress mt-md">
