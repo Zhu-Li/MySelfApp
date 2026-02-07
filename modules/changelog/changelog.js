@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.5',
+  currentVersion: '1.9.6',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.9.6',
+      date: '2026-02-08',
+      title: '画像排序优化',
+      changes: [
+        { type: 'improve', text: '综合画像调整至首页画像列表首位' }
+      ]
+    },
     {
       version: '1.9.5',
       date: '2026-02-08',
