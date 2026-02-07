@@ -1541,10 +1541,66 @@ const App = {
     const currentTheme = Theme.get();
     const hasApiKey = API.isConfigured();
     const currentModel = API.model;
+    const profile = await Storage.getProfile() || {};
 
     container.innerHTML = `
       <div class="page-container animate-fade-in">
         <h1 class="settings-title">设置</h1>
+
+        <!-- 个人资料 -->
+        <div class="card mb-lg">
+          <div class="card-header">
+            <h3 class="card-title">个人资料</h3>
+          </div>
+          <div class="card-body">
+            <div class="profile-form-grid">
+              <div class="input-group">
+                <label class="input-label">姓名</label>
+                <input type="text" class="input-field" id="profileName" 
+                       placeholder="请输入姓名" value="${profile.name || ''}" maxlength="20">
+              </div>
+              
+              <div class="input-group">
+                <label class="input-label">性别</label>
+                <select class="input-field" id="profileGender">
+                  <option value="">请选择</option>
+                  <option value="male" ${profile.gender === 'male' ? 'selected' : ''}>男</option>
+                  <option value="female" ${profile.gender === 'female' ? 'selected' : ''}>女</option>
+                  <option value="other" ${profile.gender === 'other' ? 'selected' : ''}>其他</option>
+                </select>
+              </div>
+              
+              <div class="input-group">
+                <label class="input-label">出生日期</label>
+                <input type="date" class="input-field" id="profileBirthday" 
+                       value="${profile.birthday || ''}" max="${new Date().toISOString().split('T')[0]}">
+              </div>
+              
+              <div class="input-group">
+                <label class="input-label">联系方式</label>
+                <input type="text" class="input-field" id="profileContact" 
+                       placeholder="手机号/邮箱/微信" value="${profile.contact || ''}" maxlength="50">
+              </div>
+            </div>
+            
+            <div class="input-group mt-md">
+              <label class="input-label">个人简介</label>
+              <textarea class="input-field" id="profileBio" rows="2" 
+                        placeholder="一句话介绍自己" maxlength="100">${profile.bio || ''}</textarea>
+            </div>
+            
+            ${profile.birthday ? `
+              <div class="profile-age-display mt-md">
+                <span class="text-secondary">当前年龄：</span>
+                <span class="text-primary font-semibold">${this.calculateAge(profile.birthday)} 岁</span>
+              </div>
+            ` : ''}
+            
+            <div class="mt-lg">
+              <button class="btn btn-primary" onclick="App.saveProfile()">保存资料</button>
+            </div>
+          </div>
+        </div>
 
         <!-- 主题设置 -->
         <div class="card mb-lg">
@@ -1713,6 +1769,17 @@ const App = {
           font-weight: 700;
           margin-bottom: var(--spacing-lg);
         }
+        .profile-form-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: var(--spacing-md);
+        }
+        .profile-age-display {
+          padding: var(--spacing-sm) var(--spacing-md);
+          background-color: var(--bg-secondary);
+          border-radius: var(--radius-md);
+          display: inline-block;
+        }
         .settings-item {
           display: flex;
           align-items: center;
@@ -1771,6 +1838,10 @@ const App = {
           .settings-title {
             font-size: var(--font-size-xl);
           }
+          .profile-form-grid {
+            grid-template-columns: 1fr;
+          }
+        }
         }
         @media (max-width: 480px) {
           .settings-title {
@@ -1802,6 +1873,49 @@ const App = {
         }
       </style>
     `;
+  },
+
+  /**
+   * 计算年龄
+   */
+  calculateAge(birthday) {
+    if (!birthday) return 0;
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  },
+
+  /**
+   * 保存个人资料
+   */
+  async saveProfile() {
+    const name = document.getElementById('profileName').value.trim();
+    const gender = document.getElementById('profileGender').value;
+    const birthday = document.getElementById('profileBirthday').value;
+    const contact = document.getElementById('profileContact').value.trim();
+    const bio = document.getElementById('profileBio').value.trim();
+
+    try {
+      await Storage.updateProfile({
+        name,
+        gender,
+        birthday,
+        contact,
+        bio
+      });
+      
+      Utils.showToast('个人资料已保存', 'success');
+      // 重新渲染以更新年龄显示
+      this.renderSettings();
+    } catch (error) {
+      console.error('保存个人资料失败:', error);
+      Utils.showToast('保存失败', 'error');
+    }
   },
 
   /**

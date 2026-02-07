@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.6.4',
+  currentVersion: '1.6.5',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.6.5',
+      date: '2026-02-07 17:00',
+      title: '个人资料完善',
+      changes: [
+        { type: 'feature', text: '设置页新增个人资料编辑功能' },
+        { type: 'feature', text: '支持填写姓名、性别、出生日期、联系方式' },
+        { type: 'feature', text: '根据出生日期自动计算并显示年龄' },
+        { type: 'improve', text: '个人简介支持自定义' }
+      ]
+    },
     {
       version: '1.6.4',
       date: '2026-02-07 16:30',
