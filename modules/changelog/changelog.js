@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.8.2',
+  currentVersion: '1.8.3',
 
   // 版本历史记录
   versions: [
+    {
+      version: '1.8.3',
+      date: '2026-02-08',
+      title: '移动端顶栏优化',
+      changes: [
+        { type: 'improve', text: '移动端顶部栏显示「观己 - 静观己心，内外澄明」品牌标语' }
+      ]
+    },
     {
       version: '1.8.2',
       date: '2026-02-08',

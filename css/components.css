@@ -366,6 +366,16 @@
   color: var(--text-primary);
 }
 
+.header-slogan {
+  display: none;
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-left: var(--spacing-sm);
+  padding-left: var(--spacing-sm);
+  border-left: 1px solid var(--border-color);
+}
+
 .header-nav {
   display: flex;
   align-items: center;
@@ -880,6 +890,10 @@
 
   .header-logo {
     font-size: var(--font-size-lg);
+  }
+
+  .header-slogan {
+    display: inline;
   }
 
   .modal {
