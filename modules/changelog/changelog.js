@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.5',
+  currentVersion: '2.0.6',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.6',
+      date: '2026-02-08',
+      title: '解密错误处理优化',
+      changes: [
+        { type: 'fix', text: '修复解密时遇到非 base64 数据导致的崩溃' },
+        { type: 'improve', text: '增强 decryptData 方法的健壮性' }
+      ]
+    },
     {
       version: '2.0.5',
       date: '2026-02-08',

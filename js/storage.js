@@ -204,24 +204,43 @@ const Storage = {
       throw new Error('未设置加密密钥');
     }
 
-    const combined = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-    const iv = combined.slice(0, 12);
-    const encrypted = combined.slice(12);
+    // 验证输入是否是有效的 base64 字符串
+    if (typeof encryptedBase64 !== 'string') {
+      throw new Error('无效的加密数据：不是字符串');
+    }
+    
+    // 检查是否包含非 base64 字符
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+    if (!base64Regex.test(encryptedBase64)) {
+      // 可能是未加密的明文数据，直接返回
+      console.warn('数据不是有效的 base64 格式，可能是明文数据');
+      return encryptedBase64;
+    }
 
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      cryptoKey,
-      encrypted
-    );
-
-    const decoder = new TextDecoder();
-    const text = decoder.decode(decrypted);
-
-    // 尝试解析 JSON
     try {
-      return JSON.parse(text);
+      const combined = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+      const iv = combined.slice(0, 12);
+      const encrypted = combined.slice(12);
+
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        encrypted
+      );
+
+      const decoder = new TextDecoder();
+      const text = decoder.decode(decrypted);
+
+      // 尝试解析 JSON
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        return text;
+      }
     } catch (e) {
-      return text;
+      console.error('解密操作失败:', e);
+      // 解密失败，可能是数据格式问题，返回原始值
+      return encryptedBase64;
     }
   },
 
