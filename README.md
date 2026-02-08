@@ -95,20 +95,60 @@ MySelfApp/
 │   ├── base.css        # 基础样式变量
 │   └── components.css  # 组件样式
 ├── js/
-│   ├── app.js          # 应用主逻辑
+│   ├── app.js          # 应用协调器
+│   ├── app/            # 应用子模块
+│   │   ├── setup-wizard.js     # 初始设置向导
+│   │   ├── auth-handler.js     # 认证处理
+│   │   ├── routes.js           # 路由注册
+│   │   ├── home-renderer.js    # 首页渲染
+│   │   ├── test-renderers.js   # 测试页面渲染
+│   │   ├── test-renderers-extra.js  # 额外测试页面
+│   │   ├── report-renderer.js  # 报告页面渲染
+│   │   ├── settings-renderer.js # 设置页面渲染
+│   │   └── page-renderers.js   # 其他页面渲染
 │   ├── router.js       # 路由管理
 │   ├── storage.js      # 数据存储
-│   ├── utils.js        # 工具函数
+│   ├── utils.js        # 工具函数协调器
+│   ├── utils/          # 工具子模块
+│   │   ├── ui.js           # UI工具函数
+│   │   └── stream-ui.js    # 流式输出UI
 │   ├── api.js          # API 调用
-│   └── datacard.js     # 数据卡片生成
+│   ├── datacard.js     # 数据卡片协调器
+│   └── datacard/       # 数据卡片子模块
+│       ├── card-renderer.js    # 卡片渲染
+│       ├── data-encoder.js     # 数据编码
+│       ├── zip-handler.js      # ZIP处理
+│       ├── export-dialog.js    # 导出对话框
+│       ├── password-dialog.js  # 密码对话框
+│       └── datacard-styles.js  # 样式
 ├── modules/
 │   ├── mbti/           # MBTI 测试模块
 │   ├── bigfive/        # 大五人格模块
 │   ├── holland/        # 霍兰德测试模块
-│   ├── comprehensive/  # 综合画像模块
-│   ├── diary/          # 日记模块
-│   ├── contacts/       # 关系网管理模块
-│   ├── chat/           # AI 问答模块
+│   ├── comprehensive/  # 综合画像模块（协调器+子文件）
+│   │   ├── comprehensive.js    # 协调器
+│   │   ├── prompt-builder.js   # 提示词构建
+│   │   ├── stream-analyzer.js  # 流式分析
+│   │   └── report-renderer.js  # 报告渲染
+│   ├── diary/          # 日记模块（协调器+子文件）
+│   │   ├── diary.js            # 协调器
+│   │   ├── image-handler.js    # 图片处理
+│   │   ├── list-renderer.js    # 列表渲染
+│   │   ├── editor-renderer.js  # 编辑器渲染
+│   │   ├── detail-renderer.js  # 详情渲染
+│   │   └── diary-styles.js     # 样式
+│   ├── contacts/       # 关系网模块（协调器+子文件）
+│   │   ├── contacts.js         # 协调器
+│   │   ├── list-renderer.js    # 列表渲染
+│   │   ├── detail-renderer.js  # 详情渲染
+│   │   ├── import-handler.js   # 导入处理
+│   │   ├── data-merger.js      # 数据合并
+│   │   ├── test-detail.js      # 测试详情弹窗
+│   │   └── diary-detail.js     # 日记详情弹窗
+│   ├── chat/           # AI 问答模块（协调器+子文件）
+│   │   ├── chat.js             # 协调器
+│   │   ├── message-handler.js  # 消息处理
+│   │   └── chat-styles.js      # 样式
 │   ├── feedback/       # 意见反馈模块
 │   ├── donate/         # 打赏模块
 │   └── changelog/      # 更新日志模块
@@ -125,7 +165,23 @@ MySelfApp/
 
 ## 更新日志
 
-### v1.8.2
+### v2.0.0
+- 重构代码架构，采用模块协调器模式
+- app.js 拆分为9个子文件，提升可维护性
+- contacts.js 拆分为6个子文件
+- diary.js 拆分为5个子文件
+- chat.js 拆分为3个子文件
+- comprehensive.js 拆分为4个子文件
+- datacard.js 拆分为6个子文件
+- utils.js UI功能拆分到独立文件
+
+### v1.9.x
+- 联系人详情页新增联系方式展示
+- 综合画像调整至首页画像列表首位
+- 修复编辑联系人备注后页面不刷新的问题
+- 统一联系人列表与首页的测试结果摘要显示
+
+### v1.8.x
 - 首页新增个性化问候语和每日心理学语录
 - 首页新增打卡统计（连续天数、本周日记、完成测试）
 - SEO优化：新增meta标签、Open Graph、结构化数据

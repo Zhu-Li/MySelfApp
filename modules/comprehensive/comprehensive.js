@@ -1,13 +1,20 @@
 /**
- * comprehensive.js - 综合分析模块
+ * comprehensive.js - 综合分析模块（协调器）
  * 观己 - 静观己心，内外澄明
  * 
  * 整合 MBTI、大五人格、霍兰德职业兴趣测试结果，生成综合用户画像
+ * 
+ * 模块结构:
+ * - comprehensive.js (本文件) - 核心协调器：测试就绪检查、报告生成、页面渲染
+ * - prompt-builder.js - AI提示词构建
+ * - stream-analyzer.js - 流式分析生成
+ * - report-renderer.js - 报告渲染与导出
  */
 
 const Comprehensive = {
   /**
    * 检查是否有足够的测试数据进行综合分析
+   * @returns {Object} 就绪状态信息
    */
   async checkReadiness() {
     const profile = await Storage.getProfile();
@@ -31,6 +38,7 @@ const Comprehensive = {
 
   /**
    * 生成综合分析报告（创建报告记录，流式分析在渲染时进行）
+   * @returns {Object} 报告对象
    */
   async generateReport() {
     const profile = await Storage.getProfile();
@@ -102,128 +110,8 @@ const Comprehensive = {
   },
 
   /**
-   * 构建综合分析提示词
-   */
-  buildPrompt(data) {
-    let prompt = `你是一位资深的心理学专家和职业规划师，请根据用户完成的多项测评结果，进行深度综合分析，绘制完整的用户画像。
-
-## 测评结果汇总
-
-`;
-
-    // MBTI 结果
-    if (data.mbti) {
-      const mbtiName = Utils.getMBTIName(data.mbti.type);
-      prompt += `### MBTI 性格类型
-- **类型**: ${data.mbti.type} (${mbtiName})
-- **各维度**:
-  - E/I (外向/内向): E ${data.mbti.dimensions.E}% / I ${data.mbti.dimensions.I}%
-  - S/N (感觉/直觉): S ${data.mbti.dimensions.S}% / N ${data.mbti.dimensions.N}%
-  - T/F (思考/情感): T ${data.mbti.dimensions.T}% / F ${data.mbti.dimensions.F}%
-  - J/P (判断/知觉): J ${data.mbti.dimensions.J}% / P ${data.mbti.dimensions.P}%
-
-`;
-    }
-
-    // 大五人格结果
-    if (data.bigfive) {
-      prompt += `### 大五人格
-- 开放性 (O): ${data.bigfive.dimensions.O}%
-- 尽责性 (C): ${data.bigfive.dimensions.C}%
-- 外向性 (E): ${data.bigfive.dimensions.E}%
-- 宜人性 (A): ${data.bigfive.dimensions.A}%
-- 神经质性 (N): ${data.bigfive.dimensions.N}%
-
-`;
-    }
-
-    // 霍兰德结果
-    if (data.holland) {
-      prompt += `### 霍兰德职业兴趣
-- **职业代码**: ${data.holland.hollandCode}
-- **各维度**:
-  - 实际型 (R): ${data.holland.dimensions.R}%
-  - 研究型 (I): ${data.holland.dimensions.I}%
-  - 艺术型 (A): ${data.holland.dimensions.A}%
-  - 社会型 (S): ${data.holland.dimensions.S}%
-  - 企业型 (E): ${data.holland.dimensions.E}%
-  - 常规型 (C): ${data.holland.dimensions.C}%
-
-`;
-    }
-
-    // 日记情绪数据
-    if (data.diary && data.diary.length > 0) {
-      const moodStats = {};
-      data.diary.forEach(d => {
-        if (d.mood) {
-          moodStats[d.mood] = (moodStats[d.mood] || 0) + 1;
-        }
-      });
-      const moodSummary = Object.entries(moodStats)
-        .sort((a, b) => b[1] - a[1])
-        .map(([mood, count]) => `${mood}: ${count}次`)
-        .join('、');
-      
-      prompt += `### 日记情绪记录（最近${data.diary.length}篇）
-- **情绪分布**: ${moodSummary || '无情绪标签'}
-- **近期日记摘要**:
-${data.diary.slice(0, 5).map(d => `  - [${d.date}] ${d.mood || ''} ${d.content?.substring(0, 50) || ''}...`).join('\n')}
-
-`;
-    }
-
-    // 关系网数据
-    if (data.contacts && data.contacts.length > 0) {
-      const mbtiContacts = data.contacts.filter(c => c.mbtiType);
-      prompt += `### 人际关系网络（${data.contacts.length}人）
-- **关系网概览**: 共导入 ${data.contacts.length} 位联系人数据
-${mbtiContacts.length > 0 ? `- **联系人MBTI类型分布**: ${mbtiContacts.map(c => `${c.name}${c.remark ? '(' + c.remark + ')' : ''}: ${c.mbtiType}`).join('、')}` : ''}
-- **关系网详情**:
-${data.contacts.slice(0, 10).map(c => `  - ${c.name}${c.remark ? '(' + c.remark + ')' : ''}: 测试${c.testsCount}条, 日记${c.diaryCount}篇`).join('\n')}
-
-`;
-    }
-
-    prompt += `## 请提供以下深度分析
-
-### 1. 综合人格画像
-整合多个测评维度，描绘用户完整、立体的性格特征和内在特质。注意不同测评结果之间的关联性和一致性。
-
-### 2. 核心优势分析
-- 根据多维度数据，识别用户最突出的3-5个核心优势
-- 分析这些优势在不同场景（工作、生活、人际）中的表现
-
-### 3. 情绪与心理状态分析
-- 根据日记情绪记录，分析用户近期的心理状态和情绪模式
-- 识别可能的压力来源和情绪波动规律
-- 提供针对性的情绪管理建议
-
-### 4. 发展建议
-- 针对性格中可能的盲点或挑战提供建议
-- 提供具体、可行的个人成长方向
-
-### 5. 职业发展规划
-- 整合性格特征和职业兴趣，推荐最适合的职业方向
-- 分析适合的工作环境和团队角色
-- 提供职业发展路径建议
-
-### 6. 人际关系指南
-- 分析与不同类型人相处的模式
-- 结合关系网中联系人的性格类型，分析互动模式和潜在的相处建议
-- 提供改善人际关系的具体建议
-
-### 7. 生活建议
-- 适合的生活方式和休闲活动
-- 压力管理和情绪调节建议
-
-请用温暖、专业的语气进行分析，注重正面引导和实用建议，每个部分用 markdown 格式清晰输出。`;
-
-    return prompt;
-  },
-
-  /**
    * 渲染综合分析页面
+   * @param {HTMLElement} container - 容器元素
    */
   async renderPage(container) {
     const readiness = await this.checkReadiness();
@@ -308,33 +196,6 @@ ${data.contacts.slice(0, 10).map(c => `  - ${c.name}${c.remark ? '(' + c.remark 
   },
 
   /**
-   * 渲染报告预览
-   */
-  renderReportPreview(report) {
-    return `
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">最近的综合分析报告</h3>
-          <span class="text-tertiary">${Utils.formatDate(report.timestamp, 'YYYY-MM-DD HH:mm')}</span>
-        </div>
-        <div class="card-body">
-          <div class="markdown-body" style="max-height: 400px; overflow-y: auto;">
-            ${Utils.renderMarkdown(report.result.aiAnalysis || '暂无分析内容')}
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="flex gap-md justify-end">
-            <button class="btn btn-secondary" onclick="Comprehensive.exportReport('${report.id}')">
-              📄 导出报告
-            </button>
-            <a href="#/report/${report.id}" class="btn btn-primary">查看完整报告</a>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
-  /**
    * 添加样式
    */
   addStyles() {
@@ -395,222 +256,17 @@ ${data.contacts.slice(0, 10).map(c => `  - ${c.name}${c.remark ? '(' + c.remark 
       console.error('综合分析失败:', error);
       Utils.showToast(error.message || '分析失败，请重试', 'error');
     }
-  },
-
-  /**
-   * 渲染综合报告
-   */
-  renderReport(container, testData) {
-    const { result, timestamp, data, id } = testData;
-
-    container.innerHTML = `
-      <div class="page-container animate-fade-in">
-        <!-- 报告头部 -->
-        <div class="card mb-lg">
-          <div class="card-body" style="padding: var(--spacing-2xl);">
-            <div class="text-center">
-              <div style="font-size: 4rem; margin-bottom: var(--spacing-md);">🎯</div>
-              <h1 class="font-bold" style="font-size: var(--font-size-3xl);">综合画像分析报告</h1>
-              <p class="text-secondary mt-md">
-                测试时间：${Utils.formatDate(timestamp, 'YYYY年MM月DD日 HH:mm')}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 数据来源概览 -->
-        <div class="card mb-lg">
-          <div class="card-header">
-            <h3 class="card-title">数据来源</h3>
-          </div>
-          <div class="card-body">
-            <div class="grid grid-cols-3 gap-md">
-              ${data.mbti ? `
-                <div class="text-center p-md">
-                  <div style="font-size: 2rem;">🧠</div>
-                  <div class="font-bold mt-sm">${data.mbti.type}</div>
-                  <div class="text-secondary" style="font-size: var(--font-size-sm);">MBTI 类型</div>
-                </div>
-              ` : ''}
-              ${data.bigfive ? `
-                <div class="text-center p-md">
-                  <div style="font-size: 2rem;">🌟</div>
-                  <div class="font-bold mt-sm">已完成</div>
-                  <div class="text-secondary" style="font-size: var(--font-size-sm);">大五人格</div>
-                </div>
-              ` : ''}
-              ${data.holland ? `
-                <div class="text-center p-md">
-                  <div style="font-size: 2rem;">💼</div>
-                  <div class="font-bold mt-sm">${data.holland.hollandCode}</div>
-                  <div class="text-secondary" style="font-size: var(--font-size-sm);">霍兰德代码</div>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        </div>
-
-        <!-- 综合分析内容 -->
-        <div class="card mb-lg">
-          <div class="card-header">
-            <h3 class="card-title">综合画像分析</h3>
-          </div>
-          <div class="card-body" id="comprehensiveAnalysis">
-            ${result.aiAnalysis ? 
-              `<div class="markdown-body">${Utils.renderMarkdown(result.aiAnalysis)}</div>` :
-              '<div class="text-center text-secondary p-lg">正在准备分析...</div>'
-            }
-          </div>
-        </div>
-
-        <!-- 操作按钮 -->
-        <div class="card">
-          <div class="card-body">
-            <div class="flex gap-md justify-center flex-wrap">
-              <button class="btn btn-primary" onclick="Comprehensive.regenerateAnalysis('${id}')">
-                🔄 重新生成分析
-              </button>
-              <button class="btn btn-secondary" onclick="Comprehensive.exportReport('${id}')">
-                📄 导出报告
-              </button>
-              <button class="btn btn-secondary" onclick="Comprehensive.copyResult('${id}')">
-                📋 复制结果
-              </button>
-              <a href="#/test" class="btn btn-outline">返回测试列表</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // 如果没有分析结果，流式生成
-    if (!result.aiAnalysis) {
-      this.streamGenerateAnalysis(testData);
-    }
-  },
-
-  /**
-   * 流式生成综合分析
-   */
-  async streamGenerateAnalysis(testData) {
-    const container = document.getElementById('comprehensiveAnalysis');
-    if (!container) return;
-
-    if (!API.isConfigured()) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">⚙️</div>
-          <h3 class="empty-state-title">未配置 AI 服务</h3>
-          <p class="empty-state-desc">请在设置中配置 API 密钥以获取 AI 分析</p>
-          <a href="#/settings" class="btn btn-primary">前往设置</a>
-        </div>
-      `;
-      return;
-    }
-
-    // 初始化流式分析容器
-    Utils.StreamAnalyzer.init('#comprehensiveAnalysis');
-
-    try {
-      const prompt = this.buildPrompt(testData.data);
-      const messages = [
-        { role: 'system', content: '你是一位资深的心理学专家和职业规划师，擅长整合多维度测评数据，提供深度个性化分析。' },
-        { role: 'user', content: prompt }
-      ];
-
-      // 使用流式 API
-      const fullContent = await API.chatStream(
-        messages,
-        (chunk, fullText) => {
-          Utils.StreamAnalyzer.appendContent(chunk);
-        },
-        { temperature: 0.8, maxTokens: 3000 }
-      );
-
-      // 完成分析
-      Utils.StreamAnalyzer.complete();
-
-      // 保存分析结果
-      testData.result.aiAnalysis = fullContent;
-      await Storage.saveTest(testData);
-
-    } catch (error) {
-      console.error('生成分析失败:', error);
-      Utils.StreamAnalyzer.showError(error.message);
-    }
-  },
-
-  /**
-   * 重新生成分析
-   */
-  async regenerateAnalysis(reportId) {
-    try {
-      const report = await this.generateReport();
-      Router.navigate(`/report/${report.id}`);
-    } catch (error) {
-      Utils.showToast(error.message || '分析失败', 'error');
-    }
-  },
-
-  /**
-   * 导出报告
-   */
-  async exportReport(reportId) {
-    const report = await Storage.get('tests', reportId);
-    if (!report) return;
-
-    const content = this.generateReportText(report);
-    const filename = `comprehensive-report-${Utils.formatDate(report.timestamp, 'YYYYMMDD')}.md`;
-    Utils.downloadFile(content, filename);
-    Utils.showToast('报告导出成功', 'success');
-  },
-
-  /**
-   * 生成报告文本
-   */
-  generateReportText(report) {
-    const { result, timestamp, data } = report;
-
-    let text = `# 综合画像分析报告
-
-**生成时间**: ${Utils.formatDate(timestamp, 'YYYY年MM月DD日 HH:mm')}
-
-## 数据来源
-
-`;
-
-    if (data.mbti) {
-      text += `- **MBTI**: ${data.mbti.type}\n`;
-    }
-    if (data.bigfive) {
-      text += `- **大五人格**: 已完成\n`;
-    }
-    if (data.holland) {
-      text += `- **霍兰德代码**: ${data.holland.hollandCode}\n`;
-    }
-
-    text += `
-## 综合分析
-
-${result.aiAnalysis || '暂无分析内容'}
-
----
-*报告由「观己」生成 - 静观己心，内外澄明*`;
-
-    return text;
-  },
-
-  /**
-   * 复制结果
-   */
-  async copyResult(reportId) {
-    const report = await Storage.get('tests', reportId);
-    if (!report) return;
-
-    const text = this.generateReportText(report);
-    await Utils.copyToClipboard(text);
-    Utils.showToast('结果已复制到剪贴板', 'success');
   }
+
+  // 以下方法由子模块扩展：
+  // - buildPrompt(data) -> prompt-builder.js
+  // - streamGenerateAnalysis(testData) -> stream-analyzer.js
+  // - regenerateAnalysis(reportId) -> stream-analyzer.js
+  // - renderReport(container, testData) -> report-renderer.js
+  // - renderReportPreview(report) -> report-renderer.js
+  // - generateReportText(report) -> report-renderer.js
+  // - exportReport(reportId) -> report-renderer.js
+  // - copyResult(reportId) -> report-renderer.js
 };
 
 // 导出到全局

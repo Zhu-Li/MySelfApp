@@ -5,10 +5,25 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '1.9.7',
+  currentVersion: '2.0.0',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.0',
+      date: '2026-02-08',
+      title: '代码架构重构',
+      changes: [
+        { type: 'improve', text: '重构 app.js 为模块协调器，拆分为9个子文件' },
+        { type: 'improve', text: '重构 contacts.js 为模块协调器，拆分为6个子文件' },
+        { type: 'improve', text: '重构 diary.js 为模块协调器，拆分为5个子文件' },
+        { type: 'improve', text: '重构 chat.js 为模块协调器，拆分为3个子文件' },
+        { type: 'improve', text: '重构 comprehensive.js 为模块协调器，拆分为4个子文件' },
+        { type: 'improve', text: '重构 datacard.js 为模块协调器，拆分为6个子文件' },
+        { type: 'improve', text: '重构 utils.js，拆分 UI 相关功能到独立文件' },
+        { type: 'improve', text: '统一采用模块协调器模式，提升代码可维护性' }
+      ]
+    },
     {
       version: '1.9.7',
       date: '2026-02-08',
