@@ -10,10 +10,10 @@
  * @returns {Promise<Object|null>} 选择的导出选项，取消返回 null
  */
 DataCard.showExportOptionsDialog = async function() {
-  // 先获取可用的数据
-  const tests = await Storage.getAll('tests') || [];
-  const diaries = await Storage.getAll('diary') || [];
-  const contacts = await Storage.getAllContacts() || [];
+  // 获取数据数量（不解密，只用于统计）
+  const tests = await Storage.getAllRaw('tests') || [];
+  const diaries = await Storage.getAllRaw('diary') || [];
+  const contacts = await Storage.getAllRaw('contacts') || [];
   const profile = await Storage.getProfile();
   const hasApiConfig = API.isConfigured();
   

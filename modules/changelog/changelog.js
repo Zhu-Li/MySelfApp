@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.7',
+  currentVersion: '2.0.8',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.8',
+      date: '2026-02-08',
+      title: '导出选项优化',
+      changes: [
+        { type: 'fix', text: '修复导出选项对话框不必要的解密操作' },
+        { type: 'improve', text: '新增 getAllRaw 方法，显示选项时只统计数量不解密' }
+      ]
+    },
     {
       version: '2.0.7',
       date: '2026-02-08',

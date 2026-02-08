@@ -280,6 +280,22 @@ const Storage = {
   },
 
   /**
+   * 原始读取所有数据（不解密）
+   */
+  async getAllRaw(storeName) {
+    await this.init();
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db.transaction(storeName, 'readonly');
+      const store = transaction.objectStore(storeName);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  },
+
+  /**
    * 存储数据（加密敏感字段）
    */
   async set(storeName, data, encryptFields = []) {
@@ -363,7 +379,7 @@ const Storage = {
                   try {
                     data[originalField] = await this.decryptData(data[originalField]);
                   } catch (e) {
-                    // 解密失败时保留原值，静默处理
+                    console.error('解密失败:', originalField, e);
                   }
                 }
               }
