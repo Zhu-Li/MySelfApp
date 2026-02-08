@@ -15,6 +15,7 @@ DataCard.showExportOptionsDialog = async function() {
   const diaries = await Storage.getAll('diary') || [];
   const contacts = await Storage.getAllContacts() || [];
   const profile = await Storage.getProfile();
+  const hasApiConfig = API.isConfigured();
   
   // 构建可选项
   const testTypes = {
@@ -116,6 +117,24 @@ DataCard.showExportOptionsDialog = async function() {
                 <div class="export-option-empty">暂无个人资料</div>
               `}
             </div>
+            
+            <!-- API 配置 -->
+            <div class="export-option-group">
+              <div class="export-option-group-title">🔑 API 配置</div>
+              ${hasApiConfig ? `
+                <label class="export-option-item export-option-warning">
+                  <input type="checkbox" name="export_apiConfig" value="apiConfig">
+                  <span class="export-option-icon">⚙️</span>
+                  <span class="export-option-name">硅基流动 API 密钥</span>
+                  <span class="export-option-check">✓</span>
+                </label>
+                <div class="export-option-hint">
+                  ⚠️ 注意：API 密钥属于敏感信息，仅在需要跨设备迁移时勾选
+                </div>
+              ` : `
+                <div class="export-option-empty">未配置 API 密钥</div>
+              `}
+            </div>
           </div>
           
           <div class="export-options-actions">
@@ -157,8 +176,9 @@ DataCard.submitExportOptions = function() {
   const exportDiary = document.querySelector('#exportOptionsModal input[name="export_diary"]:checked');
   const exportContacts = document.querySelector('#exportOptionsModal input[name="export_contacts"]:checked');
   const exportProfile = document.querySelector('#exportOptionsModal input[name="export_profile"]:checked');
+  const exportApiConfig = document.querySelector('#exportOptionsModal input[name="export_apiConfig"]:checked');
   
-  if (selectedTests.length === 0 && !exportDiary && !exportContacts && !exportProfile) {
+  if (selectedTests.length === 0 && !exportDiary && !exportContacts && !exportProfile && !exportApiConfig) {
     Utils.showToast('请至少选择一项导出内容', 'warning');
     return;
   }
@@ -167,7 +187,8 @@ DataCard.submitExportOptions = function() {
     tests: selectedTests,
     diary: !!exportDiary,
     contacts: !!exportContacts,
-    profile: !!exportProfile
+    profile: !!exportProfile,
+    apiConfig: !!exportApiConfig
   };
   
   this.closeExportOptions(options);
@@ -274,6 +295,18 @@ DataCard.addExportOptionsStyles = function() {
       text-align: center;
       background-color: var(--bg-secondary);
       border-radius: var(--radius-md);
+    }
+    
+    .export-option-warning {
+      border: 1px dashed var(--color-warning);
+    }
+    
+    .export-option-hint {
+      font-size: var(--font-size-xs);
+      color: var(--color-warning);
+      padding: var(--spacing-xs) var(--spacing-md);
+      margin-top: calc(var(--spacing-xs) * -1);
+      margin-bottom: var(--spacing-xs);
     }
     
     .export-options-actions {

@@ -235,9 +235,19 @@ const DataCard = {
         diary: selectedDiaries,
         contacts: selectedContacts,
         profile: exportOptions.profile ? profile : null,
+        apiConfig: null,
         exportedAt: Date.now(),
         version: Changelog.currentVersion
       };
+      
+      // 如果选择了导出 API 配置，获取并添加
+      if (exportOptions.apiConfig && API.isConfigured()) {
+        exportData.apiConfig = {
+          baseUrl: API.baseUrl,
+          apiKey: API.apiKey,
+          model: API.model
+        };
+      }
       
       // 4. 准备统计信息（用于卡片显示）
       const stats = {

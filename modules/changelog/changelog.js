@@ -5,10 +5,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.4',
+  currentVersion: '2.0.5',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.5',
+      date: '2026-02-08',
+      title: 'API 配置导出导入',
+      changes: [
+        { type: 'feature', text: '数据导出支持包含 API 密钥配置' },
+        { type: 'feature', text: '导入时可选择是否覆盖当前 API 配置' },
+        { type: 'improve', text: '方便跨设备迁移时同步 API 配置' },
+        { type: 'improve', text: 'API 密钥默认不勾选，保护敏感信息' }
+      ]
+    },
     {
       version: '2.0.4',
       date: '2026-02-08',

@@ -92,16 +92,28 @@ DataCard.importFromZip = async function(file) {
   // 7. 确认导入
   Utils.hideLoading();
   
-  const confirmMsg = `即将导入以下数据：\n` +
+  const hasApiConfig = importData.apiConfig && importData.apiConfig.apiKey;
+  
+  let confirmMsg = `即将导入以下数据：\n` +
     `• 测试记录：${importData.tests?.length || 0} 条\n` +
     `• 日记：${importData.diary?.length || 0} 篇\n` +
     `• 关系网联系人：${importData.contacts?.length || 0} 人\n` +
-    `• 个人资料：${importData.profile ? '有' : '无'}\n\n` +
+    `• 个人资料：${importData.profile ? '有' : '无'}\n` +
+    `• API 配置：${hasApiConfig ? '有' : '无'}\n\n` +
     `导入将覆盖现有数据，确认继续？`;
   
   const confirmed = await Utils.confirm(confirmMsg, '确认导入');
   if (!confirmed) {
     return false;
+  }
+  
+  // 7.5 如果包含 API 配置，单独询问是否导入
+  let importApiConfig = false;
+  if (hasApiConfig) {
+    importApiConfig = await Utils.confirm(
+      '检测到数据包中包含 API 配置。\n\n是否用导入的 API 配置覆盖当前配置？\n\n选择「确定」将覆盖，选择「取消」将保留当前配置。',
+      '导入 API 配置？'
+    );
   }
   
   Utils.showLoading('正在导入数据...');
@@ -143,6 +155,23 @@ DataCard.importFromZip = async function(file) {
       lastUpdated: Date.now()
     };
     await Storage.setRaw('profile', profileData);
+  }
+  
+  // 导入 API 配置（如果用户同意）
+  if (importApiConfig && importData.apiConfig) {
+    const { baseUrl, apiKey, model } = importData.apiConfig;
+    if (baseUrl) {
+      API.baseUrl = baseUrl;
+    }
+    if (apiKey) {
+      await API.setApiKey(apiKey);
+    }
+    if (model) {
+      await API.setModel(model);
+    }
+    // 重置验证缓存
+    API.keyStatus = 'unknown';
+    API.lastValidation = null;
   }
   
   Utils.hideLoading();
