@@ -5,10 +5,18 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.6',
+  currentVersion: '2.0.7',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.7',
+      date: '2026-02-08',
+      title: '移除解密错误提示',
+      changes: [
+        { type: 'fix', text: '移除控制台的解密错误提示，静默处理异常数据' }
+      ]
+    },
     {
       version: '2.0.6',
       date: '2026-02-08',
