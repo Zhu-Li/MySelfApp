@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.3',
+  currentVersion: '2.0.4',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.4',
+      date: '2026-02-08',
+      title: '简化 API 配置弹窗',
+      changes: [
+        { type: 'improve', text: '隐藏 API 地址输入框，简化配置流程' },
+        { type: 'improve', text: '用户只需填写 API 密钥即可使用' }
+      ]
+    },
     {
       version: '2.0.3',
       date: '2026-02-08',

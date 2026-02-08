@@ -554,12 +554,6 @@ ${content}
           ` : `
             <div class="api-config-modal-form">
               <div class="api-config-modal-field">
-                <label class="api-config-modal-label" for="apiConfigBaseUrl">API 地址</label>
-                <input type="text" id="apiConfigBaseUrl" class="api-config-modal-input" 
-                  value="${this.baseUrl}" placeholder="https://api.siliconflow.cn/v1">
-              </div>
-              
-              <div class="api-config-modal-field">
                 <label class="api-config-modal-label" for="apiConfigKey">API 密钥</label>
                 <div class="api-config-modal-input-group">
                   <input type="password" id="apiConfigKey" class="api-config-modal-input" 
@@ -650,7 +644,6 @@ ${content}
    * 从弹窗保存配置
    */
   async saveConfigFromModal() {
-    const baseUrlInput = document.getElementById('apiConfigBaseUrl');
     const keyInput = document.getElementById('apiConfigKey');
     const saveBtn = document.querySelector('#apiConfigModal .btn-primary');
     const saveText = document.getElementById('apiConfigSaveText');
@@ -665,11 +658,6 @@ ${content}
     if (saveText) saveText.textContent = '验证中...';
 
     try {
-      // 保存配置
-      if (baseUrlInput && baseUrlInput.value.trim()) {
-        this.baseUrl = baseUrlInput.value.trim();
-      }
-      
       await this.setApiKey(keyInput.value.trim());
 
       // 重置验证缓存
