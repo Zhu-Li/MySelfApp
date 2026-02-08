@@ -553,14 +553,14 @@ ${content}
             </div>
           ` : `
             <div class="api-config-modal-form">
-              <label class="api-config-modal-label">
-                API 地址
+              <div class="api-config-modal-field">
+                <label class="api-config-modal-label" for="apiConfigBaseUrl">API 地址</label>
                 <input type="text" id="apiConfigBaseUrl" class="api-config-modal-input" 
                   value="${this.baseUrl}" placeholder="https://api.siliconflow.cn/v1">
-              </label>
+              </div>
               
-              <label class="api-config-modal-label">
-                API 密钥
+              <div class="api-config-modal-field">
+                <label class="api-config-modal-label" for="apiConfigKey">API 密钥</label>
                 <div class="api-config-modal-input-group">
                   <input type="password" id="apiConfigKey" class="api-config-modal-input" 
                     value="${this.apiKey || ''}" placeholder="请输入 API 密钥">
@@ -568,7 +568,7 @@ ${content}
                     👁️
                   </button>
                 </div>
-              </label>
+              </div>
               
               <div class="api-config-modal-tip">
                 <strong>获取密钥：</strong>
@@ -784,16 +784,20 @@ ${content}
         gap: var(--spacing-md);
       }
 
+      .api-config-modal-field {
+        display: block;
+      }
+
       .api-config-modal-label {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
+        display: block;
         font-size: var(--font-size-sm);
         font-weight: 500;
         color: var(--text-secondary);
+        margin-bottom: var(--spacing-xs);
       }
 
       .api-config-modal-input {
+        width: 100%;
         padding: var(--spacing-sm) var(--spacing-md);
         border: 1px solid var(--border-color);
         border-radius: var(--radius-md);
@@ -801,11 +805,17 @@ ${content}
         background: var(--bg-primary);
         color: var(--text-primary);
         transition: border-color 0.2s;
+        box-sizing: border-box;
       }
 
       .api-config-modal-input:focus {
         outline: none;
         border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      .api-config-modal-input::placeholder {
+        color: var(--text-tertiary);
       }
 
       .api-config-modal-input-group {

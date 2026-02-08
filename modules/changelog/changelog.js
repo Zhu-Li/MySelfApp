@@ -5,10 +5,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.2',
+  currentVersion: '2.0.3',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.3',
+      date: '2026-02-08',
+      title: '配置弹窗输入框修复',
+      changes: [
+        { type: 'fix', text: '修复 API 配置弹窗中输入框无法编辑的问题' },
+        { type: 'improve', text: '优化表单结构，提升输入框交互体验' }
+      ]
+    },
     {
       version: '2.0.2',
       date: '2026-02-08',
