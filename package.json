@@ -1,0 +1,31 @@
+{
+  "name": "myself-app",
+  "version": "1.0.0",
+  "description": "观己 - 静观己心，内外澄明",
+  "main": "index.js",
+  "scripts": {
+    "release": "node scripts/release.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhu-Li/MySelfApp.git"
+  },
+  "keywords": [
+    "MBTI",
+    "personality-test",
+    "psychology",
+    "self-awareness",
+    "AI-analysis"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Zhu-Li/MySelfApp/issues"
+  },
+  "homepage": "https://github.com/Zhu-Li/MySelfApp#readme",
+  "devDependencies": {
+    "archiver": "^7.0.1"
+  }
+}

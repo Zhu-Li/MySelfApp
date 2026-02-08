@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.9',
+  currentVersion: '2.1.0',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.1.0',
+      date: '2026-02-08 19:45',
+      title: '发布打包工具',
+      changes: [
+        { type: 'feature', text: '新增项目发布打包脚本，一键生成 ZIP 压缩包' },
+        { type: 'feature', text: '自动读取版本号，输出文件名：观己-{版本号}.zip' },
+        { type: 'improve', text: '支持 npm run release 命令快速打包' }
+      ],
+      files: ['scripts/release.js', 'package.json', '.gitignore']
+    },
     {
       version: '2.0.9',
       date: '2026-02-08 15:30',
