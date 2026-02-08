@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.0',
+  currentVersion: '2.0.1',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.1',
+      date: '2026-02-08',
+      title: 'API 密钥验证与错误引导',
+      changes: [
+        { type: 'feature', text: '新增 API 密钥有效性验证，使用前自动检测' },
+        { type: 'feature', text: '密钥无效或余额不足时弹窗引导重新配置' },
+        { type: 'feature', text: '验证结果缓存5分钟，减少重复检测' },
+        { type: 'improve', text: '所有 AI 分析模块统一使用新的验证机制' },
+        { type: 'improve', text: '错误分类：密钥无效、余额不足、频率限制、网络错误' }
+      ]
+    },
     {
       version: '2.0.0',
       date: '2026-02-08',

@@ -231,13 +231,15 @@ const BigFiveReport = {
     const container = document.getElementById('bigfiveAnalysis');
     if (!container) return;
 
-    if (!API.isConfigured()) {
+    // 检查 API 配置和有效性
+    const canUseAPI = await API.checkAndPrompt();
+    if (!canUseAPI) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">⚙️</div>
-          <h3 class="empty-state-title">未配置 AI 服务</h3>
-          <p class="empty-state-desc">请在设置中配置 API 密钥以获取 AI 分析</p>
-          <a href="#/settings" class="btn btn-primary">前往设置</a>
+          <h3 class="empty-state-title">请配置 AI 服务</h3>
+          <p class="empty-state-desc">请配置有效的 API 密钥以获取 AI 分析</p>
+          <button class="btn btn-primary" onclick="API.showConfigModal('not_configured')">配置 API</button>
         </div>
       `;
       return;
@@ -277,7 +279,16 @@ const BigFiveReport = {
 
     } catch (error) {
       console.error('生成分析失败:', error);
-      Utils.StreamAnalyzer.showError(error.message);
+      const errorMsg = error.message || '';
+      if (errorMsg.includes('401') || errorMsg.includes('密钥')) {
+        Utils.StreamAnalyzer.showError('API 密钥无效，请重新配置');
+        API.showConfigModal('invalid', errorMsg);
+      } else if (errorMsg.includes('402') || errorMsg.includes('余额')) {
+        Utils.StreamAnalyzer.showError('API 余额不足，请充值后继续使用');
+        API.showConfigModal('quota_exceeded', errorMsg);
+      } else {
+        Utils.StreamAnalyzer.showError(errorMsg);
+      }
     }
   },
 
