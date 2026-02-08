@@ -5,10 +5,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.0.1',
+  currentVersion: '2.0.2',
 
   // 版本历史记录
   versions: [
+    {
+      version: '2.0.2',
+      date: '2026-02-08',
+      title: 'API 密钥验证弹窗引导',
+      changes: [
+        { type: 'feature', text: 'API 密钥无效时显示美观的配置弹窗' },
+        { type: 'feature', text: '根据错误类型显示不同的引导内容和操作按钮' },
+        { type: 'feature', text: '支持在弹窗中直接配置和验证 API 密钥' },
+        { type: 'improve', text: '所有 AI 模块统一使用弹窗引导机制' },
+        { type: 'improve', text: '网络错误、余额不足等情况提供针对性解决方案' }
+      ]
+    },
     {
       version: '2.0.1',
       date: '2026-02-08',

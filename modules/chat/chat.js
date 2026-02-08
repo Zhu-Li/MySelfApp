@@ -92,16 +92,16 @@ const Chat = {
   /**
    * 检查API配置
    */
-  checkAPIConfig() {
+  async checkAPIConfig() {
     if (!API.isConfigured()) {
       const welcome = document.getElementById('chatWelcome');
       if (welcome) {
         welcome.innerHTML = `
           <div class="chat-welcome-icon">⚠️</div>
           <h2 class="chat-welcome-title">请先配置 API</h2>
-          <p class="chat-welcome-hint">在设置中配置硅基流动 API 密钥后即可使用</p>
-          <button class="btn btn-primary" onclick="Router.navigate('/settings')">
-            前往设置
+          <p class="chat-welcome-hint">配置硅基流动 API 密钥后即可使用 AI 问答</p>
+          <button class="btn btn-primary" onclick="API.showConfigModal('not_configured')">
+            配置 API
           </button>
         `;
       }
@@ -152,8 +152,9 @@ const Chat = {
     
     if (!content) return;
 
-    if (!API.isConfigured()) {
-      Utils.showToast('请先在设置中配置 API 密钥', 'warning');
+    // 验证 API 配置和密钥有效性
+    const canUseAPI = await API.checkAndPrompt();
+    if (!canUseAPI) {
       return;
     }
 

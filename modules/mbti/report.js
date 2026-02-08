@@ -143,9 +143,9 @@ const MBTIReport = {
     const btn = document.getElementById('generateAIBtn');
     const contentWrapper = document.getElementById('aiAnalysisContent');
 
-    if (!API.isConfigured()) {
-      Utils.showToast('请先在设置中配置 API 密钥', 'warning');
-      Router.navigate('/settings');
+    // 验证 API 配置和密钥有效性
+    const canUseAPI = await API.checkAndPrompt();
+    if (!canUseAPI) {
       return;
     }
 
@@ -225,7 +225,16 @@ const MBTIReport = {
 
     } catch (error) {
       console.error('生成分析失败:', error);
-      Utils.StreamAnalyzer.showError(error.message || '请检查网络连接和 API 配置');
+      const errorMsg = error.message || '';
+      if (errorMsg.includes('401') || errorMsg.includes('密钥')) {
+        Utils.StreamAnalyzer.showError('API 密钥无效，请重新配置');
+        API.showConfigModal('invalid', errorMsg);
+      } else if (errorMsg.includes('402') || errorMsg.includes('余额')) {
+        Utils.StreamAnalyzer.showError('API 余额不足，请充值后继续使用');
+        API.showConfigModal('quota_exceeded', errorMsg);
+      } else {
+        Utils.StreamAnalyzer.showError(errorMsg || '请检查网络连接和 API 配置');
+      }
       
       if (btn) {
         btn.disabled = false;
