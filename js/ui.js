@@ -202,3 +202,26 @@ if (typeof Utils !== 'undefined') {
 
 // 导出到全局
 window.UI = UI;
+
+/**
+ * 初始化移动端底部导航"更多"菜单
+ */
+UI.initBottomNavMore = function() {
+  const btn = document.getElementById('bottomNavMoreBtn');
+  const overlay = document.getElementById('bottomNavMoreOverlay');
+  if (!btn || !overlay) return;
+
+  // 点击"更多"按钮切换菜单
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.classList.toggle('active');
+  });
+
+  // 点击遮罩或菜单项关闭菜单
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.closest('.bottom-nav-more-item')) {
+      overlay.classList.remove('active');
+    }
+  });
+};

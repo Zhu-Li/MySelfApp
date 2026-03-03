@@ -80,3 +80,11 @@ App.renderChangelog = function() {
   const container = document.getElementById('mainContent');
   Changelog.render(container);
 };
+
+/**
+ * 渲染电玩城页面
+ */
+App.renderArcade = function() {
+  const container = document.getElementById('mainContent');
+  Arcade.render(container);
+};

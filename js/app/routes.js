@@ -38,6 +38,7 @@ App.registerRoutes = function() {
     '/contacts': () => this.renderContacts(),
     '/contacts/:id': (params) => this.renderContactDetail(params.id),
     '/donate': () => this.renderDonate(),
+    '/arcade': () => this.renderArcade(),
     '/feedback': () => this.renderFeedback(),
     '/changelog': () => this.renderChangelog(),
     '/settings': () => this.renderSettings()

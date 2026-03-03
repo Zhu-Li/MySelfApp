@@ -213,6 +213,7 @@ document.getElementById('themeToggle')?.addEventListener('click', () => {
 // 应用启动
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
+  UI.initBottomNavMore();
 });
 
 // 导出到全局

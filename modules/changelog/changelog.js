@@ -10,10 +10,23 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.1.0',
+  currentVersion: '2.2.0',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.2.0',
+      date: '2026-03-03 12:00',
+      title: '电玩城模块上线',
+      changes: [
+        { type: 'feature', text: '新增电玩城模块，内嵌飞天太空、文明进化两款游戏' },
+        { type: 'feature', text: '游戏列表支持卡片式展示，可扩展添加更多游戏' },
+        { type: 'feature', text: '支持 iframe 全屏游玩，PC 端可切换全屏模式' },
+        { type: 'improve', text: '移动端底部导航新增「更多」弹出菜单，容纳更多功能入口' },
+        { type: 'improve', text: 'PC 端顶部导航新增「游戏」入口' }
+      ],
+      files: ['modules/arcade/arcade.js', 'modules/arcade/arcade-renderer.js', 'modules/arcade/arcade-styles.js', 'index.html', 'js/app/routes.js', 'js/app/page-renderers.js', 'js/router.js', 'js/ui.js']
+    },
     {
       version: '2.1.0',
       date: '2026-02-08 19:45',

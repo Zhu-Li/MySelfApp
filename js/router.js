@@ -192,12 +192,18 @@ const Router = {
 
     // 确定当前导航项
     let navKey = 'home';
-    if (path.startsWith('/test') || path.startsWith('/mbti')) {
+    if (path.startsWith('/test') || path.startsWith('/mbti') || path.startsWith('/bigfive') || path.startsWith('/holland') || path.startsWith('/attachment') || path.startsWith('/eq') || path.startsWith('/values') || path.startsWith('/stress') || path.startsWith('/comprehensive')) {
       navKey = 'test';
     } else if (path.startsWith('/diary')) {
       navKey = 'diary';
     } else if (path.startsWith('/report')) {
       navKey = 'report';
+    } else if (path.startsWith('/contacts')) {
+      navKey = 'contacts';
+    } else if (path.startsWith('/chat')) {
+      navKey = 'chat';
+    } else if (path.startsWith('/arcade')) {
+      navKey = 'arcade';
     } else if (path.startsWith('/settings')) {
       navKey = 'settings';
     }
@@ -206,6 +212,14 @@ const Router = {
     document.querySelectorAll(`[data-nav="${navKey}"]`).forEach(el => {
       el.classList.add('active');
     });
+
+    // 移动端：如果当前页面属于"更多"菜单，同时激活"更多"按钮
+    const moreNavKeys = ['report', 'contacts', 'arcade', 'settings'];
+    if (moreNavKeys.includes(navKey)) {
+      document.querySelectorAll('[data-nav="more"]').forEach(el => {
+        el.classList.add('active');
+      });
+    }
   },
 
   /**
