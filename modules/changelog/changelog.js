@@ -10,10 +10,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.2.0',
+  currentVersion: '2.2.1',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.2.1',
+      date: '2026-03-04 00:00',
+      title: '代码修复与清理',
+      changes: [
+        { type: 'fix', text: '回滚误提交的破坏性重构，恢复完整的应用功能' },
+        { type: 'fix', text: '清理多余文件（报告文件、vite 配置、dist 目录等）' }
+      ],
+      files: ['index.html', 'css/components.css', 'package.json']
+    },
     {
       version: '2.2.0',
       date: '2026-03-03 12:00',
