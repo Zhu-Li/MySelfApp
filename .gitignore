@@ -32,6 +32,9 @@ dist/
 build/
 *.zip
 
+# Publish scripts
+scripts/publish.ps1
+
 # Temporary files
 *.tmp
 *.temp
