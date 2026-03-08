@@ -13,7 +13,8 @@ Write-Host "Novel data generated successfully."
 # 2. 同步应用代码（排除 novel 目录，小说文件由上一步已处理）
 Write-Host ""
 Write-Host "=== Step 2: Sync app files ==="
-$proc = Start-Process -FilePath "robocopy.exe" -ArgumentList "$source","$dest","/MIR","/XD",".git","node_modules",".qoder","scripts","novel","/XF","*.zip",".gitignore","package.json","package-lock.json" -NoNewWindow -Wait -PassThru
+# /MIR 镜像同步，/IS 强制覆盖同名文件（防止时间戳一致但内容不同的情况）
+$proc = Start-Process -FilePath "robocopy.exe" -ArgumentList "$source","$dest","/MIR","/IS","/XD",".git","node_modules",".qoder","scripts","novel","/XF","*.zip",".gitignore","package.json","package-lock.json","nul" -NoNewWindow -Wait -PassThru
 Write-Host "App sync exit code: $($proc.ExitCode)"
 if ($proc.ExitCode -gt 3) {
     Write-Host "App sync failed with errors."
@@ -21,5 +22,12 @@ if ($proc.ExitCode -gt 3) {
 }
 
 Write-Host ""
+Write-Host "=== Step 3: Deploy server ==="
+Copy-Item -Path "$source\scripts\server.js" -Destination "D:\Publish\MySelf-App\server.js" -Force
+Write-Host "server.js -> D:\Publish\MySelf-App\server.js"
+
+Write-Host ""
 Write-Host "Publish completed successfully."
+Write-Host ""
+Write-Host "Start server:  node D:\Publish\MySelf-App\server.js"
 exit 0
