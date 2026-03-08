@@ -24,7 +24,9 @@ if ($proc.ExitCode -gt 3) {
 Write-Host ""
 Write-Host "=== Step 3: Deploy server ==="
 Copy-Item -Path "$source\scripts\server.js" -Destination "D:\Publish\MySelf-App\server.js" -Force
+Copy-Item -Path "$source\scripts\start.bat" -Destination "D:\Publish\MySelf-App\start.bat" -Force
 Write-Host "server.js -> D:\Publish\MySelf-App\server.js"
+Write-Host "start.bat -> D:\Publish\MySelf-App\start.bat"
 
 Write-Host ""
 Write-Host "Publish completed successfully."
