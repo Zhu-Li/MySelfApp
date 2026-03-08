@@ -10,10 +10,23 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.3',
+  currentVersion: '2.3.4',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.4',
+      date: '2026-03-08 23:00',
+      title: '小说 API 注册为 Windows 后台服务',
+      changes: [
+        { type: 'feature', text: '小说增量同步 API 注册为 Windows 后台服务（GuanJiNovelAPI），系统启动后自动运行' },
+        { type: 'feature', text: '新增 install-service.ps1 一键安装/卸载/重启/查看服务状态' },
+        { type: 'improve', text: '前端通过 CORS 调用 localhost:3001 后台服务，兼容 IIS 静态部署' },
+        { type: 'improve', text: '服务不可用时自动回退到静态 index.json，确保离线可用' },
+        { type: 'improve', text: '发布脚本自动重启后台服务，部署后立即生效' }
+      ],
+      files: ['scripts/server.js', 'scripts/install-service.ps1', 'modules/novel/novel.js', 'scripts/publish.ps1']
+    },
     {
       version: '2.3.3',
       date: '2026-03-08 22:00',

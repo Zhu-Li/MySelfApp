@@ -1,14 +1,15 @@
 /**
- * server.js - 观己应用服务器
+ * server.js - 观己小说 API 服务
  * 静观己心，内外澄明
  * 
  * 功能：
- * 1. 静态文件服务（替代 npx serve / python http.server）
- * 2. /api/novel/refresh - 小说数据增量同步接口
+ * 1. /api/novel/refresh - 小说数据增量同步接口
  *    进入小说模块时自动扫描源目录，增量拷贝新章节，返回最新书籍数据
+ * 2. 静态文件服务（可选，IIS 部署时由 IIS 提供静态服务）
  * 
- * 用法：node scripts/server.js [端口号]
- * 默认端口：8080
+ * 部署方式：注册为 Windows 服务，后台持续运行
+ * 用法：node server.js [端口号]
+ * 默认端口：3001
  */
 
 const http = require('http');
@@ -18,7 +19,7 @@ const url = require('url');
 
 // ============ 配置 ============
 
-const PORT = parseInt(process.argv[2], 10) || 8080;
+const PORT = parseInt(process.argv[2], 10) || 3001;
 const STATIC_DIR = 'D:\\Publish\\MySelf-App\\Home';
 const NOVEL_SOURCE_DIR = 'D:\\Publish\\novel';
 const NOVEL_PUBLISH_DIR = path.join(STATIC_DIR, 'novel');
@@ -254,6 +255,15 @@ function serveStatic(req, res) {
 // ============ 启动服务器 ============
 
 const server = http.createServer((req, res) => {
+  // CORS 头（允许 IIS 等其他域名的前端调用此 API）
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
   // API 路由：小说增量刷新
   if (req.url.startsWith('/api/novel/refresh')) {
     try {
@@ -276,16 +286,16 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
+  const ts = new Date().toLocaleString('zh-CN');
   console.log('');
   console.log('  ╔══════════════════════════════════════╗');
-  console.log('  ║     观己 - 静观己心，内外澄明        ║');
+  console.log('  ║   观己小说 API 服务已启动             ║');
   console.log('  ╠══════════════════════════════════════╣');
-  console.log('  ║  地址: http://localhost:' + PORT + '          ║');
-  console.log('  ║  目录: ' + STATIC_DIR.substring(0, 28).padEnd(28) + '  ║');
+  console.log('  ║  API:  http://localhost:' + String(PORT).padEnd(5) + '         ║');
   console.log('  ║  小说: ' + NOVEL_SOURCE_DIR.substring(0, 28).padEnd(28) + '  ║');
+  console.log('  ║  发布: ' + NOVEL_PUBLISH_DIR.substring(0, 28).padEnd(28) + '  ║');
   console.log('  ╚══════════════════════════════════════╝');
-  console.log('');
-  console.log('  进入小说模块时自动扫描增量同步');
-  console.log('  按 Ctrl+C 停止服务');
+  console.log('  启动时间: ' + ts);
+  console.log('  API 端点: GET /api/novel/refresh');
   console.log('');
 });

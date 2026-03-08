@@ -1,5 +1,6 @@
 $source = "d:\MySelf-App"
 $dest = "D:\Publish\MySelf-App\Home"
+$serviceDir = "D:\Publish\MySelf-App"
 
 # 1. 先运行小说数据生成脚本（扫描源目录、拷贝章节文件、生成 index.json）
 Write-Host "=== Step 1: Generate novel data ==="
@@ -21,15 +22,38 @@ if ($proc.ExitCode -gt 3) {
     exit 1
 }
 
+# 3. 部署 API 服务文件
 Write-Host ""
-Write-Host "=== Step 3: Deploy server ==="
-Copy-Item -Path "$source\scripts\server.js" -Destination "D:\Publish\MySelf-App\server.js" -Force
-Copy-Item -Path "$source\scripts\start.bat" -Destination "D:\Publish\MySelf-App\start.bat" -Force
-Write-Host "server.js -> D:\Publish\MySelf-App\server.js"
-Write-Host "start.bat -> D:\Publish\MySelf-App\start.bat"
+Write-Host "=== Step 3: Deploy API service ==="
+Copy-Item -Path "$source\scripts\server.js" -Destination "$serviceDir\server.js" -Force
+Copy-Item -Path "$source\scripts\install-service.ps1" -Destination "$serviceDir\install-service.ps1" -Force
+Write-Host "server.js          -> $serviceDir\server.js"
+Write-Host "install-service.ps1 -> $serviceDir\install-service.ps1"
+
+# 4. 重启 Windows 服务（如果已安装）
+Write-Host ""
+Write-Host "=== Step 4: Restart API service ==="
+$svc = Get-Service -Name "GuanJiNovelAPI" -ErrorAction SilentlyContinue
+if ($svc) {
+    $nssmExe = "$serviceDir\tools\nssm.exe"
+    if (Test-Path $nssmExe) {
+        Write-Host "Restarting GuanJiNovelAPI service..."
+        & $nssmExe restart GuanJiNovelAPI
+        Start-Sleep -Seconds 2
+        $svc = Get-Service -Name "GuanJiNovelAPI" -ErrorAction SilentlyContinue
+        if ($svc -and $svc.Status -eq 'Running') {
+            Write-Host "Service restarted successfully."
+        } else {
+            Write-Host "Service restart may have failed, check logs."
+        }
+    } else {
+        Write-Host "NSSM not found, skipping service restart."
+    }
+} else {
+    Write-Host "Service not installed. Run install-service.ps1 to install:"
+    Write-Host "  powershell -ExecutionPolicy Bypass -File $serviceDir\install-service.ps1 install"
+}
 
 Write-Host ""
 Write-Host "Publish completed successfully."
-Write-Host ""
-Write-Host "Start server:  node D:\Publish\MySelf-App\server.js"
 exit 0

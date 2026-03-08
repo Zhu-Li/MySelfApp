@@ -3,8 +3,8 @@
  * 观己 - 静观己心，内外澄明
  * 
  * 职责：小说数据管理、阅读进度追踪、模块协调
- * 每次进入模块时调用 /api/novel/refresh 触发服务端增量扫描同步，
- * 若 API 不可用则回退到静态 novel/index.json
+ * 每次进入模块时调用后台 Windows 服务 API 触发增量扫描同步，
+ * 若服务不可用则回退到静态 novel/index.json
  */
 
 const Novel = {
@@ -44,19 +44,19 @@ const Novel = {
 
   /**
    * 从服务器动态加载小说数据
-   * 优先调用 /api/novel/refresh（触发服务端增量扫描同步）
-   * 若 API 不可用，回退到静态 novel/index.json
+   * 优先调用后台 Windows 服务 API（触发增量扫描同步）
+   * 若服务不可用，回退到静态 novel/index.json
    */
   async _loadData() {
-    // 优先：调用刷新 API（服务端扫描源目录 → 增量拷贝 → 返回最新数据）
+    // 优先：调用后台 Windows 服务 API（端口 3001）
     try {
-      const resp = await fetch('/api/novel/refresh');
+      const resp = await fetch('http://localhost:3001/api/novel/refresh');
       if (resp.ok) {
         this._data = await resp.json();
         return;
       }
     } catch (e) {
-      // API 不可用（非 Node 服务器），回退静态文件
+      // 服务不可用，回退静态文件
     }
 
     // 回退：读取静态 index.json

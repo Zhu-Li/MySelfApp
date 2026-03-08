@@ -61,6 +61,7 @@
 - 自动记录阅读进度，章节正序/倒序切换
 - 上下章快速跳转，点击内容区隐藏/显示工具栏
 - 动态加载书籍数据，进入模块时自动增量同步新章节
+- 后台 Windows 服务提供 API，IIS 部署无需 Node.js 前端
 
 ## 技术栈
 
@@ -68,6 +69,7 @@
 - **数据存储**: IndexedDB + Web Crypto API 加密
 - **AI 能力**: 硅基流动 API（DeepSeek-V3）
 - **邮件服务**: Web3Forms
+- **小说API**: Node.js Windows 服务 + NSSM（端口 3001）
 
 ## 快速开始
 
@@ -93,6 +95,32 @@ npx serve
 ```
 
 3. 打开浏览器访问 `http://localhost:8080`
+
+### 小说 API 服务（可选）
+
+小说模块需要后台 API 进行增量同步。首次部署：
+
+```powershell
+# 发布应用到 D:\Publish\MySelf-App\Home
+powershell -ExecutionPolicy Bypass -File scripts\publish.ps1
+
+# 安装 Windows 服务（需要管理员权限）
+powershell -ExecutionPolicy Bypass -File D:\Publish\MySelf-App\install-service.ps1 install
+```
+
+服务管理命令：
+```powershell
+# 查看服务状态
+.\install-service.ps1 status
+
+# 重启服务
+.\install-service.ps1 restart
+
+# 卸载服务
+.\install-service.ps1 uninstall
+```
+
+服务安装后会自动随系统启动，监听端口 3001，提供 `/api/novel/refresh` 接口。
 
 ### 配置 API
 
@@ -187,6 +215,12 @@ MySelfApp/
 - AI 分析仅在用户主动请求时进行
 
 ## 更新日志
+
+### v2.3.4
+- 小说增量同步 API 注册为 Windows 后台服务，系统启动后自动运行
+- 新增 install-service.ps1 一键安装/卸载/重启/查看服务状态
+- 前端通过 CORS 调用 localhost:3001 后台服务，兼容 IIS 静态部署
+- 发布脚本自动重启后台服务，部署后立即生效
 
 ### v2.3.0
 - 新增小说阅读模块，支持在线阅读连载小说
