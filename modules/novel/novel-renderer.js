@@ -161,6 +161,8 @@ const NovelRenderer = {
   /** 阅读器元素引用 */
   _readerEl: null,
   _settingsVisible: false,
+  _currentBook: null,
+  _currentChapterIndex: -1,
 
   /**
    * 打开阅读器（覆盖全屏）
@@ -176,6 +178,8 @@ const NovelRenderer = {
     this._readerEl = reader;
 
     const chapterIndex = book.chapters.findIndex(c => c.id === chapter.id);
+    this._currentBook = book;
+    this._currentChapterIndex = chapterIndex;
 
     reader.innerHTML = `
       <div class="novel-reader-topbar" id="readerTopbar">
@@ -356,10 +360,24 @@ const NovelRenderer = {
       }, 500);
     });
 
-    // 点击内容区域切换顶栏/底栏显示
+    // 点击内容区域：TTS 激活时点击段落跳转朗读，否则切换顶栏/底栏
     contentEl.addEventListener('click', (e) => {
-      // 避免点击链接等触发
       if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+
+      // TTS 激活时，点击段落跳转到该段落朗读
+      if (NovelTTS.state !== 'stopped') {
+        const p = e.target.closest('p:not(.chapter-heading)');
+        if (p) {
+          const inner = reader.querySelector('#readerContentInner');
+          const paragraphs = Array.from(inner.querySelectorAll('p:not(.chapter-heading)'));
+          const idx = paragraphs.indexOf(p);
+          if (idx >= 0) {
+            NovelTTS.jumpTo(idx);
+            return;
+          }
+        }
+      }
+
       const topbar = reader.querySelector('#readerTopbar');
       const bottombar = reader.querySelector('#readerBottombar');
       topbar.classList.toggle('hidden');
@@ -370,7 +388,11 @@ const NovelRenderer = {
     const ttsBtn = reader.querySelector('#readerTtsBtn');
     if (ttsBtn) {
       ttsBtn.addEventListener('click', () => {
-        NovelTTS.toggle();
+        if (NovelTTS.state === 'stopped') {
+          NovelTTS.speak(0, book, chapterIndex);
+        } else {
+          NovelTTS.toggle();
+        }
       });
     }
 
@@ -462,15 +484,25 @@ const NovelRenderer = {
 
   /**
    * 切换章节
+   * @param {object} book
+   * @param {object} chapter
+   * @param {object} [options] - { autoPlay: boolean } 自动续读
    */
-  async _switchChapter(book, chapter) {
+  async _switchChapter(book, chapter, options) {
+    const autoPlay = options && options.autoPlay;
     const reader = this._readerEl;
     if (!reader) return;
 
-    // 停止当前朗读
-    NovelTTS.stop();
+    // 非自动续读时停止 TTS；自动续读只停内部音频
+    if (!autoPlay) {
+      NovelTTS.stop();
+    } else {
+      NovelTTS._stopInternal();
+    }
 
     const chapterIndex = book.chapters.findIndex(c => c.id === chapter.id);
+    this._currentBook = book;
+    this._currentChapterIndex = chapterIndex;
 
     // 更新标题
     reader.querySelector('#readerChapterTitle').textContent = `第${chapter.number}章 ${Utils.escapeHtml(chapter.title)}`;
@@ -519,6 +551,21 @@ const NovelRenderer = {
 
     newContent.addEventListener('click', (e) => {
       if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+
+      // TTS 激活时，点击段落跳转到该段落朗读
+      if (NovelTTS.state !== 'stopped') {
+        const p = e.target.closest('p:not(.chapter-heading)');
+        if (p) {
+          const inner = reader.querySelector('#readerContentInner');
+          const paragraphs = Array.from(inner.querySelectorAll('p:not(.chapter-heading)'));
+          const idx = paragraphs.indexOf(p);
+          if (idx >= 0) {
+            NovelTTS.jumpTo(idx);
+            return;
+          }
+        }
+      }
+
       const topbar = reader.querySelector('#readerTopbar');
       const bottombar = reader.querySelector('#readerBottombar');
       topbar.classList.toggle('hidden');
@@ -531,6 +578,11 @@ const NovelRenderer = {
 
     // 保存进度
     await Novel.saveProgress(book.id, chapter.id, 0);
+
+    // 自动续读：加载完成后从第一段开始朗读
+    if (autoPlay) {
+      NovelTTS.speak(0, book, chapterIndex);
+    }
   },
 
   /**

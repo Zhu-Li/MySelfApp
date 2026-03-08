@@ -671,6 +671,24 @@ Novel.addStyles = function() {
       border-left-color: rgba(22, 163, 74, 0.5);
     }
 
+    /* TTS 激活时段落可点击跳转 */
+    .novel-reader.tts-on .novel-reader-content p:not(.chapter-heading) {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .novel-reader.tts-on .novel-reader-content p:not(.chapter-heading):hover {
+      background-color: rgba(99, 102, 241, 0.06);
+    }
+    .novel-reader.tts-on .novel-reader-content p.tts-active:hover {
+      background-color: rgba(99, 102, 241, 0.15);
+    }
+    .novel-reader[data-theme="dark"].tts-on .novel-reader-content p:not(.chapter-heading):hover {
+      background-color: rgba(99, 102, 241, 0.12);
+    }
+    .novel-reader[data-theme="eye"].tts-on .novel-reader-content p:not(.chapter-heading):hover {
+      background-color: rgba(22, 163, 74, 0.08);
+    }
+
     /* TTS 设置区域 */
     .novel-tts-settings {
       display: flex;

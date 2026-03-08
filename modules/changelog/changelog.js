@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.7',
+  currentVersion: '2.3.8',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.8',
+      date: '2026-03-08',
+      title: '朗读功能优化：段落跳转与自动跨章',
+      changes: [
+        { type: 'feature', text: '朗读时点击任意段落可直接跳转到该段落开始朗读' },
+        { type: 'feature', text: '一章读完自动加载下一章继续朗读，无需手动切换' },
+        { type: 'improve', text: '朗读激活时段落显示可点击的视觉提示（hover 变色 + 指针光标）' }
+      ],
+      files: ['modules/novel/novel-tts.js', 'modules/novel/novel-renderer.js', 'modules/novel/novel-styles.js']
+    },
     {
       version: '2.3.7',
       date: '2026-03-08',

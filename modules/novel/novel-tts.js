@@ -18,6 +18,8 @@ const NovelTTS = {
   _audioEl: null,          // HTML5 Audio 元素
   _prefetchUrl: null,      // 预加载的下一段音频 URL
   _prefetchAudio: null,    // 预加载的 Audio 对象
+  _book: null,             // 当前书籍（用于自动跨章）
+  _chapterIndex: -1,       // 当前章节索引（用于自动跨章）
 
   // ========== 初始化 ==========
 
@@ -70,9 +72,16 @@ const NovelTTS = {
 
   /**
    * 开始朗读（从指定段落索引开始）
+   * @param {number} startIndex - 起始段落索引
+   * @param {object} [book] - 书籍对象（用于自动跨章）
+   * @param {number} [chapterIndex] - 章节索引（用于自动跨章）
    */
-  speak(startIndex) {
+  speak(startIndex, book, chapterIndex) {
     if (!this.supported) return;
+
+    // 存储书籍上下文（用于自动跨章续读）
+    if (book !== undefined) this._book = book;
+    if (chapterIndex !== undefined) this._chapterIndex = chapterIndex;
 
     // 先停止之前的朗读
     this._stopInternal();
@@ -156,7 +165,8 @@ const NovelTTS = {
   _speakCurrent() {
     if (this.state !== 'playing') return;
     if (this.currentIndex >= this.paragraphEls.length) {
-      this.stop();
+      // 本章朗读完毕 → 尝试自动切换下一章
+      this._autoNextChapter();
       return;
     }
 
@@ -347,6 +357,13 @@ const NovelTTS = {
     const ttsBtn = reader.querySelector('#readerTtsBtn');
     if (!ttsBtn) return;
 
+    // 切换 tts-on class 用于段落点击视觉反馈
+    if (this.state === 'stopped') {
+      reader.classList.remove('tts-on');
+    } else {
+      reader.classList.add('tts-on');
+    }
+
     switch (this.state) {
       case 'stopped':
         ttsBtn.innerHTML = '<span>&#x1f50a;</span><span>\u6717\u8bfb</span>';
@@ -395,6 +412,39 @@ const NovelTTS = {
         this.resume();
         break;
     }
+  },
+
+  /**
+   * 跳转到指定段落朗读（用于段落点击）
+   */
+  jumpTo(index) {
+    if (!this.supported) return;
+    if (index < 0 || index >= this.paragraphEls.length) return;
+    this._stopInternal();
+    this.currentIndex = index;
+    this.state = 'playing';
+    this._updateUI();
+    this._speakCurrent();
+  },
+
+  /**
+   * 本章读完后自动切换下一章继续朗读
+   */
+  _autoNextChapter() {
+    if (!this._book || this._chapterIndex < 0) {
+      this.stop();
+      return;
+    }
+    const nextIdx = this._chapterIndex + 1;
+    if (nextIdx >= this._book.chapters.length) {
+      // 已是最后一章
+      this.stop();
+      return;
+    }
+    // 停止当前音频但保持 playing 状态
+    this._stopInternal();
+    // 切换到下一章并自动续读
+    NovelRenderer._switchChapter(this._book, this._book.chapters[nextIdx], { autoPlay: true });
   }
 };
 
