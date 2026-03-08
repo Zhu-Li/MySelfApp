@@ -2,8 +2,9 @@
  * generate-novel-data.js - 小说数据生成脚本
  * 观己 - 静观己心，内外澄明
  * 
- * 扫描 D:\Publish\novel\ 下的小说目录，生成 novels-data.js 配置文件，
+ * 扫描 D:\Publish\novel\ 下的小说目录，生成 index.json 配置文件到发布目录，
  * 同时将章节文件以 ASCII 安全文件名拷贝到发布目录，避免中文路径 404 问题。
+ * 前端通过 fetch('novel/index.json') 动态加载书籍数据。
  * 
  * 用法：node scripts/generate-novel-data.js
  * 
@@ -17,7 +18,7 @@ const path = require('path');
 // 配置
 const NOVEL_SOURCE_DIR = 'D:\\Publish\\novel';
 const NOVEL_PUBLISH_DIR = 'D:\\Publish\\MySelf-App\\Home\\novel';
-const OUTPUT_FILE = path.join(__dirname, '..', 'modules', 'novel', 'novels-data.js');
+
 
 /**
  * 将中文书名转为简单ID
@@ -135,43 +136,29 @@ function scanAndCopyNovels() {
 }
 
 /**
- * 生成输出文件
+ * 生成输出文件（index.json 供前端动态加载）
  */
 function generateOutput(books) {
-  const booksJson = books.map(book => {
-    const chaptersStr = book.chapters.map(ch =>
-      "      { id: '" + ch.id + "', number: " + ch.number + ", title: '" + ch.title.replace(/'/g, "\\'") + "', filename: '" + ch.filename + "' }"
-    ).join(',\n');
+  // 生成 index.json 到发布目录（前端运行时通过 fetch 加载）
+  const indexData = {
+    baseUrl: 'novel',
+    books: books.map(book => ({
+      id: book.id,
+      name: book.name,
+      totalChapters: book.totalChapters,
+      chapters: book.chapters.map(ch => ({
+        id: ch.id,
+        number: ch.number,
+        title: ch.title,
+        filename: ch.filename
+      }))
+    }))
+  };
 
-    return "    {\n" +
-      "      id: '" + book.id + "',\n" +
-      "      name: '" + book.name.replace(/'/g, "\\'") + "',\n" +
-      "      totalChapters: " + book.totalChapters + ",\n" +
-      "      chapters: [\n" +
-      chaptersStr + "\n" +
-      "      ]\n" +
-      "    }";
-  }).join(',\n');
-
-  const output = "/**\n" +
-    " * novels-data.js - 小说数据配置（自动生成）\n" +
-    " * 观己 - 静观己心，内外澄明\n" +
-    " * \n" +
-    " * 由 scripts/generate-novel-data.js 自动生成\n" +
-    " * 生成时间：" + new Date().toLocaleString('zh-CN') + "\n" +
-    " * 请勿手动编辑此文件\n" +
-    " */\n\n" +
-    "const NovelsData = {\n" +
-    "  baseUrl: 'novel',\n" +
-    "  books: [\n" +
-    booksJson + "\n" +
-    "  ]\n" +
-    "};\n\n" +
-    "window.NovelsData = NovelsData;\n";
-
-  ensureDir(path.dirname(OUTPUT_FILE));
-  fs.writeFileSync(OUTPUT_FILE, output, 'utf-8');
-  console.log('\n配置文件：' + OUTPUT_FILE);
+  const indexJsonPath = path.join(NOVEL_PUBLISH_DIR, 'index.json');
+  ensureDir(NOVEL_PUBLISH_DIR);
+  fs.writeFileSync(indexJsonPath, JSON.stringify(indexData, null, 2), 'utf-8');
+  console.log('\nindex.json：' + indexJsonPath);
   console.log('发布目录：' + NOVEL_PUBLISH_DIR);
   console.log('共 ' + books.length + ' 本书，' + books.reduce((sum, b) => sum + b.totalChapters, 0) + ' 章');
 }

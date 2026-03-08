@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.1',
+  currentVersion: '2.3.2',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.2',
+      date: '2026-03-08 21:00',
+      title: '小说模块动态数据加载',
+      changes: [
+        { type: 'improve', text: '小说数据改为动态加载，每次进入模块自动获取最新书籍和章节' },
+        { type: 'improve', text: '发布脚本自动运行小说数据生成，无需手动执行' },
+        { type: 'improve', text: '移除静态 novels-data.js 依赖，数据通过 index.json 按需加载' }
+      ],
+      files: ['modules/novel/novel.js', 'scripts/generate-novel-data.js', 'scripts/publish.ps1', 'index.html']
+    },
     {
       version: '2.3.1',
       date: '2026-03-08 19:00',

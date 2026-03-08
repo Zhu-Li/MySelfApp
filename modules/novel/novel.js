@@ -3,11 +3,15 @@
  * 观己 - 静观己心，内外澄明
  * 
  * 职责：小说数据管理、阅读进度追踪、模块协调
+ * 数据通过 fetch('novel/index.json') 动态加载，每次进入模块时刷新
  */
 
 const Novel = {
   /** 当前浏览的书 */
   currentBook: null,
+
+  /** 动态加载的小说数据 */
+  _data: null,
 
   /** 阅读器设置缓存 */
   settings: {
@@ -16,21 +20,40 @@ const Novel = {
   },
 
   /**
-   * 初始化模块（首次访问时调用一次）
+   * 初始化模块（每次进入模块时调用，动态加载最新数据）
    */
   async init() {
-    if (this._initialized) return;
-    this._initialized = true;
+    // 每次进入模块都重新加载数据，实现动态刷新
+    await this._loadData();
 
-    // 从 IndexedDB 恢复阅读器设置
-    try {
-      const saved = await Storage.getRaw('novelSettings', 'readerSettings');
-      if (saved) {
-        this.settings.fontSize = saved.fontSize || 'medium';
-        this.settings.theme = saved.theme || 'light';
+    // 阅读器设置只需恢复一次
+    if (!this._settingsLoaded) {
+      this._settingsLoaded = true;
+      try {
+        const saved = await Storage.getRaw('novelSettings', 'readerSettings');
+        if (saved) {
+          this.settings.fontSize = saved.fontSize || 'medium';
+          this.settings.theme = saved.theme || 'light';
+        }
+      } catch (e) {
+        // 首次使用或数据库尚未升级，忽略
       }
+    }
+  },
+
+  /**
+   * 从服务器动态加载小说数据
+   */
+  async _loadData() {
+    try {
+      const resp = await fetch('novel/index.json?t=' + Date.now());
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      this._data = await resp.json();
     } catch (e) {
-      // 首次使用或数据库尚未升级，忽略
+      console.warn('小说数据加载失败，使用缓存:', e.message);
+      if (!this._data) {
+        this._data = { baseUrl: 'novel', books: [] };
+      }
     }
   },
 
@@ -38,7 +61,7 @@ const Novel = {
    * 获取所有书籍
    */
   getBooks() {
-    return (window.NovelsData && NovelsData.books) || [];
+    return (this._data && this._data.books) || [];
   },
 
   /**
@@ -52,7 +75,7 @@ const Novel = {
    * 获取章节内容URL（相对路径，ASCII文件名）
    */
   getChapterUrl(book, chapter) {
-    const base = NovelsData.baseUrl;
+    const base = (this._data && this._data.baseUrl) || 'novel';
     return `${base}/${book.id}/${chapter.filename}`;
   },
 
