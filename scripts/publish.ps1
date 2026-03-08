@@ -27,6 +27,8 @@ Write-Host ""
 Write-Host "=== Step 3: Deploy API service ==="
 Copy-Item -Path "$source\scripts\server.js" -Destination "$serviceDir\server.js" -Force
 Copy-Item -Path "$source\scripts\install-service.ps1" -Destination "$serviceDir\install-service.ps1" -Force
+# 确保 ps1 文件带 UTF-8 BOM（PowerShell 5.1 中文环境需要）
+node -e "var f=require('fs'),p='D:\\Publish\\MySelf-App\\install-service.ps1',b=f.readFileSync(p);if(b[0]!==0xEF||b[1]!==0xBB||b[2]!==0xBF){f.writeFileSync(p,Buffer.concat([Buffer.from([0xEF,0xBB,0xBF]),b]))}"
 Write-Host "server.js          -> $serviceDir\server.js"
 Write-Host "install-service.ps1 -> $serviceDir\install-service.ps1"
 

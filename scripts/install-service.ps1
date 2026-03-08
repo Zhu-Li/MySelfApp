@@ -1,4 +1,4 @@
-# install-service.ps1 - 观己小说 API 服务安装/管理脚本
+﻿# install-service.ps1 - 观己小说 API 服务安装/管理脚本
 # 使用 NSSM (Non-Sucking Service Manager) 将 Node.js API 注册为 Windows 后台服务
 #
 # 用法:
