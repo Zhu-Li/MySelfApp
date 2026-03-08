@@ -10,10 +10,22 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.2',
+  currentVersion: '2.3.3',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.3',
+      date: '2026-03-08 22:00',
+      title: '小说模块自动增量同步',
+      changes: [
+        { type: 'feature', text: '新增 Node.js 应用服务器，替代简单静态服务，支持小说增量同步 API' },
+        { type: 'improve', text: '进入小说模块时自动扫描源目录，增量拷贝新增/更新章节，无需手动操作' },
+        { type: 'improve', text: '增量对比：仅拷贝新文件或修改过的文件，已有文件自动跳过' },
+        { type: 'improve', text: 'API 不可用时自动回退到静态 index.json，兼容纯静态部署' }
+      ],
+      files: ['scripts/server.js', 'modules/novel/novel.js', 'modules/changelog/changelog.js']
+    },
     {
       version: '2.3.2',
       date: '2026-03-08 21:00',
