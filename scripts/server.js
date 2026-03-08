@@ -356,7 +356,7 @@ async function handleTTSVoices(req, res) {
 async function handleTTSSynth(req, res) {
   const params = new URL(req.url, 'http://localhost').searchParams;
   const text = params.get('text');
-  const voice = params.get('voice') || TTS_DEFAULT_VOICE;
+  let voice = params.get('voice') || TTS_DEFAULT_VOICE;
   const rate = params.get('rate') || TTS_DEFAULT_RATE;
 
   if (!text) {
@@ -369,6 +369,13 @@ async function handleTTSSynth(req, res) {
     res.writeHead(400, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: '文本过长，最大 ' + TTS_MAX_TEXT_LENGTH + ' 字符' }));
     return;
+  }
+
+  // 校验 voice 参数格式（Edge TTS ShortName 格式: xx-XX-XxxNeural）
+  // 如果传入的是旧版 Web Speech API 的 FriendlyName，回退到默认语音
+  if (!/^[a-z]{2}-[A-Z]{2}/i.test(voice)) {
+    console.warn('[TTS] 无效的 voice 参数，回退默认:', voice.substring(0, 50));
+    voice = TTS_DEFAULT_VOICE;
   }
 
   // 检查缓存

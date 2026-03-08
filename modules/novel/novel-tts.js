@@ -163,8 +163,8 @@ const NovelTTS = {
     const el = this.paragraphEls[this.currentIndex];
     const text = (el.textContent || '').trim();
 
-    // 空段落跳过
-    if (!text) {
+    // 空段落或纯符号段落跳过（如分隔线 ---、***）
+    if (!text || /^[\s\-=*·_—…]+$/.test(text)) {
       this.currentIndex++;
       this._speakCurrent();
       return;
@@ -298,10 +298,19 @@ const NovelTTS = {
   // ========== 语音与语速 ==========
 
   /**
-   * 获取当前选中的语音 ID
+   * 获取当前选中的语音 ID（确保是有效的 Edge TTS ShortName）
    */
   _getCurrentVoice() {
     const saved = Novel.settings.tts && Novel.settings.tts.voiceURI;
+    if (saved && this._useServerTTS) {
+      // 校验已保存的语音是否在服务端语音列表中
+      const match = this._voices.find(v => v.id === saved);
+      if (match) return saved;
+      // 旧版 Web Speech API 的 voiceURI 无效，重置为默认
+      Novel.settings.tts.voiceURI = this._defaultVoice;
+      Novel.saveSettings();
+      return this._defaultVoice;
+    }
     if (saved) return saved;
     return this._defaultVoice;
   },
