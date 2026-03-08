@@ -38,4 +38,6 @@ scripts/publish.ps1
 # Temporary files
 *.tmp
 *.temp
+nul
 .qoder
+团队反省报告.md
