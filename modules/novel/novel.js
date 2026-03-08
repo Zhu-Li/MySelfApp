@@ -49,11 +49,11 @@ const Novel = {
   },
 
   /**
-   * 获取章节内容URL
+   * 获取章节内容URL（相对路径，ASCII文件名）
    */
   getChapterUrl(book, chapter) {
     const base = NovelsData.baseUrl;
-    return `${base}/${encodeURIComponent(book.folder)}/${encodeURIComponent(chapter.filename)}`;
+    return `${base}/${book.id}/${chapter.filename}`;
   },
 
   /**
@@ -63,8 +63,7 @@ const Novel = {
     const url = this.getChapterUrl(book, chapter);
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`加载失败 (${resp.status})`);
-    const text = await resp.text();
-    return text;
+    return await resp.text();
   },
 
   // ============ 阅读进度 ============

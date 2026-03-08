@@ -17,11 +17,11 @@ const Changelog = {
     {
       version: '2.3.1',
       date: '2026-03-08 19:00',
-      title: '小说模块内容加载优化',
+      title: '小说模块内容加载修复',
       changes: [
-        { type: 'fix', text: '修复小说章节内容无法访问的问题，改为本地相对路径加载' },
-        { type: 'improve', text: '小说文件与应用同步发布，无需依赖外部服务器' },
-        { type: 'improve', text: '发布脚本支持自动同步小说文件目录' }
+        { type: 'fix', text: '修复小说章节内容404问题，中文文件名转为ASCII安全路径' },
+        { type: 'improve', text: '生成脚本自动将章节文件以ch001.txt格式拷贝到发布目录' },
+        { type: 'improve', text: '前端通过fetch相对路径动态加载章节内容' }
       ],
       files: ['modules/novel/novel.js', 'modules/novel/novels-data.js', 'scripts/generate-novel-data.js', 'scripts/publish.ps1']
     },
