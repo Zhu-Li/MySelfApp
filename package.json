@@ -27,5 +27,8 @@
   "homepage": "https://github.com/Zhu-Li/MySelfApp#readme",
   "devDependencies": {
     "archiver": "^7.0.1"
+  },
+  "dependencies": {
+    "msedge-tts": "^2.0.4"
   }
 }

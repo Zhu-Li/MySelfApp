@@ -198,7 +198,7 @@ const NovelRenderer = {
         </button>
         <div class="novel-reader-bottom-center">
           <span class="novel-reader-progress" id="readerProgress">${chapterIndex + 1} / ${book.totalChapters}</span>
-          ${NovelTTS.supported ? '<button class="novel-reader-tts-btn" id="readerTtsBtn"><span>🔊</span><span>朗读</span></button>' : ''}
+          <button class="novel-reader-tts-btn" id="readerTtsBtn" style="display:none"><span>&#x1f50a;</span><span>朗读</span></button>
         </div>
         <button class="novel-reader-nav-btn" id="readerNextBtn" ${chapterIndex >= book.totalChapters - 1 ? 'disabled' : ''}>
           <span>下一章</span>
@@ -229,8 +229,8 @@ const NovelRenderer = {
             </button>
           </div>
         </div>
-        ${NovelTTS.supported ? `
-        <div class="novel-settings-group">
+        ${`
+        <div class="novel-settings-group novel-tts-settings-group" id="ttsSettingsGroup" style="display:none">
           <div class="novel-settings-label">语音朗读</div>
           <div class="novel-tts-settings">
             <div class="novel-tts-setting-row">
@@ -245,7 +245,7 @@ const NovelRenderer = {
             </div>
           </div>
         </div>
-        ` : ''}
+        `}
       </div>
     `;
 
@@ -374,6 +374,19 @@ const NovelRenderer = {
       });
     }
 
+    // 等待 TTS 初始化完成后显示按钮和设置
+    if (NovelTTS._initPromise) {
+      NovelTTS._initPromise.then(() => {
+        if (NovelTTS.supported) {
+          if (ttsBtn) ttsBtn.style.display = '';
+          const ttsGroup = reader.querySelector('#ttsSettingsGroup');
+          if (ttsGroup) ttsGroup.style.display = '';
+          const voiceSelect = reader.querySelector('#ttsVoiceSelect');
+          if (voiceSelect) this._populateVoiceSelect(voiceSelect);
+        }
+      });
+    }
+
     // TTS 语速滑块
     const rateSlider = reader.querySelector('#ttsRateSlider');
     if (rateSlider) {
@@ -385,17 +398,6 @@ const NovelRenderer = {
         Novel.saveSettings();
       });
     }
-
-    // TTS 语音选择下拉
-    const voiceSelect = reader.querySelector('#ttsVoiceSelect');
-    if (voiceSelect) {
-      this._populateVoiceSelect(voiceSelect);
-      voiceSelect.addEventListener('change', () => {
-        if (!Novel.settings.tts) Novel.settings.tts = {};
-        Novel.settings.tts.voiceURI = voiceSelect.value;
-        Novel.saveSettings();
-      });
-    }
   },
 
   /**
@@ -403,22 +405,27 @@ const NovelRenderer = {
    */
   _populateVoiceSelect(select) {
     select.innerHTML = '';
-    const voices = NovelTTS.chineseVoices.length > 0 ? NovelTTS.chineseVoices : NovelTTS.voices.slice(0, 10);
+    const voices = NovelTTS._voices || [];
     const savedURI = Novel.settings.tts && Novel.settings.tts.voiceURI;
 
     if (voices.length === 0) {
-      select.innerHTML = '<option value="">加载中...</option>';
-      // 语音可能异步加载，延迟重试
-      setTimeout(() => this._populateVoiceSelect(select), 500);
+      select.innerHTML = '<option value="">暂无可用语音</option>';
       return;
     }
 
     voices.forEach(v => {
       const opt = document.createElement('option');
-      opt.value = v.voiceURI;
-      opt.textContent = v.name + (v.lang ? ` (${v.lang})` : '');
-      if (savedURI && v.voiceURI === savedURI) opt.selected = true;
+      opt.value = v.id;
+      opt.textContent = v.name + (v.gender ? ` (${v.gender})` : '');
+      if (savedURI && v.id === savedURI) opt.selected = true;
       select.appendChild(opt);
+    });
+
+    // 绑定 change 事件
+    select.addEventListener('change', () => {
+      if (!Novel.settings.tts) Novel.settings.tts = {};
+      Novel.settings.tts.voiceURI = select.value;
+      Novel.saveSettings();
     });
   },
 

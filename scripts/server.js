@@ -16,11 +16,63 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
 
 // ============ 配置 ============
 
 const PORT = parseInt(process.argv[2], 10) || 3001;
 const STATIC_DIR = 'D:\\Publish\\MySelf-App\\Home';
+
+// ============ TTS 配置 ============
+
+const TTS_MAX_TEXT_LENGTH = 2000;        // 单次合成最大字符数
+const TTS_CACHE_MAX_SIZE = 50 * 1024 * 1024;  // LRU 缓存上限 50MB
+const TTS_DEFAULT_VOICE = 'zh-CN-XiaoxiaoNeural';
+const TTS_DEFAULT_RATE = '+0%';
+
+// TTS LRU 缓存
+const ttsCache = new Map();
+let ttsCacheSize = 0;
+
+// TTS 语音列表缓存
+let ttsVoicesCache = null;
+
+/**
+ * 生成 TTS 缓存 key
+ */
+function ttsCacheKey(text, voice, rate) {
+  return `${voice}|${rate}|${text}`;
+}
+
+/**
+ * LRU 缓存 - 写入
+ */
+function ttsCacheSet(key, buffer) {
+  // 如果已存在，先删除旧的（Map 迭代序会更新）
+  if (ttsCache.has(key)) {
+    ttsCacheSize -= ttsCache.get(key).length;
+    ttsCache.delete(key);
+  }
+  // 淘汰最旧的条目直到空间足够
+  while (ttsCacheSize + buffer.length > TTS_CACHE_MAX_SIZE && ttsCache.size > 0) {
+    const oldest = ttsCache.keys().next().value;
+    ttsCacheSize -= ttsCache.get(oldest).length;
+    ttsCache.delete(oldest);
+  }
+  ttsCache.set(key, buffer);
+  ttsCacheSize += buffer.length;
+}
+
+/**
+ * LRU 缓存 - 读取（读取后移到末尾保持活跃）
+ */
+function ttsCacheGet(key) {
+  if (!ttsCache.has(key)) return null;
+  const val = ttsCache.get(key);
+  ttsCache.delete(key);
+  ttsCache.set(key, val);
+  return val;
+}
 const NOVEL_SOURCE_DIR = 'D:\\Publish\\novel';
 const NOVEL_PUBLISH_DIR = path.join(STATIC_DIR, 'novel');
 
@@ -252,6 +304,123 @@ function serveStatic(req, res) {
   });
 }
 
+// ============ TTS API 处理函数 ============
+
+/**
+ * GET /api/novel/tts/voices
+ * 返回可用的中文语音列表
+ */
+async function handleTTSVoices(req, res) {
+  try {
+    if (ttsVoicesCache) {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600'
+      });
+      res.end(JSON.stringify(ttsVoicesCache));
+      return;
+    }
+
+    const tts = new MsEdgeTTS();
+    const allVoices = await tts.getVoices();
+    tts.close();
+
+    // 筛选中文语音，返回精简格式
+    const zhVoices = allVoices
+      .filter(v => v.Locale && v.Locale.startsWith('zh'))
+      .map(v => ({
+        id: v.ShortName,
+        name: v.FriendlyName.replace(/Microsoft\s+/, '').replace(/\s+Online\s+\(Natural\)/, ''),
+        gender: v.Gender === 'Female' ? '女' : '男',
+        locale: v.Locale
+      }));
+
+    ttsVoicesCache = { voices: zhVoices, default: TTS_DEFAULT_VOICE };
+
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600'
+    });
+    res.end(JSON.stringify(ttsVoicesCache));
+  } catch (e) {
+    console.error('[TTS 语音列表错误]', e.message);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: '获取语音列表失败: ' + e.message }));
+  }
+}
+
+/**
+ * GET /api/novel/tts?text=...&voice=zh-CN-XiaoxiaoNeural&rate=+0%
+ * 合成语音并返回 MP3 音频流
+ */
+async function handleTTSSynth(req, res) {
+  const params = new URL(req.url, 'http://localhost').searchParams;
+  const text = params.get('text');
+  const voice = params.get('voice') || TTS_DEFAULT_VOICE;
+  const rate = params.get('rate') || TTS_DEFAULT_RATE;
+
+  if (!text) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: '缺少 text 参数' }));
+    return;
+  }
+
+  if (text.length > TTS_MAX_TEXT_LENGTH) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: '文本过长，最大 ' + TTS_MAX_TEXT_LENGTH + ' 字符' }));
+    return;
+  }
+
+  // 检查缓存
+  const cacheKey = ttsCacheKey(text, voice, rate);
+  const cached = ttsCacheGet(cacheKey);
+  if (cached) {
+    res.writeHead(200, {
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': cached.length,
+      'Cache-Control': 'public, max-age=86400'
+    });
+    res.end(cached);
+    return;
+  }
+
+  try {
+    const tts = new MsEdgeTTS();
+    await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3, {
+      rate: rate
+    });
+
+    const result = tts.toStream(text);
+    const chunks = [];
+
+    result.audioStream.on('data', chunk => chunks.push(chunk));
+    result.audioStream.on('end', () => {
+      const buffer = Buffer.concat(chunks);
+      tts.close();
+
+      // 写入缓存
+      ttsCacheSet(cacheKey, buffer);
+
+      res.writeHead(200, {
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': buffer.length,
+        'Cache-Control': 'public, max-age=86400'
+      });
+      res.end(buffer);
+    });
+    result.audioStream.on('error', err => {
+      tts.close();
+      console.error('[TTS 合成错误]', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '语音合成失败: ' + err.message }));
+    });
+  } catch (e) {
+    console.error('[TTS 合成错误]', e.message);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: '语音合成失败: ' + e.message }));
+  }
+}
+
 // ============ 启动服务器 ============
 
 const server = http.createServer((req, res) => {
@@ -323,6 +492,20 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // API 路由：TTS 语音列表
+  // GET /api/novel/tts/voices
+  if (req.url.startsWith('/api/novel/tts/voices')) {
+    handleTTSVoices(req, res);
+    return;
+  }
+
+  // API 路由：TTS 语音合成
+  // GET /api/novel/tts?text=...&voice=zh-CN-XiaoxiaoNeural&rate=+0%
+  if (req.url.startsWith('/api/novel/tts')) {
+    handleTTSSynth(req, res);
+    return;
+  }
+
   // 静态文件
   serveStatic(req, res);
 });
@@ -338,6 +521,10 @@ server.listen(PORT, () => {
   console.log('  ║  发布: ' + NOVEL_PUBLISH_DIR.substring(0, 28).padEnd(28) + '  ║');
   console.log('  ╚══════════════════════════════════════╝');
   console.log('  启动时间: ' + ts);
-  console.log('  API 端点: GET /api/novel/refresh');
+  console.log('  API 端点:');
+  console.log('    GET /api/novel/refresh');
+  console.log('    GET /api/novel/chapter?book=&file=');
+  console.log('    GET /api/novel/tts/voices');
+  console.log('    GET /api/novel/tts?text=&voice=&rate=');
   console.log('');
 });

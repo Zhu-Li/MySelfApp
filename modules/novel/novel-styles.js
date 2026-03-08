@@ -625,29 +625,31 @@ Novel.addStyles = function() {
     .novel-reader-tts-btn {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding: 4px var(--spacing-md);
-      background: rgba(99, 102, 241, 0.12);
-      border: 1px solid rgba(99, 102, 241, 0.3);
+      gap: 6px;
+      padding: 6px 16px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1.5px solid rgba(99, 102, 241, 0.4);
       border-radius: var(--radius-full);
       color: inherit;
-      font-size: var(--font-size-xs);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .novel-reader-tts-btn:hover {
-      background: rgba(99, 102, 241, 0.2);
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.6);
     }
 
     .novel-reader-tts-btn.tts-playing {
-      background: rgba(99, 102, 241, 0.2);
-      border-color: rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.6);
     }
 
     .novel-reader-tts-btn.tts-paused {
-      background: rgba(234, 179, 8, 0.15);
-      border-color: rgba(234, 179, 8, 0.4);
+      background: rgba(234, 179, 8, 0.2);
+      border-color: rgba(234, 179, 8, 0.5);
     }
 
     /* 当前朗读段落高亮 */
@@ -739,6 +741,23 @@ Novel.addStyles = function() {
 
     .novel-tts-voice-select:focus {
       border-color: var(--color-primary);
+    }
+
+    /* TTS 不支持提示 */
+    .novel-tts-tip {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: var(--radius-lg);
+      font-size: var(--font-size-sm);
+      z-index: 300;
+      text-align: center;
+      max-width: 280px;
+      transition: opacity 0.4s ease;
     }
 
     /* ========== 移动端适配 ========== */

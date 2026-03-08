@@ -10,10 +10,35 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.5',
+  currentVersion: '2.3.7',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.7',
+      date: '2026-03-08',
+      title: '服务端 Edge TTS 语音朗读',
+      changes: [
+        { type: 'feature', text: '新增服务端 Edge TTS 语音合成，移动端（含微信浏览器）可正常朗读小说' },
+        { type: 'feature', text: '支持 14 种中文语音切换，含普通话、粤语、台湾腔等' },
+        { type: 'feature', text: '音频预加载：朗读当前段落时自动预加载下一段，无缝衔接' },
+        { type: 'improve', text: '服务端 LRU 缓存已合成音频（50MB），相同文本不重复合成' },
+        { type: 'improve', text: '桌面浏览器在服务端不可用时自动回退 Web Speech API' }
+      ],
+      files: ['scripts/server.js', 'modules/novel/novel-tts.js', 'modules/novel/novel-renderer.js', 'modules/novel/novel.js']
+    },
+    {
+      version: '2.3.6',
+      date: '2026-03-08',
+      title: 'Nginx 反向代理统一入口',
+      changes: [
+        { type: 'improve', text: '引入 Nginx 反向代理，PC 和移动端统一通过域名访问 API，不再依赖 localhost' },
+        { type: 'improve', text: '前端 API 调用改为相对路径，移动端小说模块可正常加载' },
+        { type: 'fix', text: '修复发布脚本 robocopy 排除规则导致 novel-tts.js 未被同步的问题' },
+        { type: 'fix', text: '修复移动端因 localhost:3001 不可达导致小说数据加载失败的问题' }
+      ],
+      files: ['modules/novel/novel.js', 'scripts/publish.ps1']
+    },
     {
       version: '2.3.5',
       date: '2026-03-09 01:00',

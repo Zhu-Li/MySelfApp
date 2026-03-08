@@ -20,7 +20,7 @@ const Novel = {
     theme: 'light',       // light | dark | eye
     tts: {
       rate: 1.0,          // 语速 0.5 - 2.0
-      voiceURI: null,     // 语音标识
+      voiceURI: 'zh-CN-XiaoxiaoNeural',  // Edge TTS 默认语音
       volume: 1.0         // 音量 0 - 1
     }
   },
@@ -56,15 +56,15 @@ const Novel = {
    * 若服务不可用，回退到静态 novel/index.json
    */
   async _loadData() {
-    // 优先：调用后台 Windows 服务 API（端口 3001）
+    // 优先：调用 API（通过 Nginx 反向代理转发到 Node.js 服务）
     try {
-      const resp = await fetch('http://localhost:3001/api/novel/refresh');
+      const resp = await fetch('/api/novel/refresh');
       if (resp.ok) {
         this._data = await resp.json();
         return;
       }
     } catch (e) {
-      // 服务不可用，回退静态文件
+      // API 不可用，回退静态文件
     }
 
     // 回退：读取静态 index.json
@@ -109,9 +109,9 @@ const Novel = {
    * 拉取章节文本（通过 API 读取，不直接访问 txt 文件）
    */
   async fetchChapter(book, chapter) {
-    // 优先：通过后台服务 API 读取章节内容
+    // 优先：通过 API 读取章节内容（Nginx 代理转发）
     try {
-      const apiUrl = `http://localhost:3001/api/novel/chapter?book=${encodeURIComponent(book.id)}&file=${encodeURIComponent(chapter.filename)}`;
+      const apiUrl = `/api/novel/chapter?book=${encodeURIComponent(book.id)}&file=${encodeURIComponent(chapter.filename)}`;
       const resp = await fetch(apiUrl);
       if (resp.ok) return await resp.text();
     } catch (e) {
