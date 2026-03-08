@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.0',
+  currentVersion: '2.3.1',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.1',
+      date: '2026-03-08 19:00',
+      title: '小说模块内容加载优化',
+      changes: [
+        { type: 'fix', text: '修复小说章节内容无法访问的问题，改为本地相对路径加载' },
+        { type: 'improve', text: '小说文件与应用同步发布，无需依赖外部服务器' },
+        { type: 'improve', text: '发布脚本支持自动同步小说文件目录' }
+      ],
+      files: ['modules/novel/novel.js', 'modules/novel/novels-data.js', 'scripts/generate-novel-data.js', 'scripts/publish.ps1']
+    },
     {
       version: '2.3.0',
       date: '2026-03-08 18:00',

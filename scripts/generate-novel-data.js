@@ -10,9 +10,9 @@ const fs = require('fs');
 const path = require('path');
 
 // 配置
-const NOVEL_SOURCE_DIR = 'D:\\work\\连载小说';
+const NOVEL_SOURCE_DIR = 'D:\\Publish\\novel';
 const OUTPUT_FILE = path.join(__dirname, '..', 'modules', 'novel', 'novels-data.js');
-const BASE_URL = 'https://10226339ismm5.vicp.fun/Novel';
+const BASE_URL = 'novel';
 
 /**
  * 将中文书名转为简单ID（取拼音首字母或使用文件夹名哈希）
@@ -80,14 +80,9 @@ function scanNovels() {
   console.log(`找到 ${folders.length} 本小说：`);
 
   for (const folderName of folders) {
-    const contentDir = path.join(NOVEL_SOURCE_DIR, folderName, '正文');
-    
-    if (!fs.existsSync(contentDir)) {
-      console.log(`  跳过 "${folderName}"：缺少"正文"目录`);
-      continue;
-    }
+    const bookDir = path.join(NOVEL_SOURCE_DIR, folderName);
 
-    const txtFiles = fs.readdirSync(contentDir)
+    const txtFiles = fs.readdirSync(bookDir)
       .filter(f => f.endsWith('.txt'))
       .sort(); // 按文件名排序
 

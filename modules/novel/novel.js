@@ -53,7 +53,7 @@ const Novel = {
    */
   getChapterUrl(book, chapter) {
     const base = NovelsData.baseUrl;
-    return `${base}/${encodeURIComponent(book.folder)}/正文/${encodeURIComponent(chapter.filename)}`;
+    return `${base}/${encodeURIComponent(book.folder)}/${encodeURIComponent(chapter.filename)}`;
   },
 
   /**

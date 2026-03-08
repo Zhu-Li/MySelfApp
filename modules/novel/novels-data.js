@@ -3,12 +3,12 @@
  * 观己 - 静观己心，内外澄明
  * 
  * 由 scripts/generate-novel-data.js 自动生成
- * 生成时间：2026/3/8 12:53:54
+ * 生成时间：2026/3/8 13:16:00
  * 请勿手动编辑此文件
  */
 
 const NovelsData = {
-  baseUrl: 'https://10226339ismm5.vicp.fun/Novel',
+  baseUrl: 'novel',
   books: [
     {
       id: '60ac81c265365272',
