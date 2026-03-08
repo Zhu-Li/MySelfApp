@@ -611,6 +611,136 @@ Novel.addStyles = function() {
       background: #c7edcc;
     }
 
+    /* ========== TTS 朗读 ========== */
+
+    /* 底栏中间区域 */
+    .novel-reader-bottom-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 朗读按钮 */
+    .novel-reader-tts-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 4px var(--spacing-md);
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius-full);
+      color: inherit;
+      font-size: var(--font-size-xs);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .novel-reader-tts-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+
+    .novel-reader-tts-btn.tts-playing {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
+    .novel-reader-tts-btn.tts-paused {
+      background: rgba(234, 179, 8, 0.15);
+      border-color: rgba(234, 179, 8, 0.4);
+    }
+
+    /* 当前朗读段落高亮 */
+    .novel-reader-content p.tts-active {
+      background-color: rgba(99, 102, 241, 0.1);
+      border-left: 3px solid rgba(99, 102, 241, 0.6);
+      padding-left: calc(2em - 3px);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      transition: background-color 0.3s ease, border-left 0.3s ease;
+    }
+
+    .novel-reader[data-theme="dark"] p.tts-active {
+      background-color: rgba(99, 102, 241, 0.2);
+      border-left-color: rgba(129, 140, 248, 0.7);
+    }
+
+    .novel-reader[data-theme="eye"] p.tts-active {
+      background-color: rgba(22, 163, 74, 0.12);
+      border-left-color: rgba(22, 163, 74, 0.5);
+    }
+
+    /* TTS 设置区域 */
+    .novel-tts-settings {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .novel-tts-setting-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .novel-tts-setting-name {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      min-width: 36px;
+      flex-shrink: 0;
+    }
+
+    .novel-tts-slider {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--border-color);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .novel-tts-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .novel-tts-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      border: none;
+      cursor: pointer;
+    }
+
+    .novel-tts-setting-value {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .novel-tts-voice-select {
+      flex: 1;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: var(--font-size-xs);
+      outline: none;
+      min-width: 0;
+    }
+
+    .novel-tts-voice-select:focus {
+      border-color: var(--color-primary);
+    }
+
     /* ========== 移动端适配 ========== */
     @media (max-width: 768px) {
       .novel-shelf {

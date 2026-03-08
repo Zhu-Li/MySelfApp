@@ -196,7 +196,10 @@ const NovelRenderer = {
           <span>←</span>
           <span>上一章</span>
         </button>
-        <span class="novel-reader-progress" id="readerProgress">${chapterIndex + 1} / ${book.totalChapters}</span>
+        <div class="novel-reader-bottom-center">
+          <span class="novel-reader-progress" id="readerProgress">${chapterIndex + 1} / ${book.totalChapters}</span>
+          ${NovelTTS.supported ? '<button class="novel-reader-tts-btn" id="readerTtsBtn"><span>🔊</span><span>朗读</span></button>' : ''}
+        </div>
         <button class="novel-reader-nav-btn" id="readerNextBtn" ${chapterIndex >= book.totalChapters - 1 ? 'disabled' : ''}>
           <span>下一章</span>
           <span>→</span>
@@ -226,6 +229,23 @@ const NovelRenderer = {
             </button>
           </div>
         </div>
+        ${NovelTTS.supported ? `
+        <div class="novel-settings-group">
+          <div class="novel-settings-label">语音朗读</div>
+          <div class="novel-tts-settings">
+            <div class="novel-tts-setting-row">
+              <span class="novel-tts-setting-name">语速</span>
+              <input type="range" class="novel-tts-slider" id="ttsRateSlider"
+                min="0.5" max="2.0" step="0.1" value="${(Novel.settings.tts && Novel.settings.tts.rate) || 1.0}">
+              <span class="novel-tts-setting-value" id="ttsRateValue">${(Novel.settings.tts && Novel.settings.tts.rate) || 1.0}x</span>
+            </div>
+            <div class="novel-tts-setting-row">
+              <span class="novel-tts-setting-name">语音</span>
+              <select class="novel-tts-voice-select" id="ttsVoiceSelect"></select>
+            </div>
+          </div>
+        </div>
+        ` : ''}
       </div>
     `;
 
@@ -245,6 +265,7 @@ const NovelRenderer = {
    * 关闭阅读器
    */
   closeReader() {
+    NovelTTS.stop();
     if (this._readerEl) {
       this._readerEl.remove();
       this._readerEl = null;
@@ -344,6 +365,61 @@ const NovelRenderer = {
       topbar.classList.toggle('hidden');
       bottombar.classList.toggle('hidden');
     });
+
+    // TTS 朗读按钮
+    const ttsBtn = reader.querySelector('#readerTtsBtn');
+    if (ttsBtn) {
+      ttsBtn.addEventListener('click', () => {
+        NovelTTS.toggle();
+      });
+    }
+
+    // TTS 语速滑块
+    const rateSlider = reader.querySelector('#ttsRateSlider');
+    if (rateSlider) {
+      rateSlider.addEventListener('input', () => {
+        const rate = parseFloat(rateSlider.value);
+        if (!Novel.settings.tts) Novel.settings.tts = {};
+        Novel.settings.tts.rate = rate;
+        reader.querySelector('#ttsRateValue').textContent = rate.toFixed(1) + 'x';
+        Novel.saveSettings();
+      });
+    }
+
+    // TTS 语音选择下拉
+    const voiceSelect = reader.querySelector('#ttsVoiceSelect');
+    if (voiceSelect) {
+      this._populateVoiceSelect(voiceSelect);
+      voiceSelect.addEventListener('change', () => {
+        if (!Novel.settings.tts) Novel.settings.tts = {};
+        Novel.settings.tts.voiceURI = voiceSelect.value;
+        Novel.saveSettings();
+      });
+    }
+  },
+
+  /**
+   * 填充语音选择下拉框
+   */
+  _populateVoiceSelect(select) {
+    select.innerHTML = '';
+    const voices = NovelTTS.chineseVoices.length > 0 ? NovelTTS.chineseVoices : NovelTTS.voices.slice(0, 10);
+    const savedURI = Novel.settings.tts && Novel.settings.tts.voiceURI;
+
+    if (voices.length === 0) {
+      select.innerHTML = '<option value="">加载中...</option>';
+      // 语音可能异步加载，延迟重试
+      setTimeout(() => this._populateVoiceSelect(select), 500);
+      return;
+    }
+
+    voices.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.voiceURI;
+      opt.textContent = v.name + (v.lang ? ` (${v.lang})` : '');
+      if (savedURI && v.voiceURI === savedURI) opt.selected = true;
+      select.appendChild(opt);
+    });
   },
 
   /**
@@ -383,6 +459,9 @@ const NovelRenderer = {
   async _switchChapter(book, chapter) {
     const reader = this._readerEl;
     if (!reader) return;
+
+    // 停止当前朗读
+    NovelTTS.stop();
 
     const chapterIndex = book.chapters.findIndex(c => c.id === chapter.id);
 

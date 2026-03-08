@@ -10,10 +10,23 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.4',
+  currentVersion: '2.3.5',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.5',
+      date: '2026-03-09 01:00',
+      title: '小说阅读器语音朗读',
+      changes: [
+        { type: 'feature', text: '新增语音朗读功能，使用浏览器内置 Web Speech API，零第三方依赖' },
+        { type: 'feature', text: '逐段朗读并高亮当前段落，自动滚动到阅读位置' },
+        { type: 'feature', text: '支持暂停/继续/停止控制，底栏一键操作' },
+        { type: 'feature', text: '设置面板支持语速调节和语音选择，偏好自动保存' },
+        { type: 'improve', text: '切换章节或关闭阅读器时自动停止朗读' }
+      ],
+      files: ['modules/novel/novel-tts.js', 'modules/novel/novel-renderer.js', 'modules/novel/novel-styles.js', 'modules/novel/novel.js', 'index.html']
+    },
     {
       version: '2.3.4',
       date: '2026-03-08 23:00',

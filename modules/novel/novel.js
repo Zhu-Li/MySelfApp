@@ -17,7 +17,12 @@ const Novel = {
   /** 阅读器设置缓存 */
   settings: {
     fontSize: 'medium',   // small | medium | large
-    theme: 'light'        // light | dark | eye
+    theme: 'light',       // light | dark | eye
+    tts: {
+      rate: 1.0,          // 语速 0.5 - 2.0
+      voiceURI: null,     // 语音标识
+      volume: 1.0         // 音量 0 - 1
+    }
   },
 
   /**
@@ -35,6 +40,9 @@ const Novel = {
         if (saved) {
           this.settings.fontSize = saved.fontSize || 'medium';
           this.settings.theme = saved.theme || 'light';
+          if (saved.tts) {
+            this.settings.tts = Object.assign(this.settings.tts, saved.tts);
+          }
         }
       } catch (e) {
         // 首次使用或数据库尚未升级，忽略
@@ -167,7 +175,8 @@ const Novel = {
       await Storage.setRaw('novelSettings', {
         id: 'readerSettings',
         fontSize: this.settings.fontSize,
-        theme: this.settings.theme
+        theme: this.settings.theme,
+        tts: this.settings.tts
       });
     } catch (e) {
       // 静默
