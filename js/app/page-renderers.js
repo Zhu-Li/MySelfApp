@@ -88,3 +88,20 @@ App.renderArcade = function() {
   const container = document.getElementById('mainContent');
   Arcade.render(container);
 };
+
+/**
+ * 渲染小说书架
+ */
+App.renderNovelBookList = async function() {
+  const container = document.getElementById('mainContent');
+  await Novel.renderBookList(container);
+};
+
+/**
+ * 渲染小说章节列表
+ * @param {string} bookId - 书籍ID
+ */
+App.renderNovelChapterList = async function(bookId) {
+  const container = document.getElementById('mainContent');
+  await Novel.renderChapterList(container, bookId);
+};

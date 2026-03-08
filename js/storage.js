@@ -5,7 +5,7 @@
 
 const Storage = {
   dbName: 'MySelfApp',
-  dbVersion: 2,
+  dbVersion: 3,
   db: null,
   cryptoKey: null,
   isInitialized: false,
@@ -16,7 +16,9 @@ const Storage = {
     tests: { keyPath: 'id', indexes: [{ name: 'type', keyPath: 'type' }, { name: 'timestamp', keyPath: 'timestamp' }] },
     diary: { keyPath: 'id', indexes: [{ name: 'date', keyPath: 'date' }] },
     profile: { keyPath: 'key' },
-    contacts: { keyPath: 'id', indexes: [{ name: 'name', keyPath: 'name' }, { name: 'importedAt', keyPath: 'importedAt' }] }
+    contacts: { keyPath: 'id', indexes: [{ name: 'name', keyPath: 'name' }, { name: 'importedAt', keyPath: 'importedAt' }] },
+    novelProgress: { keyPath: 'id' },
+    novelSettings: { keyPath: 'id' }
   },
 
   /**

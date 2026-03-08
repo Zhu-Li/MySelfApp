@@ -10,10 +10,26 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.2.1',
+  currentVersion: '2.3.0',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.3.0',
+      date: '2026-03-08 18:00',
+      title: '小说阅读模块上线',
+      changes: [
+        { type: 'feature', text: '新增小说阅读模块，支持在线阅读连载小说' },
+        { type: 'feature', text: '书架页展示所有书籍，显示阅读进度' },
+        { type: 'feature', text: '沉浸式阅读器：支持字体大小（小/中/大）、背景主题（明亮/暗黑/护眼）切换' },
+        { type: 'feature', text: '自动记录阅读进度，下次打开自动定位' },
+        { type: 'feature', text: '章节列表支持正序/倒序切换，上下章节快速跳转' },
+        { type: 'improve', text: '移动端底部导航重构：首页/关系/游戏/小说/更多' },
+        { type: 'improve', text: 'PC 端顶部导航新增「小说」入口' },
+        { type: 'improve', text: '数据导出新增小说阅读进度选项' }
+      ],
+      files: ['modules/novel/novel.js', 'modules/novel/novel-renderer.js', 'modules/novel/novel-styles.js', 'modules/novel/novels-data.js', 'scripts/generate-novel-data.js', 'index.html', 'js/storage.js', 'js/router.js', 'js/app/routes.js', 'js/app/page-renderers.js', 'js/datacard/export-options.js']
+    },
     {
       version: '2.2.1',
       date: '2026-03-04 00:00',

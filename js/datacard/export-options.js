@@ -16,6 +16,7 @@ DataCard.showExportOptionsDialog = async function() {
   const contacts = await Storage.getAllRaw('contacts') || [];
   const profile = await Storage.getProfile();
   const hasApiConfig = API.isConfigured();
+  const novelProgress = await Novel.getAllProgress();
   
   // 构建可选项
   const testTypes = {
@@ -135,6 +136,21 @@ DataCard.showExportOptionsDialog = async function() {
                 <div class="export-option-empty">未配置 API 密钥</div>
               `}
             </div>
+            
+            <!-- 小说阅读进度 -->
+            <div class="export-option-group">
+              <div class="export-option-group-title">📖 小说阅读进度</div>
+              ${novelProgress.length > 0 ? `
+                <label class="export-option-item">
+                  <input type="checkbox" name="export_novelProgress" value="novelProgress" checked>
+                  <span class="export-option-icon">🔖</span>
+                  <span class="export-option-name">阅读进度 (${novelProgress.length}本)</span>
+                  <span class="export-option-check">✓</span>
+                </label>
+              ` : `
+                <div class="export-option-empty">暂无阅读记录</div>
+              `}
+            </div>
           </div>
           
           <div class="export-options-actions">
@@ -177,8 +193,9 @@ DataCard.submitExportOptions = function() {
   const exportContacts = document.querySelector('#exportOptionsModal input[name="export_contacts"]:checked');
   const exportProfile = document.querySelector('#exportOptionsModal input[name="export_profile"]:checked');
   const exportApiConfig = document.querySelector('#exportOptionsModal input[name="export_apiConfig"]:checked');
+  const exportNovelProgress = document.querySelector('#exportOptionsModal input[name="export_novelProgress"]:checked');
   
-  if (selectedTests.length === 0 && !exportDiary && !exportContacts && !exportProfile && !exportApiConfig) {
+  if (selectedTests.length === 0 && !exportDiary && !exportContacts && !exportProfile && !exportApiConfig && !exportNovelProgress) {
     Utils.showToast('请至少选择一项导出内容', 'warning');
     return;
   }
@@ -188,7 +205,8 @@ DataCard.submitExportOptions = function() {
     diary: !!exportDiary,
     contacts: !!exportContacts,
     profile: !!exportProfile,
-    apiConfig: !!exportApiConfig
+    apiConfig: !!exportApiConfig,
+    novelProgress: !!exportNovelProgress
   };
   
   this.closeExportOptions(options);

@@ -204,6 +204,8 @@ const Router = {
       navKey = 'chat';
     } else if (path.startsWith('/arcade')) {
       navKey = 'arcade';
+    } else if (path.startsWith('/novel')) {
+      navKey = 'novel';
     } else if (path.startsWith('/settings')) {
       navKey = 'settings';
     }
@@ -214,7 +216,7 @@ const Router = {
     });
 
     // 移动端：如果当前页面属于"更多"菜单，同时激活"更多"按钮
-    const moreNavKeys = ['report', 'contacts', 'arcade', 'settings'];
+    const moreNavKeys = ['test', 'report', 'diary', 'chat', 'settings'];
     if (moreNavKeys.includes(navKey)) {
       document.querySelectorAll('[data-nav="more"]').forEach(el => {
         el.classList.add('active');
