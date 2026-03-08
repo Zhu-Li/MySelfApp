@@ -281,6 +281,48 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // API 路由：读取章节内容
+  // GET /api/novel/chapter?book=bookId&file=ch001.txt
+  if (req.url.startsWith('/api/novel/chapter')) {
+    const params = new URL(req.url, 'http://localhost').searchParams;
+    const bookId = params.get('book');
+    const filename = params.get('file');
+
+    if (!bookId || !filename) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '缺少 book 或 file 参数' }));
+      return;
+    }
+
+    // 安全检查：防止路径穿越
+    if (bookId.includes('..') || bookId.includes('/') || bookId.includes('\\') ||
+        filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '非法路径' }));
+      return;
+    }
+
+    const chapterPath = path.join(NOVEL_PUBLISH_DIR, bookId, filename);
+    fs.readFile(chapterPath, 'utf-8', (err, content) => {
+      if (err) {
+        if (err.code === 'ENOENT') {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: '章节文件不存在' }));
+        } else {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: err.message }));
+        }
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache'
+      });
+      res.end(content);
+    });
+    return;
+  }
+
   // 静态文件
   serveStatic(req, res);
 });

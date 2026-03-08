@@ -98,9 +98,19 @@ const Novel = {
   },
 
   /**
-   * 拉取章节文本
+   * 拉取章节文本（通过 API 读取，不直接访问 txt 文件）
    */
   async fetchChapter(book, chapter) {
+    // 优先：通过后台服务 API 读取章节内容
+    try {
+      const apiUrl = `http://localhost:3001/api/novel/chapter?book=${encodeURIComponent(book.id)}&file=${encodeURIComponent(chapter.filename)}`;
+      const resp = await fetch(apiUrl);
+      if (resp.ok) return await resp.text();
+    } catch (e) {
+      // API 不可用，尝试直接访问静态文件
+    }
+
+    // 回退：直接 fetch 静态 txt 文件
     const url = this.getChapterUrl(book, chapter);
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`加载失败 (${resp.status})`);
