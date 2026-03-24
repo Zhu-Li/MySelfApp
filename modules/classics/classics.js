@@ -27,7 +27,7 @@ const Classics = {
   async _loadCategories() {
     try {
       const resp = await fetch('/api/classics/categories');
-      if (resp.ok) {
+      if (resp.ok && (resp.headers.get('content-type') || '').includes('json')) {
         this._categoriesData = await resp.json();
         return;
       }
@@ -73,7 +73,7 @@ const Classics = {
 
     try {
       const resp = await fetch('/api/classics/catalog?category=' + encodeURIComponent(categoryId));
-      if (resp.ok) {
+      if (resp.ok && (resp.headers.get('content-type') || '').includes('json')) {
         const data = await resp.json();
         this._catalogCache[categoryId] = data;
         return data;

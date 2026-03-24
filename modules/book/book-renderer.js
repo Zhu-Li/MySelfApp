@@ -16,14 +16,16 @@ const BookRenderer = {
       <div class="page-container animate-fade-in">
         <div class="book-page">
           <div class="book-tabs">
-            <button class="book-tab-btn${tab === 'novel' ? ' active' : ''}" data-tab="novel">
-              <span class="book-tab-icon">📖</span>
-              <span>小说</span>
-            </button>
-            <button class="book-tab-btn${tab === 'classics' ? ' active' : ''}" data-tab="classics">
-              <span class="book-tab-icon">📜</span>
-              <span>古籍</span>
-            </button>
+            <div class="book-tabs-inner">
+              <button class="book-tab-btn${tab === 'novel' ? ' active' : ''}" data-tab="novel">
+                <span class="book-tab-icon">📖</span>
+                <span>小说</span>
+              </button>
+              <button class="book-tab-btn${tab === 'classics' ? ' active' : ''}" data-tab="classics">
+                <span class="book-tab-icon">📜</span>
+                <span>古籍</span>
+              </button>
+            </div>
           </div>
           <div class="book-tab-content" id="bookTabContent">
             <div class="book-loading">加载中...</div>

@@ -59,7 +59,7 @@ const Novel = {
     // 优先：调用 API（通过 Nginx 反向代理转发到 Node.js 服务）
     try {
       const resp = await fetch('/api/novel/refresh');
-      if (resp.ok) {
+      if (resp.ok && (resp.headers.get('content-type') || '').includes('json')) {
         this._data = await resp.json();
         return;
       }

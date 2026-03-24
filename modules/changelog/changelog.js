@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.4.0',
+  currentVersion: '2.4.1',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.4.1',
+      date: '2026-03-25',
+      title: '书籍模块修复与优化',
+      changes: [
+        { type: 'fix', text: 'API 容错：增加 Content-Type 校验，防止服务返回 HTML 时 JSON 解析失败' },
+        { type: 'fix', text: '修复古籍分类加载和小说书架在 API 异常时无法正确回退静态数据的问题' },
+        { type: 'improve', text: '书籍模块 Tab 切换改为分段控件风格，视觉体验更精致' }
+      ],
+      files: ['modules/classics/classics.js', 'modules/novel/novel.js', 'modules/book/book-styles.js', 'modules/book/book-renderer.js']
+    },
     {
       version: '2.4.0',
       date: '2026-03-24',

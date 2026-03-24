@@ -13,45 +13,60 @@ Book.addStyles = function() {
       margin: 0 auto;
     }
 
+    /* 分段控制器容器 */
     .book-tabs {
       display: flex;
       justify-content: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-md) var(--spacing-md) 0;
+      padding: var(--spacing-lg) var(--spacing-md) var(--spacing-sm);
       position: sticky;
       top: 0;
       z-index: 10;
       background: var(--bg-primary);
     }
 
+    .book-tabs-inner {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 3px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+      position: relative;
+    }
+
     .book-tab-btn {
+      position: relative;
+      z-index: 1;
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-sm) var(--spacing-xl);
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 28px;
       font-size: var(--font-size-sm);
       font-weight: 500;
       color: var(--text-secondary);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color-light);
-      border-radius: var(--radius-full);
+      background: transparent;
+      border: none;
+      border-radius: calc(var(--radius-lg) - 2px);
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: color 0.25s ease;
+      white-space: nowrap;
+      min-width: 100px;
     }
 
     .book-tab-btn:hover {
       color: var(--text-primary);
-      background: var(--bg-tertiary);
     }
 
     .book-tab-btn.active {
-      color: white;
-      background: var(--color-primary);
-      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: var(--bg-card);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      font-weight: 600;
     }
 
     .book-tab-icon {
-      font-size: 1rem;
+      font-size: 1.05rem;
+      line-height: 1;
     }
 
     .book-tab-content {
@@ -68,12 +83,13 @@ Book.addStyles = function() {
     /* 移动端适配 */
     @media (max-width: 640px) {
       .book-tabs {
-        padding: var(--spacing-sm) var(--spacing-sm) 0;
+        padding: var(--spacing-md) var(--spacing-sm) var(--spacing-xs);
       }
 
       .book-tab-btn {
-        padding: var(--spacing-xs) var(--spacing-lg);
+        padding: 7px 22px;
         font-size: var(--font-size-xs);
+        min-width: 80px;
       }
     }
   `;
