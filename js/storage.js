@@ -5,7 +5,7 @@
 
 const Storage = {
   dbName: 'MySelfApp',
-  dbVersion: 3,
+  dbVersion: 4,
   db: null,
   cryptoKey: null,
   isInitialized: false,
@@ -18,7 +18,8 @@ const Storage = {
     profile: { keyPath: 'key' },
     contacts: { keyPath: 'id', indexes: [{ name: 'name', keyPath: 'name' }, { name: 'importedAt', keyPath: 'importedAt' }] },
     novelProgress: { keyPath: 'id' },
-    novelSettings: { keyPath: 'id' }
+    novelSettings: { keyPath: 'id' },
+    classicsProgress: { keyPath: 'id' }
   },
 
   /**

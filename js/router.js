@@ -204,8 +204,8 @@ const Router = {
       navKey = 'chat';
     } else if (path.startsWith('/arcade')) {
       navKey = 'arcade';
-    } else if (path.startsWith('/novel')) {
-      navKey = 'novel';
+    } else if (path.startsWith('/novel') || path.startsWith('/book')) {
+      navKey = 'book';
     } else if (path.startsWith('/settings')) {
       navKey = 'settings';
     }

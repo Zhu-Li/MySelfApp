@@ -99,7 +99,9 @@ DataCard.importFromZip = async function(file) {
     `• 日记：${importData.diary?.length || 0} 篇\n` +
     `• 关系网联系人：${importData.contacts?.length || 0} 人\n` +
     `• 个人资料：${importData.profile ? '有' : '无'}\n` +
-    `• API 配置：${hasApiConfig ? '有' : '无'}\n\n` +
+    `• API 配置：${hasApiConfig ? '有' : '无'}\n` +
+    `• 小说阅读进度：${importData.novelProgress?.length || 0} 本\n` +
+    `• 古籍阅读进度：${importData.classicsProgress?.length || 0} 本\n\n` +
     `导入将覆盖现有数据，确认继续？`;
   
   const confirmed = await Utils.confirm(confirmMsg, '确认导入');
@@ -172,6 +174,22 @@ DataCard.importFromZip = async function(file) {
     // 重置验证缓存
     API.keyStatus = 'unknown';
     API.lastValidation = null;
+  }
+  
+  // 导入小说阅读进度
+  if (importData.novelProgress && Array.isArray(importData.novelProgress)) {
+    await Storage.clear('novelProgress');
+    for (const progress of importData.novelProgress) {
+      await Storage.setRaw('novelProgress', progress);
+    }
+  }
+  
+  // 导入古籍阅读进度
+  if (importData.classicsProgress && Array.isArray(importData.classicsProgress)) {
+    await Storage.clear('classicsProgress');
+    for (const progress of importData.classicsProgress) {
+      await Storage.setRaw('classicsProgress', progress);
+    }
   }
   
   Utils.hideLoading();

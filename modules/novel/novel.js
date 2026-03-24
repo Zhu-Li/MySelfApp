@@ -109,7 +109,14 @@ const Novel = {
    * 拉取章节文本（通过 API 读取，不直接访问 txt 文件）
    */
   async fetchChapter(book, chapter) {
-    // 优先：通过 API 读取章节内容（Nginx 代理转发）
+    // 古籍：通过古籍 API 读取
+    if (book._isClassic) {
+      const resp = await fetch('/api/classics/content?id=' + encodeURIComponent(book.id));
+      if (resp.ok) return await resp.text();
+      throw new Error('古籍加载失败 (' + resp.status + ')');
+    }
+
+    // 小说：优先通过 API 读取章节内容（Nginx 代理转发）
     try {
       const apiUrl = `/api/novel/chapter?book=${encodeURIComponent(book.id)}&file=${encodeURIComponent(chapter.filename)}`;
       const resp = await fetch(apiUrl);
@@ -132,6 +139,19 @@ const Novel = {
    */
   async saveProgress(bookId, chapterId, scrollPercent) {
     try {
+      // 古籍：保存到 classicsProgress 表
+      const book = this.currentBook;
+      if (book && book._isClassic) {
+        await Storage.setRaw('classicsProgress', {
+          id: bookId,
+          name: book.name || '',
+          category: book._classicCategory || '',
+          scrollPercent: scrollPercent || 0,
+          updatedAt: Date.now()
+        });
+        return;
+      }
+
       await Storage.setRaw('novelProgress', {
         id: bookId,
         chapterId,
@@ -229,11 +249,13 @@ const Novel = {
    */
   closeReader() {
     NovelRenderer.closeReader();
-    // 导航回章节列表
-    if (this.currentBook) {
-      window.location.hash = `#/novel/${this.currentBook.id}`;
+    // 导航回对应页面
+    if (this.currentBook && this.currentBook._isClassic) {
+      window.location.hash = '#/book';
+    } else if (this.currentBook) {
+      window.location.hash = `#/book/novel/${this.currentBook.id}`;
     } else {
-      window.location.hash = '#/novel';
+      window.location.hash = '#/book';
     }
   }
 };

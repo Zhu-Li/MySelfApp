@@ -10,10 +10,25 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.3.8',
+  currentVersion: '2.4.0',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.4.0',
+      date: '2026-03-24',
+      title: '古籍阅读模块上线，书籍模块统一入口',
+      changes: [
+        { type: 'feature', text: '新增古籍阅读模块，支持浏览 10 大分类、16000+ 古籍文献' },
+        { type: 'feature', text: '三级懒加载：分类概览 → 目录树 → 按需加载内容，节省带宽' },
+        { type: 'feature', text: '古籍复用小说沉浸式阅读器，支持字体/主题/朗读等全部功能' },
+        { type: 'feature', text: '分类面包屑导航，支持深层目录浏览和分页展示' },
+        { type: 'improve', text: '小说与古籍合并为「书籍」模块，Tab 切换统一入口' },
+        { type: 'improve', text: '数据导出新增古籍阅读进度选项' },
+        { type: 'improve', text: 'API 服务新增古籍内容流式读取端点，支持 7.3GB 源文件按需加载' }
+      ],
+      files: ['modules/classics/classics.js', 'modules/classics/classics-renderer.js', 'modules/classics/classics-styles.js', 'modules/book/book.js', 'modules/book/book-renderer.js', 'modules/book/book-styles.js', 'scripts/generate-classics-data.js', 'scripts/server.js', 'js/storage.js', 'js/router.js', 'js/app/routes.js', 'js/app/page-renderers.js', 'modules/novel/novel.js', 'modules/novel/novel-renderer.js', 'js/datacard/export-options.js', 'js/datacard.js', 'js/datacard/import-parser.js', 'index.html']
+    },
     {
       version: '2.3.8',
       date: '2026-03-08',

@@ -229,6 +229,16 @@ const DataCard = {
         selectedContacts = allContacts;
       }
       
+      // 获取阅读进度数据
+      let selectedNovelProgress = [];
+      if (exportOptions.novelProgress) {
+        selectedNovelProgress = await Novel.getAllProgress();
+      }
+      let selectedClassicsProgress = [];
+      if (exportOptions.classicsProgress) {
+        selectedClassicsProgress = await Classics.getAllProgress();
+      }
+      
       // 构建完整导出数据
       const exportData = {
         tests: selectedTests,
@@ -236,6 +246,8 @@ const DataCard = {
         contacts: selectedContacts,
         profile: exportOptions.profile ? profile : null,
         apiConfig: null,
+        novelProgress: selectedNovelProgress,
+        classicsProgress: selectedClassicsProgress,
         exportedAt: Date.now(),
         version: Changelog.currentVersion
       };

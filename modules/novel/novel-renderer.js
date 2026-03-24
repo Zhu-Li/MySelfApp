@@ -42,7 +42,7 @@ const NovelRenderer = {
     container.querySelectorAll('.novel-book-card').forEach(card => {
       card.addEventListener('click', () => {
         const bookId = card.dataset.bookId;
-        if (bookId) window.location.hash = `#/novel/${bookId}`;
+        if (bookId) window.location.hash = `#/book/novel/${bookId}`;
       });
     });
   },
@@ -137,7 +137,7 @@ const NovelRenderer = {
 
     // 绑定返回按钮
     document.getElementById('novelBackToShelf').addEventListener('click', () => {
-      window.location.hash = '#/novel';
+      window.location.hash = '#/book';
     });
 
     // 绑定排序按钮
@@ -254,6 +254,13 @@ const NovelRenderer = {
     `;
 
     document.body.appendChild(reader);
+
+    // 古籍：隐藏上下章按钮和进度（单文件无需章节导航）
+    if (book._isClassic) {
+      reader.querySelector('#readerPrevBtn').style.display = 'none';
+      reader.querySelector('#readerNextBtn').style.display = 'none';
+      reader.querySelector('#readerProgress').style.display = 'none';
+    }
 
     // 绑定事件
     this._bindReaderEvents(book, chapter, chapterIndex);

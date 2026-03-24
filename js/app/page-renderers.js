@@ -90,18 +90,48 @@ App.renderArcade = function() {
 };
 
 /**
- * 渲染小说书架
+ * 渲染书籍主页（Tab 切换小说/古籍）
  */
-App.renderNovelBookList = async function() {
+App.renderBook = async function() {
   const container = document.getElementById('mainContent');
-  await Novel.renderBookList(container);
+  await Book.renderMain(container);
 };
 
 /**
  * 渲染小说章节列表
  * @param {string} bookId - 书籍ID
  */
-App.renderNovelChapterList = async function(bookId) {
+App.renderNovelChapters = async function(bookId) {
   const container = document.getElementById('mainContent');
   await Novel.renderChapterList(container, bookId);
+};
+
+/**
+ * 渲染古籍分类浏览
+ */
+App.renderClassicsBrowse = async function() {
+  const container = document.getElementById('mainContent');
+  // 从 URL 查询参数获取分类和路径
+  const hash = window.location.hash;
+  const queryStr = hash.includes('?') ? hash.split('?')[1] : '';
+  const params = new URLSearchParams(queryStr);
+  const cat = params.get('cat');
+  const pathStr = params.get('path') || '';
+
+  if (cat) {
+    await Classics.renderBrowse(container, cat, pathStr);
+  } else {
+    // 没有指定分类，显示古籍 Tab
+    Book.currentTab = 'classics';
+    await Book.renderMain(container);
+  }
+};
+
+/**
+ * 渲染古籍阅读器
+ * @param {string} bookId - 古籍ID
+ */
+App.renderClassicsReader = async function(bookId) {
+  // 直接打开阅读器
+  await Classics.openReader(bookId);
 };

@@ -1,11 +1,13 @@
 /**
- * server.js - 观己小说 API 服务
+ * server.js - 观己书籍 API 服务
  * 静观己心，内外澄明
  * 
  * 功能：
  * 1. /api/novel/refresh - 小说数据增量同步接口
  *    进入小说模块时自动扫描源目录，增量拷贝新章节，返回最新书籍数据
- * 2. 静态文件服务（可选，IIS 部署时由 IIS 提供静态服务）
+ * 2. /api/classics/* - 古籍数据接口
+ *    分类列表、目录树、古籍内容读取
+ * 3. 静态文件服务（可选，IIS 部署时由 IIS 提供静态服务）
  * 
  * 部署方式：注册为 Windows 服务，后台持续运行
  * 用法：node server.js [端口号]
@@ -75,6 +77,27 @@ function ttsCacheGet(key) {
 }
 const NOVEL_SOURCE_DIR = 'D:\\Publish\\novel';
 const NOVEL_PUBLISH_DIR = path.join(STATIC_DIR, 'novel');
+
+// ============ 古籍配置 ============
+
+const CLASSICS_SOURCE_DIR = 'D:\\work\\古书籍';
+const CLASSICS_PUBLISH_DIR = path.join(STATIC_DIR, 'classics');
+
+// 古籍 bookId → 源文件相对路径映射（启动时加载）
+let classicsBookMap = {};
+
+function loadClassicsBookMap() {
+  const mapPath = path.join(CLASSICS_PUBLISH_DIR, 'book-map.json');
+  try {
+    if (fs.existsSync(mapPath)) {
+      classicsBookMap = JSON.parse(fs.readFileSync(mapPath, 'utf-8'));
+      console.log('[古籍] 已加载映射表: ' + Object.keys(classicsBookMap).length + ' 条');
+    }
+  } catch (e) {
+    console.warn('[古籍] 映射表加载失败:', e.message);
+    classicsBookMap = {};
+  }
+}
 
 // ============ MIME 类型 ============
 
@@ -513,19 +536,142 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ============ 古籍 API 路由 ============
+
+  // API 路由：古籍分类列表
+  // GET /api/classics/categories
+  if (req.url.startsWith('/api/classics/categories')) {
+    const indexPath = path.join(CLASSICS_PUBLISH_DIR, 'index.json');
+    fs.readFile(indexPath, 'utf-8', (err, data) => {
+      if (err) {
+        res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.code === 'ENOENT' ? '古籍数据未初始化' : err.message }));
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600'
+      });
+      res.end(data);
+    });
+    return;
+  }
+
+  // API 路由：古籍分类目录树
+  // GET /api/classics/catalog?category=佛藏
+  if (req.url.startsWith('/api/classics/catalog')) {
+    const params = new URL(req.url, 'http://localhost').searchParams;
+    const category = params.get('category');
+
+    if (!category) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '缺少 category 参数' }));
+      return;
+    }
+
+    if (category.includes('..') || category.includes('/') || category.includes('\\')) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '非法参数' }));
+      return;
+    }
+
+    const catalogPath = path.join(CLASSICS_PUBLISH_DIR, 'catalog', category + '.json');
+    fs.readFile(catalogPath, 'utf-8', (err, data) => {
+      if (err) {
+        res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.code === 'ENOENT' ? '分类不存在: ' + category : err.message }));
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600'
+      });
+      res.end(data);
+    });
+    return;
+  }
+
+  // API 路由：古籍内容读取（流式返回）
+  // GET /api/classics/content?id=xxx
+  if (req.url.startsWith('/api/classics/content')) {
+    const params = new URL(req.url, 'http://localhost').searchParams;
+    const bookId = params.get('id');
+
+    if (!bookId) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '缺少 id 参数' }));
+      return;
+    }
+
+    const relativePath = classicsBookMap[bookId];
+    if (!relativePath) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '古籍不存在: ' + bookId }));
+      return;
+    }
+
+    const filePath = path.join(CLASSICS_SOURCE_DIR, relativePath);
+    const resolved = path.resolve(filePath);
+    if (!resolved.startsWith(path.resolve(CLASSICS_SOURCE_DIR))) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '非法路径' }));
+      return;
+    }
+
+    const stream = fs.createReadStream(filePath, { encoding: 'utf-8' });
+    res.writeHead(200, {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'public, max-age=86400'
+    });
+    stream.pipe(res);
+    stream.on('error', (err) => {
+      if (!res.headersSent) {
+        res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.code === 'ENOENT' ? '文件不存在' : err.message }));
+      } else {
+        res.end();
+      }
+    });
+    return;
+  }
+
+  // API 路由：古籍数据刷新（手动触发）
+  // GET /api/classics/refresh
+  if (req.url.startsWith('/api/classics/refresh')) {
+    try {
+      const { execSync } = require('child_process');
+      const scriptPath = path.join(__dirname, 'generate-classics-data.js');
+      if (fs.existsSync(scriptPath)) {
+        execSync('node "' + scriptPath + '"', { timeout: 600000 });
+        loadClassicsBookMap();
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: true, bookCount: Object.keys(classicsBookMap).length }));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '生成脚本不存在' }));
+      }
+    } catch (e) {
+      console.error('[古籍刷新错误]', e.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // 静态文件
   serveStatic(req, res);
 });
 
 server.listen(PORT, () => {
+  loadClassicsBookMap();
   const ts = new Date().toLocaleString('zh-CN');
   console.log('');
   console.log('  ╔══════════════════════════════════════╗');
-  console.log('  ║   观己小说 API 服务已启动             ║');
+  console.log('  ║   观己书籍 API 服务已启动             ║');
   console.log('  ╠══════════════════════════════════════╣');
   console.log('  ║  API:  http://localhost:' + String(PORT).padEnd(5) + '         ║');
   console.log('  ║  小说: ' + NOVEL_SOURCE_DIR.substring(0, 28).padEnd(28) + '  ║');
-  console.log('  ║  发布: ' + NOVEL_PUBLISH_DIR.substring(0, 28).padEnd(28) + '  ║');
+  console.log('  ║  古籍: ' + CLASSICS_SOURCE_DIR.substring(0, 28).padEnd(28) + '  ║');
   console.log('  ╚══════════════════════════════════════╝');
   console.log('  启动时间: ' + ts);
   console.log('  API 端点:');
@@ -533,5 +679,10 @@ server.listen(PORT, () => {
   console.log('    GET /api/novel/chapter?book=&file=');
   console.log('    GET /api/novel/tts/voices');
   console.log('    GET /api/novel/tts?text=&voice=&rate=');
+  console.log('    GET /api/classics/categories');
+  console.log('    GET /api/classics/catalog?category=');
+  console.log('    GET /api/classics/content?id=');
+  console.log('    GET /api/classics/refresh');
+  console.log('');
   console.log('');
 });
