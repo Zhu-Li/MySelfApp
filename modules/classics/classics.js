@@ -125,6 +125,21 @@ const Classics = {
     }
   },
 
+  // ============ 搜索 ============
+
+  /**
+   * 搜索古籍（按名称模糊匹配）
+   * @param {string} query - 搜索关键词
+   * @returns {Promise<{results: Array, total: number}>}
+   */
+  async search(query) {
+    const resp = await fetch('/api/classics/search?q=' + encodeURIComponent(query) + '&limit=30');
+    if (resp.ok && (resp.headers.get('content-type') || '').includes('json')) {
+      return await resp.json();
+    }
+    return { results: [], total: 0 };
+  },
+
   // ============ 阅读进度 ============
 
   /**

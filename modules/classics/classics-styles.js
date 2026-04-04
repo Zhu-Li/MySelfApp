@@ -38,6 +38,162 @@ Classics.addStyles = function() {
       margin: 0;
     }
 
+    /* ============ 搜索 ============ */
+    .classics-search-wrapper {
+      position: relative;
+      max-width: 480px;
+      margin: var(--spacing-lg) auto var(--spacing-md);
+    }
+
+    .classics-search-box {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 10px var(--spacing-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color-light);
+      border-radius: 24px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .classics-search-box:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .classics-search-icon {
+      font-size: 1rem;
+      opacity: 0.5;
+      flex-shrink: 0;
+    }
+
+    .classics-search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      min-width: 0;
+    }
+
+    .classics-search-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .classics-search-clear {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 2px 4px;
+      border-radius: 50%;
+      transition: color 0.15s;
+    }
+
+    .classics-search-clear:hover {
+      color: var(--text-primary);
+    }
+
+    .classics-search-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border-color-light);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: classics-spin 0.6s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* 搜索结果面板 */
+    .classics-search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.12));
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 20;
+    }
+
+    .classics-search-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid var(--border-color-light);
+    }
+
+    .classics-search-item:last-child,
+    .classics-search-item:has(+ .classics-search-more) {
+      border-bottom: none;
+    }
+
+    .classics-search-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .classics-search-item:active {
+      background: var(--bg-secondary);
+    }
+
+    .classics-search-item-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .classics-search-item-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .classics-search-item-name {
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .classics-search-item-path {
+      font-size: var(--font-size-xs);
+      color: var(--text-tertiary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .classics-search-highlight {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--color-primary);
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    .classics-search-empty {
+      padding: var(--spacing-lg) var(--spacing-md);
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+    }
+
+    .classics-search-more {
+      padding: var(--spacing-sm) var(--spacing-md);
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: var(--font-size-xs);
+      border-top: 1px solid var(--border-color-light);
+    }
+
     .classics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -472,6 +628,15 @@ Classics.addStyles = function() {
 
     /* ============ 移动端适配 ============ */
     @media (max-width: 768px) {
+      .classics-search-wrapper {
+        max-width: none;
+        margin: var(--spacing-md) 0;
+      }
+
+      .classics-search-item {
+        padding: var(--spacing-md);
+      }
+
       .classics-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: var(--spacing-sm);

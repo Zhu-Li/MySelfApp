@@ -192,7 +192,18 @@ const NovelRenderer = {
       </div>
       <div class="novel-reader-content font-${Novel.settings.fontSize}" id="readerContent">
         <div class="novel-reader-content-inner" id="readerContentInner">
-          <div class="novel-reader-loading">加载中...</div>
+          <div class="novel-reader-loading">
+            <div class="novel-reader-loading-icon">📜</div>
+            <div class="novel-reader-loading-text">正在加载内容</div>
+            <div class="novel-reader-loading-skeleton">
+              <div class="novel-reader-loading-line" style="width:90%"></div>
+              <div class="novel-reader-loading-line" style="width:75%"></div>
+              <div class="novel-reader-loading-line" style="width:85%"></div>
+              <div class="novel-reader-loading-line" style="width:60%"></div>
+              <div class="novel-reader-loading-line" style="width:80%"></div>
+              <div class="novel-reader-loading-line" style="width:70%"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="novel-reader-bottombar" id="readerBottombar">
@@ -463,7 +474,7 @@ const NovelRenderer = {
    */
   async _loadChapterContent(book, chapter) {
     const inner = this._readerEl.querySelector('#readerContentInner');
-    inner.innerHTML = '<div class="novel-reader-loading">加载中...</div>';
+    inner.innerHTML = '<div class="novel-reader-loading"><div class="novel-reader-loading-icon">📜</div><div class="novel-reader-loading-text">正在加载内容</div><div class="novel-reader-loading-skeleton"><div class="novel-reader-loading-line" style="width:90%"></div><div class="novel-reader-loading-line" style="width:75%"></div><div class="novel-reader-loading-line" style="width:85%"></div><div class="novel-reader-loading-line" style="width:60%"></div><div class="novel-reader-loading-line" style="width:80%"></div><div class="novel-reader-loading-line" style="width:70%"></div></div></div>';
 
     try {
       const text = await Novel.fetchChapter(book, chapter);

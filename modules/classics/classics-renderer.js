@@ -33,6 +33,15 @@ const ClassicsRenderer = {
             <h1 class="classics-header-title">古籍典藏</h1>
             <p class="classics-header-desc">十大分类，${totalBooks.toLocaleString()} 部古典文献</p>
           </div>
+          <div class="classics-search-wrapper">
+            <div class="classics-search-box">
+              <span class="classics-search-icon">&#x1f50d;</span>
+              <input class="classics-search-input" id="classicsSearchInput" type="text" placeholder="搜索古籍名称..." autocomplete="off">
+              <span class="classics-search-clear" id="classicsSearchClear" style="display:none">&#x2715;</span>
+              <span class="classics-search-spinner" id="classicsSearchSpinner" style="display:none"></span>
+            </div>
+            <div class="classics-search-results" id="classicsSearchResults" style="display:none"></div>
+          </div>
           ${cardsHtml}
         </div>
       </div>
@@ -48,6 +57,9 @@ const ClassicsRenderer = {
         }
       });
     });
+
+    // 绑定搜索事件
+    this._bindSearchEvents(container);
   },
 
   /**
@@ -344,6 +356,135 @@ const ClassicsRenderer = {
         </div>
       </div>
     `;
+  },
+
+  // ============ 搜索功能 ============
+
+  /**
+   * 绑定搜索事件
+   */
+  _bindSearchEvents(container) {
+    const input = container.querySelector('#classicsSearchInput');
+    const clearBtn = container.querySelector('#classicsSearchClear');
+    const spinner = container.querySelector('#classicsSearchSpinner');
+    const resultsPanel = container.querySelector('#classicsSearchResults');
+    if (!input) return;
+
+    let debounceTimer = null;
+    let currentQuery = '';
+
+    // 输入事件（防抖 300ms）
+    input.addEventListener('input', () => {
+      const query = input.value.trim();
+      clearBtn.style.display = query ? '' : 'none';
+
+      clearTimeout(debounceTimer);
+      if (query.length < 2) {
+        resultsPanel.style.display = 'none';
+        spinner.style.display = 'none';
+        currentQuery = '';
+        return;
+      }
+
+      currentQuery = query;
+      spinner.style.display = '';
+      debounceTimer = setTimeout(async () => {
+        if (input.value.trim() !== currentQuery) return;
+        try {
+          const data = await Classics.search(currentQuery);
+          if (input.value.trim() !== currentQuery) return;
+          this._renderSearchResults(resultsPanel, data.results, data.total, currentQuery);
+          resultsPanel.style.display = '';
+        } catch (e) {
+          resultsPanel.innerHTML = '<div class="classics-search-empty">搜索失败，请重试</div>';
+          resultsPanel.style.display = '';
+        }
+        spinner.style.display = 'none';
+      }, 300);
+    });
+
+    // 清除按钮
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      clearBtn.style.display = 'none';
+      resultsPanel.style.display = 'none';
+      spinner.style.display = 'none';
+      currentQuery = '';
+      input.focus();
+    });
+
+    // 焦点恢复面板
+    input.addEventListener('focus', () => {
+      if (currentQuery && resultsPanel.innerHTML) {
+        resultsPanel.style.display = '';
+      }
+    });
+
+    // ESC 关闭面板
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        resultsPanel.style.display = 'none';
+        input.blur();
+      }
+    });
+
+    // 点击外部关闭面板
+    document.addEventListener('click', (e) => {
+      const wrapper = container.querySelector('.classics-search-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        resultsPanel.style.display = 'none';
+      }
+    });
+  },
+
+  /**
+   * 渲染搜索结果
+   */
+  _renderSearchResults(panel, results, total, query) {
+    if (!results || results.length === 0) {
+      panel.innerHTML = '<div class="classics-search-empty">未找到与 "' + Utils.escapeHtml(query) + '" 相关的古籍</div>';
+      return;
+    }
+
+    const itemsHtml = results.map(item => {
+      const nameHtml = this._highlightText(item.name, query);
+      const pathText = item.dir ? item.category + ' / ' + item.dir : item.category;
+      return `
+        <div class="classics-search-item" data-id="${Utils.escapeHtml(item.id)}" data-name="${Utils.escapeHtml(item.name)}" data-category="${Utils.escapeHtml(item.category)}">
+          <span class="classics-search-item-icon">📜</span>
+          <div class="classics-search-item-info">
+            <span class="classics-search-item-name">${nameHtml}</span>
+            <span class="classics-search-item-path">${Utils.escapeHtml(pathText)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const moreHtml = total > results.length
+      ? `<div class="classics-search-more">共 ${total} 条结果，已显示前 ${results.length} 条</div>`
+      : '';
+
+    panel.innerHTML = itemsHtml + moreHtml;
+
+    // 绑定结果项点击
+    panel.querySelectorAll('.classics-search-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const id = item.dataset.id;
+        const name = item.dataset.name;
+        const cat = item.dataset.category;
+        if (id) Classics.openReader(id, name, cat);
+      });
+    });
+  },
+
+  /**
+   * 高亮搜索关键词
+   */
+  _highlightText(text, query) {
+    const escaped = Utils.escapeHtml(text);
+    const queryEscaped = Utils.escapeHtml(query);
+    const regex = new RegExp('(' + queryEscaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return escaped.replace(regex, '<mark class="classics-search-highlight">$1</mark>');
   }
 };
 

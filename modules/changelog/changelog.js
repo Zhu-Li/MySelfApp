@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.4.5',
+  currentVersion: '2.5.0',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.5.0',
+      date: '2026-04-04',
+      title: '古籍模糊搜索 + 阅读加载动画',
+      changes: [
+        { type: 'feature', text: '新增古籍模糊搜索功能，支持按书名快速检索 16,487 部古籍' },
+        { type: 'feature', text: '搜索结果关键词高亮，显示分类路径，点击直接打开阅读' },
+        { type: 'improve', text: '阅读器内容加载升级为骨架屏动画，减少等待感知' }
+      ],
+      files: ['scripts/server.js', 'modules/classics/classics.js', 'modules/classics/classics-renderer.js', 'modules/classics/classics-styles.js', 'modules/novel/novel-renderer.js', 'modules/novel/novel-styles.js']
+    },
     {
       version: '2.4.5',
       date: '2026-04-04',

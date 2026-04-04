@@ -430,11 +430,53 @@ Novel.addStyles = function() {
     /* 加载状态 */
     .novel-reader-loading {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: var(--spacing-3xl);
-      opacity: 0.6;
-      font-size: var(--font-size-base);
+      padding: var(--spacing-3xl) var(--spacing-lg);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .novel-reader-loading-icon {
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-md);
+      animation: novel-reader-pulse 2s ease-in-out infinite;
+    }
+
+    .novel-reader-loading-text {
+      font-size: var(--font-size-sm);
+      color: var(--text-tertiary);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .novel-reader-loading-skeleton {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .novel-reader-loading-line {
+      height: 14px;
+      border-radius: 4px;
+      background: var(--bg-tertiary, rgba(0,0,0,0.06));
+      animation: novel-reader-shimmer 1.5s ease-in-out infinite;
+    }
+
+    .novel-reader-loading-line:nth-child(2) { animation-delay: 0.1s; }
+    .novel-reader-loading-line:nth-child(3) { animation-delay: 0.2s; }
+    .novel-reader-loading-line:nth-child(4) { animation-delay: 0.3s; }
+    .novel-reader-loading-line:nth-child(5) { animation-delay: 0.4s; }
+    .novel-reader-loading-line:nth-child(6) { animation-delay: 0.5s; }
+
+    @keyframes novel-reader-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    @keyframes novel-reader-shimmer {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
     }
 
     .novel-reader-error {

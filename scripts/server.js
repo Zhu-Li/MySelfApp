@@ -86,6 +86,8 @@ const CLASSICS_PUBLISH_DIR = path.join(STATIC_DIR, 'classics');
 
 // 古籍 bookId → 源文件相对路径映射（启动时加载）
 let classicsBookMap = {};
+// 古籍搜索索引（启动时从 bookMap 构建）
+let classicsSearchIndex = [];
 
 function loadClassicsBookMap() {
   const mapPath = path.join(CLASSICS_PUBLISH_DIR, 'book-map.json');
@@ -93,11 +95,26 @@ function loadClassicsBookMap() {
     if (fs.existsSync(mapPath)) {
       classicsBookMap = JSON.parse(fs.readFileSync(mapPath, 'utf-8'));
       console.log('[古籍] 已加载映射表: ' + Object.keys(classicsBookMap).length + ' 条');
+      buildClassicsSearchIndex();
     }
   } catch (e) {
     console.warn('[古籍] 映射表加载失败:', e.message);
     classicsBookMap = {};
+    classicsSearchIndex = [];
   }
+}
+
+function buildClassicsSearchIndex() {
+  classicsSearchIndex = [];
+  for (const [id, relativePath] of Object.entries(classicsBookMap)) {
+    const parts = relativePath.replace(/\\/g, '/').split('/');
+    const filename = parts[parts.length - 1];
+    const name = filename.replace(/\.txt$/i, '');
+    const category = parts[0] || '';
+    const dir = parts.length > 2 ? parts.slice(1, -1).join('/') : '';
+    classicsSearchIndex.push({ id, name, category, dir });
+  }
+  console.log('[古籍] 搜索索引已构建: ' + classicsSearchIndex.length + ' 条');
 }
 
 // ============ MIME 类型 ============
@@ -641,6 +658,41 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // API 路由：古籍搜索
+  // GET /api/classics/search?q=关键词&limit=30
+  if (req.url.startsWith('/api/classics/search')) {
+    const params = new URL(req.url, 'http://localhost').searchParams;
+    const query = (params.get('q') || '').trim().toLowerCase();
+    const limit = Math.min(parseInt(params.get('limit'), 10) || 30, 100);
+
+    if (!query || query.length < 1) {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ results: [], total: 0 }));
+      return;
+    }
+
+    const exact = [], prefix = [], contains = [];
+    for (const item of classicsSearchIndex) {
+      const nameLower = item.name.toLowerCase();
+      if (nameLower === query) {
+        exact.push(item);
+      } else if (nameLower.startsWith(query)) {
+        prefix.push(item);
+      } else if (nameLower.includes(query)) {
+        contains.push(item);
+      }
+    }
+
+    const all = exact.concat(prefix, contains);
+    const results = all.slice(0, limit);
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-cache'
+    });
+    res.end(JSON.stringify({ results, total: all.length }));
+    return;
+  }
+
   // API 路由：古籍数据刷新（手动触发）
   // GET /api/classics/refresh
   if (req.url.startsWith('/api/classics/refresh')) {
@@ -688,6 +740,7 @@ server.listen(PORT, () => {
   console.log('    GET /api/classics/categories');
   console.log('    GET /api/classics/catalog?category=');
   console.log('    GET /api/classics/content?id=');
+  console.log('    GET /api/classics/search?q=');
   console.log('    GET /api/classics/refresh');
   console.log('');
   console.log('');
