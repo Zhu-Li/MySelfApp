@@ -207,13 +207,20 @@ function refreshNovels() {
 
     const chapters = [];
 
-    for (let i = 0; i < txtFiles.length; i++) {
-      const filename = txtFiles[i];
+    // 先解析所有文件，按章节号排序
+    const parsedFiles = txtFiles.map((filename, i) => {
       const parsed = parseChapterFilename(filename);
-      const chapterNum = parsed.number || (i + 1);
-      const safeFilename = 'ch' + String(chapterNum).padStart(3, '0') + '.txt';
+      return { srcFile: filename, parsedNum: parsed.number || (i + 1), title: parsed.title };
+    });
+    parsedFiles.sort((a, b) => a.parsedNum - b.parsedNum || a.srcFile.localeCompare(b.srcFile));
 
-      const srcPath = path.join(bookDir, filename);
+    // 按顺序分配编号，避免重复
+    for (let i = 0; i < parsedFiles.length; i++) {
+      const pf = parsedFiles[i];
+      const seqNum = i + 1;
+      const safeFilename = 'ch' + String(seqNum).padStart(3, '0') + '.txt';
+
+      const srcPath = path.join(bookDir, pf.srcFile);
       const destPath = path.join(bookPublishDir, safeFilename);
 
       // 增量判断：目标不存在 或 源文件更新/大小不同 → 拷贝
@@ -236,14 +243,12 @@ function refreshNovels() {
       }
 
       chapters.push({
-        id: 'ch' + String(chapterNum).padStart(3, '0'),
-        number: chapterNum,
-        title: parsed.title,
+        id: 'ch' + String(seqNum).padStart(3, '0'),
+        number: seqNum,
+        title: pf.title,
         filename: safeFilename
       });
     }
-
-    chapters.sort((a, b) => a.number - b.number);
 
     newBooks.push({
       id: bookId,

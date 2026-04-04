@@ -103,23 +103,31 @@ function scanAndCopyNovels() {
 
     const chapters = txtFiles.map((filename, index) => {
       const parsed = parseChapterFilename(filename);
-      const chapterNum = parsed.number || (index + 1);
-      const safeFilename = 'ch' + String(chapterNum).padStart(3, '0') + '.txt';
-
-      // 拷贝文件到发布目录（ASCII文件名）
-      const srcPath = path.join(bookDir, filename);
-      const destPath = path.join(bookPublishDir, safeFilename);
-      fs.copyFileSync(srcPath, destPath);
-
       return {
-        id: 'ch' + String(chapterNum).padStart(3, '0'),
-        number: chapterNum,
-        title: parsed.title,
-        filename: safeFilename
+        _srcFile: filename,
+        _parsedNum: parsed.number || (index + 1),
+        title: parsed.title
       };
     });
 
-    chapters.sort((a, b) => a.number - b.number);
+    // 按解析的章节号排序，相同章节号按文件名排序
+    chapters.sort((a, b) => a._parsedNum - b._parsedNum || a._srcFile.localeCompare(b._srcFile));
+
+    // 按顺序分配编号（1, 2, 3...），避免重复
+    chapters.forEach((ch, index) => {
+      const seqNum = index + 1;
+      const safeFilename = 'ch' + String(seqNum).padStart(3, '0') + '.txt';
+
+      const srcPath = path.join(bookDir, ch._srcFile);
+      const destPath = path.join(bookPublishDir, safeFilename);
+      fs.copyFileSync(srcPath, destPath);
+
+      ch.id = 'ch' + String(seqNum).padStart(3, '0');
+      ch.number = seqNum;
+      ch.filename = safeFilename;
+      delete ch._srcFile;
+      delete ch._parsedNum;
+    });
 
     const book = {
       id: bookId,

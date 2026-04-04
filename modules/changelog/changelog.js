@@ -10,10 +10,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.4.2',
+  currentVersion: '2.4.3',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.4.3',
+      date: '2026-04-04',
+      title: '小说章节数据修复',
+      changes: [
+        { type: 'fix', text: '修复小说源文件存在重复章节号时，生成的章节数与实际文件数不一致的问题' },
+        { type: 'improve', text: '章节编号改为按排序后顺序分配，避免重复章节号导致文件覆盖' }
+      ],
+      files: ['scripts/generate-novel-data.js', 'scripts/server.js']
+    },
     {
       version: '2.4.2',
       date: '2026-04-04',
