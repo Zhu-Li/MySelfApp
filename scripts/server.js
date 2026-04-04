@@ -7,11 +7,12 @@
  *    进入小说模块时自动扫描源目录，增量拷贝新章节，返回最新书籍数据
  * 2. /api/classics/* - 古籍数据接口
  *    分类列表、目录树、古籍内容读取
- * 3. 静态文件服务（可选，IIS 部署时由 IIS 提供静态服务）
+ * 3. 静态文件服务（直接提供 HTML/CSS/JS/JSON 等静态资源）
  * 
- * 部署方式：注册为 Windows 服务，后台持续运行
+ * 部署方式：注册为 Windows 服务（GuanJiNovelAPI），监听 80 端口
+ * 作为唯一的 Web 服务入口，同时提供 API 和静态文件
  * 用法：node server.js [端口号]
- * 默认端口：3001
+ * 默认端口：80
  */
 
 const http = require('http');
@@ -22,7 +23,7 @@ const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
 
 // ============ 配置 ============
 
-const PORT = parseInt(process.argv[2], 10) || 3001;
+const PORT = parseInt(process.argv[2], 10) || 80;
 const STATIC_DIR = 'D:\\Publish\\MySelf-App\\Home';
 
 // ============ TTS 配置 ============

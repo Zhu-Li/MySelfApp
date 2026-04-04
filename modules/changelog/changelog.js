@@ -10,10 +10,21 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.4.1',
+  currentVersion: '2.4.2',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.4.2',
+      date: '2026-04-04',
+      title: '服务架构简化：单服务统一部署',
+      changes: [
+        { type: 'improve', text: 'Node.js 服务统一监听 80 端口，同时提供 API 和静态文件，无需 Nginx/IIS' },
+        { type: 'improve', text: '移除 Nginx 反向代理依赖，简化部署架构为单一 Windows 服务' },
+        { type: 'fix', text: '修复 novel/index.json 在 IIS 下 404 的问题（改由 Node.js 直接服务）' }
+      ],
+      files: ['scripts/server.js', 'scripts/install-service.ps1', 'scripts/start.bat']
+    },
     {
       version: '2.4.1',
       date: '2026-03-25',

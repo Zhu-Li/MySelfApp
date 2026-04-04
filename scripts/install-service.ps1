@@ -16,9 +16,9 @@ param(
 # ============ 配置 ============
 
 $ServiceName = "GuanJiNovelAPI"
-$ServiceDisplayName = "观己小说API服务"
-$ServiceDescription = "观己应用小说模块后台API服务，提供小说数据增量同步接口"
-$ServicePort = 3001
+$ServiceDisplayName = "观己书籍API服务"
+$ServiceDescription = "观己应用后台API服务，提供书籍数据同步、古籍阅读、TTS语音等接口"
+$ServicePort = 80
 $NodeExe = "C:\Program Files\nodejs\node.exe"
 $ServerScript = "D:\Publish\MySelf-App\server.js"
 $NssmDir = "D:\Publish\MySelf-App\tools"
