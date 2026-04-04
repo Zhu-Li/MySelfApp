@@ -10,10 +10,19 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.4.4',
+  currentVersion: '2.4.5',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.4.5',
+      date: '2026-04-04',
+      title: '古籍阅读器返回导航修复',
+      changes: [
+        { type: 'fix', text: '修复古籍阅读器"返回"按钮直接跳回书籍首页，现在正确返回上一级目录' }
+      ],
+      files: ['modules/classics/classics.js', 'modules/novel/novel.js']
+    },
     {
       version: '2.4.4',
       date: '2026-04-04',

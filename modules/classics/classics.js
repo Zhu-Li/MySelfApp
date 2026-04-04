@@ -200,7 +200,8 @@ const Classics = {
         filename: null
       }],
       _isClassic: true,
-      _classicCategory: categoryName || ''
+      _classicCategory: categoryName || '',
+      _returnHash: window.location.hash || '#/book'
     };
 
     Novel.addStyles();

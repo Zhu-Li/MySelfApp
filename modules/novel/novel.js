@@ -251,7 +251,7 @@ const Novel = {
     NovelRenderer.closeReader();
     // 导航回对应页面
     if (this.currentBook && this.currentBook._isClassic) {
-      window.location.hash = '#/book';
+      window.location.hash = this.currentBook._returnHash || '#/book';
     } else if (this.currentBook) {
       window.location.hash = `#/book/novel/${this.currentBook.id}`;
     } else {
