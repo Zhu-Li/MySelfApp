@@ -10,10 +10,20 @@
 
 const Changelog = {
   // 当前版本
-  currentVersion: '2.4.3',
+  currentVersion: '2.4.4',
 
   // 版本历史记录（完整记录，用于内部逻辑）
   versions: [
+    {
+      version: '2.4.4',
+      date: '2026-04-04',
+      title: '古籍模块加载体验优化',
+      changes: [
+        { type: 'improve', text: '分类点击、子目录进入、书籍打开时显示加载状态反馈，消除点击无响应感' },
+        { type: 'improve', text: '浏览页数据加载期间显示骨架屏占位，视觉过渡更流畅' }
+      ],
+      files: ['modules/classics/classics-renderer.js', 'modules/classics/classics-styles.js']
+    },
     {
       version: '2.4.3',
       date: '2026-04-04',

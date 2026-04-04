@@ -42,7 +42,10 @@ const ClassicsRenderer = {
     container.querySelectorAll('.classics-category-card').forEach(card => {
       card.addEventListener('click', () => {
         const catId = card.dataset.categoryId;
-        if (catId) window.location.hash = '#/book/classics?cat=' + encodeURIComponent(catId);
+        if (catId) {
+          card.classList.add('is-loading');
+          window.location.hash = '#/book/classics?cat=' + encodeURIComponent(catId);
+        }
       });
     });
   },
@@ -69,6 +72,9 @@ const ClassicsRenderer = {
    * 渲染分类浏览（子目录 + 书籍列表）
    */
   async renderBrowse(container, categoryId, pathStr) {
+    // 立即显示骨架屏
+    container.innerHTML = this._renderSkeleton(categoryId);
+
     // 加载分类目录树
     const catalog = await Classics.loadCatalog(categoryId);
     if (!catalog) {
@@ -148,6 +154,7 @@ const ClassicsRenderer = {
     container.querySelectorAll('.classics-dir-card').forEach(card => {
       card.addEventListener('click', () => {
         const p = card.dataset.path;
+        card.classList.add('is-loading');
         window.location.hash = '#/book/classics?cat=' + encodeURIComponent(categoryId) + '&path=' + encodeURIComponent(p);
       });
     });
@@ -244,7 +251,10 @@ const ClassicsRenderer = {
         const bookId = item.dataset.bookId;
         const bookName = item.dataset.bookName;
         const cat = item.dataset.category;
-        if (bookId) Classics.openReader(bookId, bookName, cat);
+        if (bookId) {
+          item.classList.add('is-loading');
+          Classics.openReader(bookId, bookName, cat);
+        }
       });
     });
 
@@ -279,6 +289,7 @@ const ClassicsRenderer = {
             <button class="classics-book-read-btn">阅读</button>
           `;
           div.addEventListener('click', () => {
+            div.classList.add('is-loading');
             Classics.openReader(book.id, book.name, categoryId);
           });
           list.appendChild(div);
@@ -294,6 +305,45 @@ const ClassicsRenderer = {
         }
       });
     }
+  },
+
+  /**
+   * 渲染骨架屏（数据加载前的占位）
+   */
+  _renderSkeleton(categoryId) {
+    return `
+      <div class="page-container animate-fade-in">
+        <div class="classics-skeleton">
+          <div class="classics-skeleton-breadcrumb">
+            <span class="classics-skeleton-crumb" style="width:40px"></span>
+            <span class="classics-skeleton-crumb" style="width:30px"></span>
+            <span class="classics-skeleton-crumb" style="width:${Math.min(categoryId.length * 14, 80)}px"></span>
+          </div>
+          <div class="classics-skeleton-header">
+            <div class="classics-skeleton-title"></div>
+            <div class="classics-skeleton-subtitle"></div>
+          </div>
+          <div class="classics-skeleton-grid">
+            <div class="classics-skeleton-card"></div>
+            <div class="classics-skeleton-card"></div>
+            <div class="classics-skeleton-card"></div>
+            <div class="classics-skeleton-card"></div>
+            <div class="classics-skeleton-card"></div>
+            <div class="classics-skeleton-card"></div>
+          </div>
+          <div class="classics-skeleton-list">
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+            <div class="classics-skeleton-row"></div>
+          </div>
+        </div>
+      </div>
+    `;
   }
 };
 

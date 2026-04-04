@@ -309,6 +309,167 @@ Classics.addStyles = function() {
       color: var(--text-tertiary);
     }
 
+    /* ============ 加载状态 ============ */
+
+    /* 分类卡片加载中 */
+    .classics-category-card.is-loading {
+      pointer-events: none;
+      position: relative;
+      opacity: 0.7;
+    }
+
+    .classics-category-card.is-loading::after {
+      content: '';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      margin-top: -9px;
+      border: 2px solid var(--border-color-light);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: classics-spin 0.6s linear infinite;
+    }
+
+    @keyframes classics-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 骨架屏 */
+    .classics-skeleton {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--spacing-md);
+    }
+
+    .classics-skeleton-breadcrumb {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .classics-skeleton-crumb {
+      height: 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      animation: classics-shimmer 1.5s ease-in-out infinite;
+    }
+
+    .classics-skeleton-header {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .classics-skeleton-title {
+      height: 24px;
+      width: 180px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      margin-bottom: var(--spacing-sm);
+      animation: classics-shimmer 1.5s ease-in-out infinite;
+    }
+
+    .classics-skeleton-subtitle {
+      height: 14px;
+      width: 120px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      animation: classics-shimmer 1.5s ease-in-out infinite;
+      animation-delay: 0.1s;
+    }
+
+    .classics-skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .classics-skeleton-card {
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      animation: classics-shimmer 1.5s ease-in-out infinite;
+    }
+
+    .classics-skeleton-card:nth-child(2) { animation-delay: 0.1s; }
+    .classics-skeleton-card:nth-child(3) { animation-delay: 0.2s; }
+    .classics-skeleton-card:nth-child(4) { animation-delay: 0.3s; }
+    .classics-skeleton-card:nth-child(5) { animation-delay: 0.4s; }
+    .classics-skeleton-card:nth-child(6) { animation-delay: 0.5s; }
+
+    .classics-skeleton-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+
+    .classics-skeleton-row {
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      animation: classics-shimmer 1.5s ease-in-out infinite;
+    }
+
+    .classics-skeleton-row:nth-child(2) { animation-delay: 0.08s; }
+    .classics-skeleton-row:nth-child(3) { animation-delay: 0.16s; }
+    .classics-skeleton-row:nth-child(4) { animation-delay: 0.24s; }
+    .classics-skeleton-row:nth-child(5) { animation-delay: 0.32s; }
+    .classics-skeleton-row:nth-child(6) { animation-delay: 0.40s; }
+    .classics-skeleton-row:nth-child(7) { animation-delay: 0.48s; }
+    .classics-skeleton-row:nth-child(8) { animation-delay: 0.56s; }
+
+    @keyframes classics-shimmer {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* 书籍项加载中 */
+    .classics-book-item.is-loading {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .classics-book-item.is-loading .classics-book-read-btn {
+      position: relative;
+      color: transparent;
+    }
+
+    .classics-book-item.is-loading .classics-book-read-btn::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin: -7px 0 0 -7px;
+      border: 2px solid var(--border-color-light);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: classics-spin 0.6s linear infinite;
+    }
+
+    /* 子目录卡片加载中 */
+    .classics-dir-card.is-loading {
+      pointer-events: none;
+      opacity: 0.7;
+      position: relative;
+    }
+
+    .classics-dir-card.is-loading::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin-top: -7px;
+      border: 2px solid var(--border-color-light);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: classics-spin 0.6s linear infinite;
+    }
+
     /* ============ 移动端适配 ============ */
     @media (max-width: 768px) {
       .classics-grid {
